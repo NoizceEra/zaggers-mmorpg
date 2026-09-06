@@ -14,16 +14,19 @@
     /* RO Style HUD Overlay */
     .hud-panel { position: absolute; background: rgba(18, 22, 32, 0.88); border: 2px solid #4a5573; border-radius: 6px; padding: 8px; font-size: 13px; backdrop-filter: blur(4px); pointer-events: auto; }
     #status-window { top: 12px; left: 12px; width: 220px; }
-    .bar-container { background: #101218; height: 14px; border-radius: 3px; border: 1px solid #303648; margin: 4px 0; overflow: hidden; position: relative; }
+    .bar-container { background: #101218; height: 14px; border-radius: 3px; border: 1px solid #303648; margin: 4px 0; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.04); }
     .bar-fill { height: 100%; transition: width 0.2s; }
-    #hp-bar { background: linear-gradient(90deg, #e53935, #ff5252); }
-    #sp-bar { background: linear-gradient(90deg, #1e88e5, #42a5f5); }
+    #hp-bar { background: linear-gradient(90deg, #e53935, #ff5252); box-shadow: 0 0 8px rgba(255,82,82,0.6), inset 0 1px 0 rgba(255,255,255,0.25); }
+    #sp-bar { background: linear-gradient(90deg, #1e88e5, #42a5f5); box-shadow: 0 0 8px rgba(66,165,245,0.6), inset 0 1px 0 rgba(255,255,255,0.25); }
+    /* Brief brightness pulse when a bar drops (see updateHUD()/flashBar() - GRAPHICS_UPGRADE_REPORT.md) */
+    @keyframes bar-hit-pulse { 0% { filter: brightness(2.1); } 100% { filter: brightness(1); } }
+    .bar-fill.bar-pulse { animation: bar-hit-pulse 0.4s ease-out; }
     .bar-text { position: absolute; width: 100%; text-align: center; font-size: 10px; font-weight: bold; top: 0; line-height: 14px; text-shadow: 1px 1px 2px #000; }
-    
+
     /* Minimap HUD Panel */
-    #minimap-container { top: 12px; right: 12px; width: 144px; text-align: center; }
-    #minimap-zone-title { font-size: 11px; font-weight: bold; color: #ffe082; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #minimap-canvas { width: 128px; height: 128px; border: 1px solid #3d4a68; border-radius: 4px; background: #0c0e14; display: block; margin: 0 auto; }
+    #minimap-container { top: 12px; right: 12px; width: 144px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.55); }
+    #minimap-zone-title { font-size: 11px; font-weight: bold; color: #ffe082; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 0 6px rgba(255,224,130,0.35); }
+    #minimap-canvas { width: 128px; height: 128px; border: 1px solid #3d4a68; border-radius: 4px; background: #0c0e14; display: block; margin: 0 auto; box-shadow: 0 0 10px rgba(74,90,130,0.5), inset 0 0 14px rgba(0,0,0,0.65); }
 
     /* Chat Overlay */
     #chat-window { bottom: 12px; left: 12px; width: 320px; height: 140px; display: flex; flex-direction: column; }
@@ -95,8 +98,8 @@
     .inv-actions { display: flex; gap: 4px; flex-shrink: 0; }
     .combat-stats-line { font-size: 11px; color: #b0bec5; margin-top: 8px; line-height: 1.45; }
     #skill-hotbar { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 80; pointer-events: auto; }
-    .hotbar-slot { width: 48px; height: 48px; background: rgba(14,18,26,0.92); border: 2px solid #4a5573; border-radius: 6px; position: relative; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.45); }
-    .hotbar-slot:hover { border-color: #ffd54f; }
+    .hotbar-slot { width: 48px; height: 48px; background: linear-gradient(160deg, rgba(32,38,54,0.94), rgba(10,13,20,0.94)); border: 2px solid #4a5573; border-radius: 6px; position: relative; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03); transition: box-shadow 0.15s, border-color 0.15s; }
+    .hotbar-slot:hover { border-color: #ffd54f; box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 8px rgba(255,213,79,0.35); }
     .hotbar-slot .hb-key { position: absolute; top: 2px; left: 3px; font-size: 9px; color: #ffe082; font-weight: bold; z-index: 2; }
     .hotbar-slot .hb-name { position: absolute; inset: 14px 2px 2px; font-size: 9px; text-align: center; color: #e3eaf5; line-height: 1.1; display: flex; align-items: center; justify-content: center; padding: 0 2px; }
     .hotbar-slot .hb-cd { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(10,14,22,0.72); z-index: 1; pointer-events: none; }
@@ -660,6 +663,7 @@
     m.hp = Math.max(0, m.hp - result.dmg);
     m.hitFlashTimer = HIT_FLASH_DURATION;
     pushDamageFloat(m, result);
+    spawnSkillImpact(m.wx, m.wy, getElementColor(result.atkEl));
     if (m.hp === 0) {
       grantKillRewards(m);
       m.dying = true;
@@ -707,6 +711,172 @@
   function pseudoPhase(wx, wy) {
     const v = Math.sin(wx * 12.9898 + wy * 78.233) * 43758.5453;
     return (v - Math.floor(v)) * Math.PI * 2;
+  }
+
+  // ==========================================
+  // Graphics Upgrade Pass (see vault/GRAPHICS_UPGRADE_REPORT.md)
+  // Per-zone atmosphere tint, ambient particles, elemental impact bursts,
+  // and a screen vignette. All additive/cheap (a handful of gradient/fillRect
+  // calls + a capped particle pool) and gated behind GFX flags so a future
+  // "low graphics mode" toggle only needs to flip these booleans/caps.
+  // ==========================================
+  const GFX = {
+    ambientTint: true,   // per-zone color-grade overlay
+    particles: true,     // ambient zone particles + skill impact bursts
+    vignette: true,      // screen-edge darkening
+    lowGraphics: false    // halves particle caps when true; future settings UI hook
+  };
+  window.ZaggersGraphics = GFX;
+  window.setLowGraphicsMode = function (on) { GFX.lowGraphics = !!on; };
+
+  // Lore atmosphere per vault/WORLD_LORE.md: warm sunlight (Meadows), cool
+  // damp bioluminescent teal (Sanctum), fiery crimson/ash (Spire), icy
+  // blue-white mist (Chasm), eerie purple twilight (Rootways/Baphomet realm),
+  // neutral for the Aethelgard/Gatewatch town hubs. `blend` picks the cheap
+  // composite mode that reads best without washing out sprite colors -
+  // 'multiply' for the darker/cooler realms, plain low-alpha layering for
+  // the warm daylight zones.
+  const ZONE_ATMOSPHERE = {
+    aethelgard: { tint: null, particles: null },
+    gatewatch: { tint: { color: '255,224,178', alpha: 0.05, blend: 'source-over' }, particles: null },
+    meadows: { tint: { color: '255,238,170', alpha: 0.10, blend: 'source-over' }, particles: 'pollen' },
+    sanctum: { tint: { color: '30,110,120', alpha: 0.22, blend: 'multiply' }, particles: 'motes' },
+    spire: { tint: { color: '160,40,20', alpha: 0.20, blend: 'multiply' }, particles: 'ash' },
+    chasm: { tint: { color: '150,195,255', alpha: 0.20, blend: 'multiply' }, particles: 'snow' },
+    rootways: { tint: { color: '80,25,105', alpha: 0.30, blend: 'multiply' }, particles: 'rootmotes' }
+  };
+
+  const AMBIENT_PARTICLE_CAP = 36; // "a few dozen" per zone (halved under lowGraphics)
+  const IMPACT_PARTICLE_CAP = 48;  // cap across all in-flight skill-hit bursts
+  let ambientParticles = [];
+  let ambientParticleType = null;
+  const impactParticles = [];
+
+  function currentAmbientCap() {
+    return GFX.lowGraphics ? Math.floor(AMBIENT_PARTICLE_CAP / 2) : AMBIENT_PARTICLE_CAP;
+  }
+
+  function spawnAmbientParticle(type) {
+    const w = canvas.width, h = canvas.height;
+    const base = { x: Math.random() * w, y: Math.random() * h, phase: Math.random() * Math.PI * 2, age: 0, type };
+    switch (type) {
+      case 'pollen': // Whispering Meadows: warm drifting pollen/dust motes
+        return Object.assign(base, { vx: (Math.random() - 0.5) * 0.15, vy: -0.06 - Math.random() * 0.08, size: 1 + Math.random() * 1.3, color: '#e8dd8f', alpha: 0.55, maxAge: 500 + Math.random() * 300 });
+      case 'motes': // Sunken Sanctum: bioluminescent turquoise floating motes
+        return Object.assign(base, { vx: (Math.random() - 0.5) * 0.08, vy: -0.05 - Math.random() * 0.06, size: 1.4 + Math.random() * 1.7, color: '#5be8d8', alpha: 0.65, maxAge: 600 + Math.random() * 300 });
+      case 'ash': // Obsidian Spire: falling ash/ember motes
+        return Object.assign(base, { y: -Math.random() * h * 0.4, vx: (Math.random() - 0.5) * 0.25, vy: 0.25 + Math.random() * 0.35, size: 1.2 + Math.random() * 1.6, color: Math.random() < 0.55 ? '#8f8f8f' : '#ff8a50', alpha: 0.65, maxAge: 350 + Math.random() * 250 });
+      case 'snow': // Glacial Chasm: drifting snow
+        return Object.assign(base, { y: -Math.random() * h * 0.4, vx: (Math.random() - 0.5) * 0.15, vy: 0.3 + Math.random() * 0.4, size: 1.4 + Math.random() * 1.8, color: '#ffffff', alpha: 0.8, maxAge: 350 + Math.random() * 250 });
+      case 'rootmotes': // Realm of Baphomet/Rootways: eerie purple twilight motes
+        return Object.assign(base, { vx: (Math.random() - 0.5) * 0.1, vy: -0.04 - Math.random() * 0.05, size: 1.4 + Math.random() * 1.6, color: '#c17be0', alpha: 0.55, maxAge: 600 + Math.random() * 300 });
+      default:
+        return Object.assign(base, { vx: 0, vy: 0, size: 0, color: 'transparent', alpha: 0, maxAge: 1 });
+    }
+  }
+
+  // Keeps the ambient pool matched to the currently loaded zone (cheap string
+  // compare each frame) and tops it up/recycles particles that expire or
+  // drift off-screen. No world-space transform needed - these are purely
+  // decorative screen-space drift, so they stay correct across camera pans.
+  function updateAmbientParticles() {
+    const atmo = ZONE_ATMOSPHERE[currentMapId];
+    const wantType = (GFX.particles && atmo) ? atmo.particles : null;
+    if (wantType !== ambientParticleType) {
+      ambientParticleType = wantType;
+      ambientParticles.length = 0;
+    }
+    if (!ambientParticleType) return;
+    const cap = currentAmbientCap();
+    while (ambientParticles.length < cap) ambientParticles.push(spawnAmbientParticle(ambientParticleType));
+    const w = canvas.width, h = canvas.height;
+    for (let i = 0; i < ambientParticles.length; i++) {
+      const p = ambientParticles[i];
+      p.age++;
+      p.phase += 0.04;
+      p.x += p.vx + (p.type === 'snow' || p.type === 'ash' ? Math.sin(p.phase) * 0.25 : Math.sin(p.phase) * 0.06);
+      p.y += p.vy;
+      if (p.age > p.maxAge || p.y < -12 || p.y > h + 12 || p.x < -12 || p.x > w + 12) {
+        ambientParticles[i] = spawnAmbientParticle(ambientParticleType);
+      }
+    }
+  }
+
+  function drawAmbientParticles() {
+    if (!GFX.particles || !ambientParticleType || !ambientParticles.length) return;
+    ctx.save();
+    for (const p of ambientParticles) {
+      ctx.globalAlpha = p.alpha * (0.6 + 0.4 * Math.sin(p.phase));
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Elemental-colored burst on a landed skill/attack (builds on the existing
+  // white hit-flash rather than replacing it - see applyMonsterHit()).
+  function spawnSkillImpact(wx, wy, color) {
+    if (!GFX.particles) return;
+    const iso = worldToIso(wx, wy);
+    const n = GFX.lowGraphics ? 4 : 8;
+    for (let i = 0; i < n && impactParticles.length < IMPACT_PARTICLE_CAP; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 0.6 + Math.random() * 1.5;
+      impactParticles.push({
+        x: iso.x, y: iso.y - 30 * cameraZoom,
+        vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 0.6,
+        life: 16 + Math.random() * 10, maxLife: 26, color, size: 1.6 + Math.random() * 1.6
+      });
+    }
+  }
+
+  function updateAndDrawImpactParticles() {
+    if (!impactParticles.length) return;
+    ctx.save();
+    for (let i = impactParticles.length - 1; i >= 0; i--) {
+      const p = impactParticles[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.life--;
+      if (p.life <= 0) { impactParticles.splice(i, 1); continue; }
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Single cheap gradient fill per frame for the zone color-grade - no
+  // per-pixel shader, safe on mobile.
+  function drawZoneAtmosphere() {
+    if (!GFX.ambientTint) return;
+    const atmo = ZONE_ATMOSPHERE[currentMapId];
+    if (!atmo || !atmo.tint) return;
+    const t = atmo.tint;
+    ctx.save();
+    ctx.globalCompositeOperation = t.blend || 'source-over';
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, `rgba(${t.color},${t.alpha})`);
+    grad.addColorStop(1, `rgba(${t.color},${t.alpha * 0.55})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+
+  // Cheap radial-gradient vignette (screen-edge darkening) instead of a
+  // per-pixel AO shader.
+  function drawVignette() {
+    if (!GFX.vignette) return;
+    ctx.save();
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const grad = ctx.createRadialGradient(cx, cy, canvas.height * 0.35, cx, cy, canvas.height * 0.78);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.42)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
   }
 
   // Monsters for the CURRENTLY LOADED zone - populated by loadZoneMap()
@@ -980,6 +1150,7 @@
     m.hp = Math.max(0, m.hp - dmg);
     m.hitFlashTimer = HIT_FLASH_DURATION;
     floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color, life: 40 });
+    spawnSkillImpact(m.wx, m.wy, color);
     if (m.hp === 0) {
       const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
       player.zeny += (isBoss ? 500 : 50);
@@ -1178,12 +1349,28 @@
     }
   }
 
+  // Tracks last-seen HP/SP so updateHUD() can flash the bar on a drop -
+  // purely a CSS animation retrigger (see .bar-pulse), negligible cost.
+  let _prevHudHp = null, _prevHudSp = null;
+  function flashBarOnDrop(el) {
+    if (!el) return;
+    el.classList.remove('bar-pulse');
+    void el.offsetWidth; // force reflow so the animation can restart
+    el.classList.add('bar-pulse');
+  }
+
   function updateHUD() {
     const maxHp = Math.max(1, player.maxHp || 1);
     const maxSp = Math.max(1, player.maxSp || 1);
-    document.getElementById('hp-bar').style.width = `${(player.hp / maxHp) * 100}%`;
+    const hpBarEl = document.getElementById('hp-bar');
+    const spBarEl = document.getElementById('sp-bar');
+    if (_prevHudHp !== null && player.hp < _prevHudHp) flashBarOnDrop(hpBarEl);
+    if (_prevHudSp !== null && player.sp < _prevHudSp) flashBarOnDrop(spBarEl);
+    _prevHudHp = player.hp;
+    _prevHudSp = player.sp;
+    hpBarEl.style.width = `${(player.hp / maxHp) * 100}%`;
     document.getElementById('hp-text').innerText = `HP: ${Math.floor(player.hp)} / ${maxHp}`;
-    document.getElementById('sp-bar').style.width = `${(player.sp / maxSp) * 100}%`;
+    spBarEl.style.width = `${(player.sp / maxSp) * 100}%`;
     document.getElementById('sp-text').innerText = `SP: ${Math.floor(player.sp)} / ${maxSp}`;
     document.getElementById('zeny-val').innerText = `${player.zeny} z`;
     const lvEl = document.getElementById('base-level-val');
@@ -2889,16 +3076,36 @@
       }
     });
 
+    // 5b. Ambient zone particles + in-flight skill-impact bursts (cheap,
+    // capped pool - see GFX/ZONE_ATMOSPHERE above / GRAPHICS_UPGRADE_REPORT.md)
+    updateAmbientParticles();
+    drawAmbientParticles();
+    updateAndDrawImpactParticles();
+
+    // 5c. Per-zone atmosphere color-grade + screen vignette, composited
+    // above the world/particles but below the HUD-ish combat text so damage
+    // numbers stay fully readable.
+    drawZoneAtmosphere();
+    drawVignette();
+
     // 6. Draw Floating Damage Text
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
       const ft = floatingTexts[i];
+      if (ft.maxLife === undefined) ft.maxLife = ft.life;
       ft.offsetY += 0.6;
       ft.life--;
       const ftIso = worldToIso(ft.wx, ft.wy);
+      // Brief scale-pop on spawn for extra juice, then settle to normal size.
+      const ageFrac = 1 - (ft.life / ft.maxLife);
+      const pop = ageFrac < 0.15 ? 1 + (0.15 - ageFrac) / 0.15 * 0.3 : 1;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.85)';
+      ctx.shadowBlur = 4 * cameraZoom;
       ctx.fillStyle = ft.color;
-      ctx.font = `bold ${Math.max(10, Math.floor(13 * cameraZoom))}px Segoe UI`;
+      ctx.font = `bold ${Math.max(10, Math.floor(13 * cameraZoom * pop))}px Segoe UI`;
       ctx.textAlign = 'center';
       ctx.fillText(ft.text, ftIso.x, ftIso.y - ft.offsetY * cameraZoom);
+      ctx.restore();
       if (ft.life <= 0) floatingTexts.splice(i, 1);
     }
 
