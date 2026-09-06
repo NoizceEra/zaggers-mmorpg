@@ -48,7 +48,7 @@ Element → color mapping (from `BESTIARY_EXPANSION.md` §1.1) drives monster pa
 1. **Tile size**: `PIPELINE_AND_TOOLS.md` specifies 64×32 diamond tiles; the actual on-disk convention (and `generate_terrain_tilesets.py`) is **128×64**. Followed the shipped convention, not the doc, since matching existing pixels was the explicit instruction.
 2. **Task A2 touch-ups** (recolor/redraw passes on the 3 renamed sprites with recognizable FF silhouettes) were **not done** — they're explicitly optional/non-blocking in the manifest. Flagged here for a follow-up pass if wanted.
 3. **Monster/prop art is procedural/parametric**, not 54+38 fully unique hand-authored paintings (see §2). Every sheet is still original composition-per-monster (unique proportions/colors/accessories/weapon), matches the sheet format and centering rules exactly, and is visually distinguishable at a glance — but archetypes are reused across some monsters within the same family (e.g. all "robed caster" monsters share a construction skeleton). This was necessary to deliver full 54/38 coverage within the pass.
-4. **Item icons (Task C, 23 files)** and **optional NPC/hero sheets (Task F, 4 files)** were **out of scope** per the job instructions (monsters + environment only) and were not touched.
+4. **Item icons (Task C)** — completed in a follow-up pass via `scripts/generate_item_icons.py` (see §6). **Optional NPC/hero sheets (Task F, 4 files)** remain out of scope.
 5. Godot `.png.import` sidecars for the 6 renamed files were **not** created/renamed — only the `.png` files themselves were written under the new names; the old originals and their `.import` sidecars remain on disk untouched (not deleted).
 
 ---
@@ -64,6 +64,25 @@ Element → color mapping (from `BESTIARY_EXPANSION.md` §1.1) drives monster pa
 ```bash
 python scripts/generate_bestiary_expansion.py   # renames + all 48 new monster sheets
 python scripts/generate_env_expansion.py        # 19 tiles + 38 props
+python scripts/generate_item_icons.py           # Task C: 23 item icons (+ optional dragon lance)
 ```
 
 Both scripts are idempotent (safe to re-run; they overwrite their own output only). To add a new monster: add an entry to the `MONSTERS` dict in `generate_bestiary_expansion.py` picking one of the 7 archetype factories (`make_blob`/`make_biped`/`make_quad`/`make_flyer`/`make_plant`/`make_construct`/`make_boss`) and a config dict (body color, scale, weapon, accessories). To add a new tile or prop, add a tuple to `TILES` or `PROPS` in `generate_env_expansion.py`.
+
+---
+
+## 6. Item icons follow-up (Task C) — 2026-09-06
+
+**Script:** `scripts/generate_item_icons.py`  
+**Output:** 24 × 32×32 RGBA icons dual-written to `assets/sprites_ff/` and `web/assets/sprites_ff/` (23 required + optional `wpn_lance_dragon_ff.png`).
+
+| Category | Files |
+|---|---|
+| Consumables | `potion_mana_ff`, `food_bread_ff`, `potion_aetherite_ff`, `key_thawstone_ff` |
+| Weapons | `wpn_shortsword_ff`, `wpn_cleaver_ff`, `wpn_trident_ff`, `wpn_emberglass_ff`, `wpn_longbow_ff`, `wpn_staff_root_ff`, (+ `wpn_lance_dragon_ff`) |
+| Shields | `shd_targe_ff`, `shd_aegis_ff`, `shd_bulwark_ff` |
+| Armor | `arm_jerkin_ff`, `arm_mythril_ff`, `arm_slagplate_ff`, `arm_shroud_ff` |
+| Headgear | `hat_kettle_ff`, `hat_circlet_ff`, `hat_diadem_ff` |
+| Accessories | `acc_charm_ff`, `acc_pendant_ff`, `acc_signet_ff` |
+
+Style matched to existing `potion_health_ff.png`: flat fills, outline `(16,16,32)`, soft drop shadow, highlight speck. `dragon_lance.icon` retargeted from `excalibur_ff.png` → `wpn_lance_dragon_ff.png`. `mythril_armor` already pointed at `arm_mythril_ff.png`. Cross-check: all 25 `items[].icon` paths in `web/zaggers_database.json` resolve on disk.

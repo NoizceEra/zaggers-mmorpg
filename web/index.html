@@ -62,11 +62,56 @@
     .creator-class-card:hover { background: #1c283c; border-color: #ffd54f; }
     .creator-class-card.active { background: #23324c; border: 2px solid #ffd54f; box-shadow: 0 0 10px rgba(255,213,79,0.3); }
 
+    /* Skill Tree & Paperdoll (Phase 3.5 / 3.6) */
+    #skill-window { top: 52px; left: 50%; transform: translateX(-50%); width: 520px; max-height: calc(100% - 110px); overflow: hidden; display: none; flex-direction: column; }
+    #skill-window.open { display: flex; }
+    #equip-window { top: 52px; left: 50%; transform: translateX(-50%); width: 540px; max-height: calc(100% - 110px); overflow: hidden; display: none; flex-direction: column; }
+    #equip-window.open { display: flex; }
+    .skill-tree-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; color: #b0bec5; }
+    .skill-tree-grid { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 8px 6px; align-items: center; }
+    .skill-tier-label { grid-column: 1 / -1; color: #ffe082; font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-top: 4px; border-bottom: 1px solid #2e3d58; padding-bottom: 2px; }
+    .skill-node { background: #151c2a; border: 2px solid #3d4a68; border-radius: 6px; padding: 8px; cursor: pointer; min-height: 78px; position: relative; }
+    .skill-node:hover { border-color: #ffd54f; background: #1b2436; }
+    .skill-node.learned { border-color: #66bb6a; box-shadow: inset 0 0 0 1px rgba(102,187,106,0.35); }
+    .skill-node.available { border-color: #ffd54f; }
+    .skill-node.locked { opacity: 0.55; cursor: not-allowed; }
+    .skill-node .sk-name { font-weight: bold; font-size: 12px; color: #e3eaf5; }
+    .skill-node .sk-meta { font-size: 10px; color: #90a4ae; margin-top: 3px; line-height: 1.35; }
+    .skill-node .sk-actions { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .skill-node button, .inv-actions button, .slot-btn { background: #2b364f; border: 1px solid #54668f; color: #fff; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 10px; }
+    .skill-node button:hover, .inv-actions button:hover, .slot-btn:hover { background: #3d4d70; }
+    .skill-bridge { text-align: center; color: #5c6b94; font-size: 16px; }
+    .equip-layout { display: flex; gap: 12px; }
+    .paperdoll { width: 200px; display: flex; flex-direction: column; gap: 8px; }
+    .equip-slot { background: #121826; border: 1px dashed #4a5573; border-radius: 6px; padding: 8px; min-height: 54px; }
+    .equip-slot.locked-slot { opacity: 0.45; border-style: solid; border-color: #7f1d1d; }
+    .equip-slot .slot-label { font-size: 10px; color: #ffe082; font-weight: bold; text-transform: uppercase; }
+    .equip-slot .slot-item { font-size: 12px; margin-top: 4px; color: #e0e7ff; }
+    .equip-slot .slot-stats { font-size: 10px; color: #90a4ae; }
+    .inventory-pane { flex: 1; min-width: 0; }
+    .inventory-list { max-height: 280px; overflow-y: auto; border: 1px solid #283246; border-radius: 4px; }
+    .inv-row { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 6px 8px; border-bottom: 1px solid #1f2738; font-size: 12px; }
+    .inv-row:hover { background: #1a2233; }
+    .inv-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .combat-stats-line { font-size: 11px; color: #b0bec5; margin-top: 8px; line-height: 1.45; }
+    #skill-hotbar { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 80; pointer-events: auto; }
+    .hotbar-slot { width: 48px; height: 48px; background: rgba(14,18,26,0.92); border: 2px solid #4a5573; border-radius: 6px; position: relative; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.45); }
+    .hotbar-slot:hover { border-color: #ffd54f; }
+    .hotbar-slot .hb-key { position: absolute; top: 2px; left: 3px; font-size: 9px; color: #ffe082; font-weight: bold; z-index: 2; }
+    .hotbar-slot .hb-name { position: absolute; inset: 14px 2px 2px; font-size: 9px; text-align: center; color: #e3eaf5; line-height: 1.1; display: flex; align-items: center; justify-content: center; padding: 0 2px; }
+    .hotbar-slot .hb-cd { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(10,14,22,0.72); z-index: 1; pointer-events: none; }
+    .hotbar-slot.empty { opacity: 0.65; }
+    .window-scroll-body { padding: 12px; overflow-y: auto; flex: 1; min-height: 0; }
+    #db-fail-banner { position: absolute; top: 0; left: 0; right: 0; z-index: 900; display: none; background: #b71c1c; color: #fff; padding: 8px 14px; font-size: 12px; font-weight: bold; text-align: center; border-bottom: 2px solid #ff8a80; }
+    .shop-item.locked { opacity: 0.55; }
+
   </style>
 </head>
 <body>
 
 <div id="game-container">
+
+  <div id="db-fail-banner">Failed to load zaggers_database.json — serve the game from the web/ folder so the database can be fetched.</div>
 
   <!-- Player Death & Respawn Modal Overlay -->
   <div id="player-death-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 5, 5, 0.92); backdrop-filter: blur(6px); z-index: 600; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; pointer-events: auto;">
@@ -147,7 +192,11 @@
     </div>
     <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: #b0bec5;">
       <span>Zeny: <strong style="color: #ffd54f;" id="zeny-val">500 z</strong></span>
-      <span>Base Lv. 1</span>
+      <span>Base Lv. <strong id="base-level-val">1</strong></span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 2px; font-size: 10px; color: #90a4ae;">
+      <span>XP <span id="xp-val">0/100</span></span>
+      <span>SP Points <strong id="skill-points-val" style="color:#81c784;">0</strong></span>
     </div>
   </div>
 
@@ -161,7 +210,7 @@
   <div id="chat-window" class="hud-panel">
     <div id="chat-messages">
       <div><span style="color: #ffd54f;">[System]:</span> Welcome to Zaggers 2.5D MMORPG World Map!</div>
-      <div><span style="color: #81c784;">[Guide]:</span> Explore Aethelgard Master Town, Whispering Meadows, & Sunken Sanctum. Left-click to move/attack, WASD to walk, Q/E or Right-Drag to rotate cam, Scroll to zoom, Middle-Drag to pan, R to reset cam.</div>
+      <div><span style="color: #81c784;">[Guide]:</span> WASD move, click attack, Q/E cam, R reset. Skills [K], Equip [I], Shop [S], Stats [C]. F1–F9 cast hotbar skills. Kill monsters for XP/skill points.</div>
     </div>
     <input type="text" id="chat-input" placeholder="Press Enter to chat..." />
   </div>
@@ -172,6 +221,8 @@
     <button class="btn-icon" onclick="rotateCamera(1)" title="Rotate Clockwise (E)">Cam ↻ [E]</button>
     <button class="btn-icon" id="cam-angle-btn" onclick="resetCamera()" title="Reset Camera View (R)">0°</button>
     <button class="btn-icon" onclick="toggleWindow('stat-window')">Stats [C]</button>
+    <button class="btn-icon" onclick="toggleSkillWindow()">Skills [K]</button>
+    <button class="btn-icon" onclick="toggleEquipWindow()">Equip [I]</button>
     <button class="btn-icon" onclick="toggleWindow('shop-window')">Shop [S]</button>
     <button class="btn-icon" onclick="openMapEditor()" title="Open Map Editor in new tab">🛠️ Map Editor</button>
     <button class="btn-icon" onclick="openDBEditor()" title="Open Engine DB Editor in new tab">⚙️ DB Editor</button>
@@ -202,13 +253,47 @@
       <span class="close-btn" onclick="toggleWindow('shop-window')">✕</span>
     </div>
     <div class="window-body">
-      <div class="shop-items">
-        <div class="shop-item"><div><strong>Red Potion</strong><br><small style="color: #b0bec5;">Restores 100 HP</small></div><button class="buy-btn" onclick="buyItem('Red Potion', 50)">50 z</button></div>
-        <div class="shop-item"><div><strong>Mythril Armor</strong><br><small style="color: #b0bec5;">Def +15, Max HP +50</small></div><button class="buy-btn" onclick="buyItem('Mythril Armor', 300)">300 z</button></div>
-        <div class="shop-item"><div><strong>Archmage Staff</strong><br><small style="color: #b0bec5;">MATK +25, Max SP +40</small></div><button class="buy-btn" onclick="buyItem('Archmage Staff', 450)">450 z</button></div>
-        <div class="shop-item"><div><strong>Dragon Lance</strong><br><small style="color: #b0bec5;">ATK +35, Crit +10%</small></div><button class="buy-btn" onclick="buyItem('Dragon Lance', 600)">600 z</button></div>
+      <div class="shop-items" id="shop-items-list"></div>
+    </div>
+  </div>
+
+  <!-- Skill Tree Window -->
+  <div id="skill-window" class="window-modal">
+    <div class="window-header">
+      <span>Skill Tree <small style="color:#90a4ae;font-weight:normal;">(K)</small></span>
+      <span class="close-btn" onclick="toggleSkillWindow(false)">✕</span>
+    </div>
+    <div class="window-scroll-body">
+      <div class="skill-tree-meta">
+        <span id="skill-tree-class">Class</span>
+        <span>Points: <strong id="skill-tree-points" style="color:#81c784;">0</strong> · Lv <strong id="skill-tree-level">1</strong></span>
+      </div>
+      <div id="skill-tree-grid" class="skill-tree-grid"></div>
+      <div style="margin-top:10px;font-size:11px;color:#90a4ae;">Learn with skill points. Bind learned skills to F1–F9. Prerequisites and reqLevel gate higher tiers.</div>
+    </div>
+  </div>
+
+  <!-- Equipment Paperdoll Window -->
+  <div id="equip-window" class="window-modal">
+    <div class="window-header">
+      <span>Equipment <small style="color:#90a4ae;font-weight:normal;">(I)</small></span>
+      <span class="close-btn" onclick="toggleEquipWindow(false)">✕</span>
+    </div>
+    <div class="window-scroll-body">
+      <div class="equip-layout">
+        <div class="paperdoll" id="paperdoll-slots"></div>
+        <div class="inventory-pane">
+          <div style="font-size:12px;font-weight:bold;color:#ffe082;margin-bottom:6px;">Inventory</div>
+          <div class="inventory-list" id="inventory-list"></div>
+          <div class="combat-stats-line" id="equip-combat-stats"></div>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- F1–F9 Skill Hotbar (shown after character creation) -->
+  <div id="skill-hotbar" aria-label="Skill hotbar" style="display:none;"></div>
+
   <!-- RO-Style NPC Dialog Window Modal -->
   <div id="npc-dialog-window" class="window-modal">
     <div class="window-header" style="background: linear-gradient(90deg, #1b263b, #2b3a55); border-bottom: 2px solid #e0a938;">
@@ -253,8 +338,15 @@
     'drowned_marrowguard_ff', 'pricklespine_thornmarch_ff', 'brinemaw_eel_ff', 'silt_creeper_ff',
     'glasslight_mote_ff', 'reliquary_husk_ff', 'coralbound_acolyte_ff', 'warden_of_the_nave_ff',
     'pale_choirmaster_ff', 'hallowdeep_warden_ff',
-    'cinderpuff_ff', 'emberglass_shard_ff', 'rimewind_sprite_ff', 'hoarfrost_stalker_ff',
-    'nethergate_creeper_ff', 'umbral_houndkin_ff'
+    'cinderpuff_ff', 'emberglass_shard_ff', 'ashfall_harrier_ff', 'magma_hulk_ff',
+    'soot_revenant_ff', 'forgewrought_sentinel_ff', 'pyrelash_imp_ff', 'bellowmaster_grukk_ff',
+    'the_unquenched_ff', 'vashkar_spire_crown_ff',
+    'rimewind_sprite_ff', 'hoarfrost_stalker_ff', 'frozen_penitent_ff', 'glacier_drake_whelp_ff',
+    'snowveil_shade_ff', 'aurora_seraphon_ff', 'permafrost_lich_ff', 'statuary_colossus_ff',
+    'the_vault_keeper_ff', 'sylveth_silent_thaw_ff',
+    'nethergate_creeper_ff', 'umbral_houndkin_ff', 'weeping_bough_ff', 'rootfang_devourer_ff',
+    'hollow_penitent_choir_ff', 'sanguine_thorncaller_ff', 'abyssal_heraldon_ff',
+    'thorncradle_warden_ff', 'the_pale_apostate_ff', 'verrocaine_sovereign_ff'
   ];
 
   const envSpriteNames = [
@@ -269,7 +361,8 @@
     'env_fishing_net', 'env_rowboat', 'env_windmill', 'env_fence_rail', 'env_scarecrow',
     'env_palisade_wall', 'env_campfire', 'env_reed_clump', 'env_hollow_tree',
     'env_waterfall_curtain', 'env_pew_floating', 'env_reliquary_casket', 'env_lava_channel',
-    'env_cairn_waypoint', 'env_guide_rope', 'env_root_hair'
+    'env_bellows_great', 'env_ice_statue', 'env_ice_colossus_shell', 'env_cairn_waypoint',
+    'env_guide_rope', 'env_vault_door', 'env_root_hair', 'env_weeping_branch', 'env_briar_wall'
   ];
 
   const terrainSpriteNames = [
@@ -280,7 +373,9 @@
     // World Map Expansion (Phase 3) tiles - see vault/ASSET_MANIFEST.md (some pending art generation)
     'tile_meadow_reed', 'tile_meadow_mud', 'tile_grove_moss',
     'tile_sanctum_flooded', 'tile_sanctum_marble', 'tile_sanctum_algae', 'tile_sanctum_glass',
-    'tile_spire_ash', 'tile_ice_packed', 'tile_root_bark'
+    'tile_spire_ash', 'tile_spire_emberglass', 'tile_spire_basalt',
+    'tile_ice_packed', 'tile_ice_crevasse', 'tile_ice_mirror', 'tile_ice_blue',
+    'tile_root_bark', 'tile_root_bonemeal', 'tile_root_sap', 'tile_root_terrace'
   ];
 
   spriteNames.forEach(name => {
@@ -376,13 +471,209 @@
   }
 
   // Game State
+  const EQUIP_SLOT_ORDER = ['weapon', 'shield', 'armor', 'headgear', 'accessory'];
   const player = {
     wx: 0, wy: 0, targetWx: 0, targetWy: 0,
     speed: 0.08, dir: 0, frame: 1, isAttacking: false, attackTimer: 0,
     hp: 180, maxHp: 180, sp: 50, maxSp: 50, zeny: 500,
     str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10, class: 'hero_knight',
+    sprite: 'hero_knight', classId: 'vanguard', name: 'Hero',
+    level: 1, xp: 0, xpToLevel: 100, skillPoints: 1,
+    learnedSkills: {}, skillHotbar: [null, null, null, null, null, null, null, null, null],
+    skillCooldowns: {}, // skillId -> readyAt (performance.now ms)
+    inventory: [], // [{ id, qty }]
+    equipment: { weapon: null, shield: null, armor: null, headgear: null, accessory: null },
+    buffs: [], // [{ id, name, expiresAt, mods }]
     hitFlashTimer: 0 // frames remaining on the white damage-flash (see ENGINE_INFRA_AUDIT.md animation pass)
   };
+  const groundTraps = []; // temporary zone hazards from ground_trap skills
+  let gameDB = null;
+  let monsterById = {};
+  let monsterBySprite = {};
+
+  // ==========================================
+  // gameDB boot + lookups (ROADMAP §3.0 / §3.1)
+  // ==========================================
+  function assetKey(name) {
+    if (!name) return '';
+    return String(name).replace(/\.png$/i, '');
+  }
+
+  function showDbFailBanner(msg) {
+    const el = document.getElementById('db-fail-banner');
+    if (!el) return;
+    if (msg) el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideDbFailBanner() {
+    const el = document.getElementById('db-fail-banner');
+    if (el) el.style.display = 'none';
+  }
+
+  function rebuildMonsterIndexes() {
+    monsterById = {};
+    monsterBySprite = {};
+    if (!gameDB || !gameDB.monsters) return;
+    Object.values(gameDB.monsters).forEach(def => {
+      if (!def || !def.id) return;
+      monsterById[def.id] = def;
+      const sk = assetKey(def.sprite);
+      if (sk) {
+        monsterBySprite[sk] = def;
+        monsterBySprite[sk.replace(/_ff$/, '')] = def;
+      }
+    });
+  }
+
+  function getClassSkills(classId) {
+    return Object.values(getDbSkills()).filter(s => s && s.classId === classId);
+  }
+
+  function getSkillDef(skillId) {
+    if (!skillId) return null;
+    return getDbSkills()[skillId] || null;
+  }
+
+  function getItemDef(itemId) {
+    if (!itemId) return null;
+    return getDbItems()[itemId] || null;
+  }
+
+  function getElementColor(el) {
+    const colors = gameDB && gameDB.elements && gameDB.elements.colors;
+    return (colors && colors[el]) || '#bdbdbd';
+  }
+
+  function getElementModifier(atkEl, defEl) {
+    const mods = gameDB && gameDB.elements && gameDB.elements.modifiers;
+    if (!mods) return 1;
+    const row = mods[atkEl || 'Neutral'] || mods.Neutral;
+    if (!row) return 1;
+    const v = row[defEl || 'Neutral'];
+    return (v == null) ? 1 : v;
+  }
+
+  function getEquippedWeapon() {
+    const id = player.equipment && player.equipment.weapon;
+    return id ? getItemDef(id) : null;
+  }
+
+  function resolveAttackElement(skill) {
+    if (skill && skill.element) return skill.element;
+    const weapon = getEquippedWeapon();
+    if (weapon && weapon.element) return weapon.element;
+    return 'Neutral';
+  }
+
+  function enrichMonsterFromDB(m) {
+    if (!m) return m;
+    const sk = assetKey(m.sprite);
+    let def = monsterBySprite[sk] || monsterBySprite[sk.replace(/_ff$/, '')] || null;
+    if (!def && m.dbId) def = monsterById[m.dbId] || null;
+    if (!def && m.templateId) def = monsterById[m.templateId] || null;
+    if (!def && gameDB && gameDB.monsters) {
+      const base = sk.replace(/_ff$/, '');
+      def = gameDB.monsters[base] || null;
+    }
+    if (!def) return m;
+    m.dbId = def.id;
+    if (def.name) m.name = def.name;
+    if (def.element) m.element = def.element;
+    if (def.rank) m.rank = def.rank;
+    if (def.level != null) m.level = def.level;
+    if (def.drops) m.drops = def.drops;
+    if (def.atk != null) m.dbAtk = def.atk;
+    if (def.def != null) m.dbDef = def.def;
+    if (def.zeny != null) m.zenyReward = def.zeny;
+    if (def.exp != null) m.expReward = def.exp;
+    if ((!m.maxHp || m.maxHp <= 0) && def.hp) {
+      m.hp = def.hp;
+      m.maxHp = def.hp;
+    }
+    return m;
+  }
+
+  function calcCombatDamage(skill, target) {
+    const weapon = getEquippedWeapon();
+    const weaponAtk = weapon ? (weapon.atk || 0) : 0;
+    const weaponMatk = weapon ? (weapon.matk || 0) : 0;
+    const isMagic = skill && (skill.damageType === 'magical' || skill.damageType === 'magic');
+    const mult = (skill && skill.multiplier != null) ? skill.multiplier : 1;
+    let base;
+    if (isMagic) {
+      base = Math.floor(16 + player.int * 2.1 + weaponMatk * 0.85 + Math.random() * 10);
+    } else {
+      base = Math.floor(20 + player.str * 1.6 + weaponAtk * 0.75 + Math.random() * 12);
+    }
+    const atkEl = resolveAttackElement(skill);
+    const defEl = (target && target.element) || 'Neutral';
+    const mod = getElementModifier(atkEl, defEl);
+    const raw = base * mult * mod;
+    const dmg = Math.max(0, Math.floor(raw));
+    return { dmg: Math.max(mult === 0 ? 0 : 1, dmg), atkEl, defEl, mod, mult };
+  }
+
+  function pushDamageFloat(target, result) {
+    const { dmg, atkEl, mod } = result;
+    let color = (dmg > 30 ? '#ffd54f' : '#ff5252');
+    if (mod > 1) color = '#ffd54f';
+    else if (mod < 1) color = '#90caf9';
+    const suffix = (mod !== 1) ? ` ${atkEl}${mod > 1 ? '▲' : '▼'}` : '';
+    floatingTexts.push({
+      wx: target.wx, wy: target.wy, offsetY: 45,
+      text: `-${dmg}${suffix}`, color, life: 40
+    });
+  }
+
+  function grantKillRewards(m) {
+    const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff' || m.sprite === 'verrocaine_sovereign_ff';
+    const zenyGain = (m.zenyReward != null) ? m.zenyReward : (isBoss ? 500 : 50);
+    const expGain = (m.expReward != null) ? m.expReward : (isBoss ? 80 : 12);
+    player.zeny += zenyGain;
+    player.xp += expGain;
+    if (isBoss) defeatedBosses.add(m.id);
+    while (player.xp >= player.xpToLevel) {
+      player.xp -= player.xpToLevel;
+      player.level += 1;
+      player.skillPoints += 1;
+      player.xpToLevel = Math.floor(100 * Math.pow(1.25, player.level - 1));
+      player.maxHp += 12;
+      player.hp = player.maxHp;
+      player.maxSp += 4;
+      player.sp = Math.min(player.maxSp, player.sp + 4);
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 30, text: `LEVEL UP! ${player.level}`, color: '#ffd54f', life: 70 });
+    }
+    updateHUD();
+    if (typeof refreshSkillTree === 'function') refreshSkillTree();
+    if (typeof populateShopFromDB === 'function') populateShopFromDB();
+    savePlayerState();
+  }
+
+  function applyMonsterHit(m, skill) {
+    if (!m || m.hp <= 0 || m.dying) return false;
+    const result = calcCombatDamage(skill, m);
+    if (result.mult === 0 || result.dmg <= 0) {
+      floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: '0', color: '#90a4ae', life: 30 });
+      return false;
+    }
+    m.hp = Math.max(0, m.hp - result.dmg);
+    m.hitFlashTimer = HIT_FLASH_DURATION;
+    pushDamageFloat(m, result);
+    if (m.hp === 0) {
+      grantKillRewards(m);
+      m.dying = true;
+      m.deathTimer = DEATH_FADE_DURATION;
+      setTimeout(() => {
+        m.hp = m.maxHp;
+        m.dying = false;
+        m.deathTimer = 0;
+        m.hitFlashTimer = 0;
+        initMonsterState(m);
+      }, 5000);
+    }
+    return true;
+  }
 
   // ==========================================
   // Animation / Juice Tuning Constants
@@ -490,7 +781,7 @@
     if (Array.isArray(mapData.npcs)) npcs.push(...mapData.npcs);
     monsters.length = 0;
     if (Array.isArray(mapData.monsters)) monsters.push(...mapData.monsters);
-    monsters.forEach(initMonsterState); // seed AI/animation runtime fields - see ENGINE_INFRA_AUDIT.md §2.2
+    monsters.forEach(m => { enrichMonsterFromDB(m); initMonsterState(m); });
 
     currentMapId = mapId || mapData.id || null;
     currentMapName = mapData.name || currentMapId || 'Unknown Zone';
@@ -547,12 +838,21 @@
     }
     keys[e.code] = true;
     if (e.code === 'KeyC') toggleWindow('stat-window');
+    if (e.code === 'KeyK') toggleSkillWindow();
+    if (e.code === 'KeyI') toggleEquipWindow();
     if (e.code === 'KeyS') toggleWindow('shop-window');
     if (e.code === 'KeyQ') rotateCamera(-1);
     if (e.code === 'KeyE') rotateCamera(1);
     if (e.code === 'KeyR') resetCamera();
     if (e.code === 'Space' || e.code === 'KeyJ') triggerAttack();
     if (e.code === 'Enter') handleChatInput();
+    if (e.code && e.code.startsWith('F')) {
+      const n = parseInt(e.code.slice(1), 10);
+      if (n >= 1 && n <= 9) {
+        e.preventDefault();
+        castHotbarSlot(n - 1);
+      }
+    }
   });
   window.addEventListener('keyup', e => { keys[e.code] = false; });
 
@@ -661,34 +961,40 @@
   }, { passive: false });
 
   function triggerAttack() {
+    if (isPlayerDead) return;
     if (player.isAttacking) return;
     player.isAttacking = true;
     player.attackTimer = ATTACK_TOTAL_FRAMES;
 
     monsters.forEach(m => {
       const dist = Math.hypot(m.wx - player.wx, m.wy - player.wy);
-      if (dist < 2.5 && m.hp > 0) {
-        const dmg = Math.floor(22 + player.str * 1.6 + Math.random() * 12);
-        m.hp = Math.max(0, m.hp - dmg);
-        m.hitFlashTimer = HIT_FLASH_DURATION; // white damage-flash, see render()
-        floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color: (dmg > 30 ? '#ffd54f' : '#ff5252'), life: 40 });
-        if (m.hp === 0) {
-          const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
-          player.zeny += (isBoss ? 500 : 50);
-          if (isBoss) defeatedBosses.add(m.id);
-          updateHUD();
-          // Death: fade + sink instead of an instant vanish (ENGINE_INFRA_AUDIT.md §2.4).
-          m.dying = true;
-          m.deathTimer = DEATH_FADE_DURATION;
-          setTimeout(() => {
-            m.hp = m.maxHp;
-            m.dying = false;
-            m.deathTimer = 0;
-            m.hitFlashTimer = 0;
-          }, 5000);
-        }
+      if (dist < 2.5 && m.hp > 0 && !m.dying) {
+        applyMonsterHit(m, null); // weapon element → Neutral via resolveAttackElement
       }
     });
+  }
+
+  function applyDamageToMonster(m, dmg, opts) {
+    if (!m || m.hp <= 0) return;
+    const color = (opts && opts.color) || (dmg > 30 ? '#ffd54f' : '#ff5252');
+    m.hp = Math.max(0, m.hp - dmg);
+    m.hitFlashTimer = HIT_FLASH_DURATION;
+    floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color, life: 40 });
+    if (m.hp === 0) {
+      const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
+      player.zeny += (isBoss ? 500 : 50);
+      if (isBoss) defeatedBosses.add(m.id);
+      grantXp(isBoss ? 80 : 25);
+      updateHUD();
+      m.dying = true;
+      m.deathTimer = DEATH_FADE_DURATION;
+      setTimeout(() => {
+        m.hp = m.maxHp;
+        m.dying = false;
+        m.deathTimer = 0;
+        m.hitFlashTimer = 0;
+      }, 5000);
+    }
   }
 
   function handleChatInput() {
@@ -776,7 +1082,9 @@
       loadZoneMap('meadows');
     } else if (action === 'open_shop') {
       closeNpcDialog();
-      toggleWindow('shop-window');
+      populateShop();
+      const shop = document.getElementById('shop-window');
+      if (shop) shop.style.display = 'block';
     } else if (action === 'buy_red_potion') {
       if (player.zeny >= 50) {
         player.zeny -= 50;
@@ -855,9 +1163,12 @@
     if (stat === 'int') { player.maxSp += 10; player.sp += 10; }
     document.getElementById(`stat-${stat}`).innerText = player[stat];
     updateHUD();
+    refreshEquipPanel();
+    savePlayerState();
   }
 
   function buyItem(name, cost) {
+    // Legacy name+cost path kept for any leftover callers; prefer buyItemById.
     if (player.zeny >= cost) {
       player.zeny -= cost;
       updateHUD();
@@ -868,11 +1179,20 @@
   }
 
   function updateHUD() {
-    document.getElementById('hp-bar').style.width = `${(player.hp / player.maxHp) * 100}%`;
-    document.getElementById('hp-text').innerText = `HP: ${player.hp} / ${player.maxHp}`;
-    document.getElementById('sp-bar').style.width = `${(player.sp / player.maxSp) * 100}%`;
-    document.getElementById('sp-text').innerText = `SP: ${player.sp} / ${player.maxSp}`;
+    const maxHp = Math.max(1, player.maxHp || 1);
+    const maxSp = Math.max(1, player.maxSp || 1);
+    document.getElementById('hp-bar').style.width = `${(player.hp / maxHp) * 100}%`;
+    document.getElementById('hp-text').innerText = `HP: ${Math.floor(player.hp)} / ${maxHp}`;
+    document.getElementById('sp-bar').style.width = `${(player.sp / maxSp) * 100}%`;
+    document.getElementById('sp-text').innerText = `SP: ${Math.floor(player.sp)} / ${maxSp}`;
     document.getElementById('zeny-val').innerText = `${player.zeny} z`;
+    const lvEl = document.getElementById('base-level-val');
+    if (lvEl) lvEl.innerText = String(player.level || 1);
+    const xpEl = document.getElementById('xp-val');
+    if (xpEl) xpEl.innerText = `${player.xp || 0}/${player.xpToLevel || 100}`;
+    const spPts = document.getElementById('skill-points-val');
+    if (spPts) spPts.innerText = String(player.skillPoints || 0);
+    updateHotbarUI();
   }
 
   let customTileMap = {};
@@ -902,7 +1222,7 @@
     if (Array.isArray(mapData.monsters)) {
       monsters.length = 0;
       monsters.push(...mapData.monsters);
-      monsters.forEach(initMonsterState); // see ENGINE_INFRA_AUDIT.md §2.2
+      monsters.forEach(m => { enrichMonsterFromDB(m); initMonsterState(m); });
     }
     // Additive Phase 3 fields (WORLD_MAP_EXPANSION.md) - safe no-ops for
     // older/plain custom maps that don't carry them.
@@ -949,24 +1269,734 @@
   
 
   // ==========================================
-  // Single Source of Truth DB Class Integration
+  // Single Source of Truth DB + Skill/Equip UI
   // ==========================================
-  function getDbClasses() {
-    let dbData = null;
+  function getFallbackClasses() {
+    return {
+      vanguard: { id: 'vanguard', name: 'Vanguard Titan', sprite: 'hero_knight', baseStats: { str: 14, agi: 10, vit: 16, int: 6, dex: 12, luk: 8 }, hpGrowth: 18, spGrowth: 4, primaryWeapon: 'Sword & Shield', description: 'Stalwart frontline defender with heavy armor.' },
+      spellweaver: { id: 'spellweaver', name: 'Spellweaver', sprite: 'hero_blackmage', baseStats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 }, hpGrowth: 10, spGrowth: 12, primaryWeapon: 'Archmage Staff', description: 'Master of arcane storm and flame.' },
+      shadowblade: { id: 'shadowblade', name: 'Shadowblade', sprite: 'hero_thief', baseStats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 }, hpGrowth: 12, spGrowth: 5, primaryWeapon: 'Dual Daggers', description: 'Lethal rogue specializing in rapid critical hits.' },
+      cleric: { id: 'cleric', name: 'Cleric Priest', sprite: 'hero_whitemage', baseStats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 }, hpGrowth: 13, spGrowth: 10, primaryWeapon: 'Holy Mace', description: 'Devout guardian granting holy protection and healing.' },
+      ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_redmage', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' }
+    };
+  }
+
+  function normalizeSpriteKey(s) {
+    if (!s) return 'hero_knight';
+    return String(s).replace(/\.png$/i, '');
+  }
+
+  function readStoredDb() {
     try {
       const stored = localStorage.getItem('zaggers_db');
-      if (stored) dbData = JSON.parse(stored);
-    } catch(e) {}
-    if (!dbData || !dbData.classes) {
-      return {
-        vanguard: { id: 'vanguard', name: 'Vanguard Titan', sprite: 'hero_knight', baseStats: { str: 14, agi: 10, vit: 16, int: 6, dex: 12, luk: 8 }, hpGrowth: 18, spGrowth: 4, primaryWeapon: 'Sword & Shield', description: 'Stalwart frontline defender with heavy armor.' },
-        spellweaver: { id: 'spellweaver', name: 'Spellweaver', sprite: 'hero_blackmage', baseStats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 }, hpGrowth: 10, spGrowth: 12, primaryWeapon: 'Archmage Staff', description: 'Master of arcane storm and flame.' },
-        shadowblade: { id: 'shadowblade', name: 'Shadowblade', sprite: 'hero_thief', baseStats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 }, hpGrowth: 12, spGrowth: 5, primaryWeapon: 'Dual Daggers', description: 'Lethal rogue specializing in rapid critical hits.' },
-        cleric: { id: 'cleric', name: 'Cleric Priest', sprite: 'hero_whitemage', baseStats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 }, hpGrowth: 13, spGrowth: 10, primaryWeapon: 'Holy Mace', description: 'Devout guardian granting holy protection and healing.' },
-        ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_redmage', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' }
-      };
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return null;
+  }
+
+  function getGameDB() {
+    if (gameDB && gameDB.classes) return gameDB;
+    const stored = readStoredDb();
+    if (stored && stored.classes) {
+      gameDB = stored;
+      return gameDB;
     }
-    return dbData.classes;
+    return gameDB || { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
+  }
+
+  async function ensureGameDB() {
+    if (gameDB && gameDB.skills && Object.keys(gameDB.skills).length) {
+      rebuildMonsterIndexes();
+      hideDbFailBanner();
+      return gameDB;
+    }
+    const stored = readStoredDb();
+    if (stored && stored.skills && Object.keys(stored.skills).length) {
+      gameDB = stored;
+      rebuildMonsterIndexes();
+      return gameDB;
+    }
+    try {
+      const res = await fetch('zaggers_database.json');
+      if (!res.ok) throw new Error('DB fetch failed: ' + res.status);
+      gameDB = await res.json();
+      try { localStorage.setItem('zaggers_db', JSON.stringify(gameDB)); } catch (e) {}
+      rebuildMonsterIndexes();
+      hideDbFailBanner();
+      return gameDB;
+    } catch (err) {
+      console.error('Failed to load zaggers_database.json', err);
+      showDbFailBanner('Failed to load zaggers_database.json (404 or network error). Serve from the web/ folder so the client can fetch the database.');
+      gameDB = stored && stored.classes ? stored : { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
+      rebuildMonsterIndexes();
+      return gameDB;
+    }
+  }
+
+  function getDbClasses() {
+    const db = getGameDB();
+    return (db && db.classes) ? db.classes : getFallbackClasses();
+  }
+
+  function getDbSkills() {
+    const db = getGameDB();
+    return (db && db.skills) ? db.skills : {};
+  }
+
+  function getDbItems() {
+    const db = getGameDB();
+    return (db && db.items) ? db.items : {};
+  }
+
+  function getSkill(id) { return getDbSkills()[id] || null; }
+  function getItem(id) { return getDbItems()[id] || null; }
+
+  function chatSystem(msg, color) {
+    const chatBox = document.getElementById('chat-messages');
+    if (!chatBox) return;
+    chatBox.innerHTML += `<div><span style="color: ${color || '#ffd54f'};">[System]:</span> ${msg}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function savePlayerState() {
+    try {
+      const payload = {
+        name: player.name, classId: player.classId, class: player.class, sprite: player.sprite,
+        level: player.level, xp: player.xp, xpToLevel: player.xpToLevel, skillPoints: player.skillPoints,
+        hp: player.hp, maxHp: player.maxHp, sp: player.sp, maxSp: player.maxSp, zeny: player.zeny,
+        str: player.str, agi: player.agi, vit: player.vit, int: player.int, dex: player.dex, luk: player.luk,
+        learnedSkills: player.learnedSkills, skillHotbar: player.skillHotbar,
+        inventory: player.inventory, equipment: player.equipment
+      };
+      localStorage.setItem('zaggers_player_save', JSON.stringify(payload));
+    } catch (e) {}
+  }
+
+  function loadPlayerState() {
+    try {
+      const raw = localStorage.getItem('zaggers_player_save');
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || !data.classId) return false;
+      Object.assign(player, {
+        name: data.name || player.name,
+        classId: data.classId,
+        class: normalizeSpriteKey(data.class || data.sprite),
+        sprite: normalizeSpriteKey(data.sprite || data.class),
+        level: data.level || 1,
+        xp: data.xp || 0,
+        xpToLevel: data.xpToLevel || 100,
+        skillPoints: data.skillPoints != null ? data.skillPoints : 1,
+        hp: data.hp, maxHp: data.maxHp, sp: data.sp, maxSp: data.maxSp, zeny: data.zeny,
+        str: data.str, agi: data.agi, vit: data.vit, int: data.int, dex: data.dex, luk: data.luk,
+        learnedSkills: data.learnedSkills || {},
+        skillHotbar: Array.isArray(data.skillHotbar) ? data.skillHotbar : player.skillHotbar,
+        inventory: Array.isArray(data.inventory) ? data.inventory : [],
+        equipment: Object.assign({ weapon: null, shield: null, armor: null, headgear: null, accessory: null }, data.equipment || {})
+      });
+      ['str','agi','vit','int','dex','luk'].forEach(s => {
+        const el = document.getElementById(`stat-${s}`);
+        if (el) el.innerText = player[s];
+      });
+      const pNameEl = document.getElementById('player-name');
+      const c = getDbClasses()[player.classId];
+      if (pNameEl) pNameEl.innerText = `${player.name} [${(c && c.name) || player.classId}]`;
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function getEquipBonuses() {
+    let atk = 0, matk = 0, def = 0, mdef = 0;
+    const bonus = { str: 0, agi: 0, vit: 0, int: 0, dex: 0, luk: 0, crit: 0, flee: 0 };
+    EQUIP_SLOT_ORDER.forEach(slot => {
+      const id = player.equipment[slot];
+      if (!id) return;
+      const it = getItem(id);
+      if (!it) return;
+      atk += it.atk || 0;
+      matk += it.matk || 0;
+      def += it.def || 0;
+      mdef += it.mdef || 0;
+      if (it.bonus) {
+        Object.keys(bonus).forEach(k => { bonus[k] += it.bonus[k] || 0; });
+      }
+    });
+    return { atk, matk, def, mdef, bonus };
+  }
+
+  function getActiveBuffMods() {
+    const now = performance.now();
+    player.buffs = (player.buffs || []).filter(b => b.expiresAt > now);
+    const mods = { atkMult: 1, defMult: 1, dmgTakenMult: 1, hitBonus: 0, moveMult: 1, manaShield: false };
+    player.buffs.forEach(b => {
+      const m = b.mods || {};
+      if (m.atkMult) mods.atkMult *= m.atkMult;
+      if (m.defMult) mods.defMult *= m.defMult;
+      if (m.dmgTakenMult) mods.dmgTakenMult *= m.dmgTakenMult;
+      if (m.hitBonus) mods.hitBonus += m.hitBonus;
+      if (m.moveMult) mods.moveMult *= m.moveMult;
+      if (m.manaShield) mods.manaShield = true;
+    });
+    return mods;
+  }
+
+  function getEffectiveStat(stat) {
+    return (player[stat] || 0) + (getEquipBonuses().bonus[stat] || 0);
+  }
+
+  function getPlayerAtk() {
+    const eq = getEquipBonuses();
+    const buff = getActiveBuffMods();
+    return Math.floor((22 + getEffectiveStat('str') * 1.6 + eq.atk) * buff.atkMult);
+  }
+
+  function getPlayerMatk() {
+    const eq = getEquipBonuses();
+    const buff = getActiveBuffMods();
+    return Math.floor((18 + getEffectiveStat('int') * 2.0 + eq.matk) * buff.atkMult);
+  }
+
+  function getPlayerDef() {
+    const eq = getEquipBonuses();
+    const buff = getActiveBuffMods();
+    return Math.floor((eq.def + getEffectiveStat('vit') * 0.4) * buff.defMult);
+  }
+
+  function getPlayerMdef() {
+    const eq = getEquipBonuses();
+    return Math.floor(eq.mdef + getEffectiveStat('int') * 0.3);
+  }
+
+  function isShieldLocked() {
+    const wid = player.equipment.weapon;
+    if (!wid) return false;
+    const w = getItem(wid);
+    return !!(w && w.twoHanded);
+  }
+
+  function grantXp(amount) {
+    player.xp += amount;
+    let leveled = false;
+    while (player.xp >= player.xpToLevel) {
+      player.xp -= player.xpToLevel;
+      player.level += 1;
+      player.skillPoints += 1;
+      player.xpToLevel = Math.floor(100 + player.level * 35);
+      const growth = (getDbClasses()[player.classId] || {});
+      player.maxHp += (growth.hpGrowth || 14);
+      player.hp = player.maxHp;
+      player.maxSp += (growth.spGrowth || 6);
+      player.sp = player.maxSp;
+      leveled = true;
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 30, text: `LEVEL UP ${player.level}!`, color: '#ffd54f', life: 70 });
+    }
+    if (leveled) {
+      chatSystem(`Reached Base Lv. ${player.level}! Skill point gained.`, '#81c784');
+      refreshSkillTree();
+    }
+    updateHUD();
+    savePlayerState();
+  }
+
+  function addToInventory(itemId, qty) {
+    qty = qty || 1;
+    const stack = player.inventory.find(x => x.id === itemId);
+    if (stack) stack.qty += qty;
+    else player.inventory.push({ id: itemId, qty });
+    savePlayerState();
+    refreshEquipPanel();
+  }
+
+  function removeFromInventory(itemId, qty) {
+    qty = qty || 1;
+    const idx = player.inventory.findIndex(x => x.id === itemId);
+    if (idx < 0) return false;
+    player.inventory[idx].qty -= qty;
+    if (player.inventory[idx].qty <= 0) player.inventory.splice(idx, 1);
+    savePlayerState();
+    return true;
+  }
+
+  function itemShortDesc(it) {
+    if (!it) return '';
+    const bits = [];
+    if (it.healHp) bits.push(`HP +${it.healHp}`);
+    if (it.healSp) bits.push(`SP +${it.healSp}`);
+    if (it.atk) bits.push(`ATK +${it.atk}`);
+    if (it.matk) bits.push(`MATK +${it.matk}`);
+    if (it.def) bits.push(`DEF +${it.def}`);
+    if (it.mdef) bits.push(`MDEF +${it.mdef}`);
+    if (it.twoHanded) bits.push('2H');
+    if (it.element) bits.push(it.element);
+    if (it.bonus) {
+      Object.keys(it.bonus).forEach(k => { if (it.bonus[k]) bits.push(`${k.toUpperCase()}+${it.bonus[k]}`); });
+    }
+    return bits.join(', ') || (it.description || it.type || '');
+  }
+
+  function itemIconHtml(it) {
+    if (!it || !it.icon) return '';
+    const src = `assets/sprites_ff/${it.icon}`;
+    return `<img src="${src}" alt="" width="20" height="20" style="image-rendering:pixelated;vertical-align:middle;margin-right:4px;" onerror="this.style.display='none'" />`;
+  }
+
+  function populateShop() { populateShopFromDB(); }
+  function renderSkillTree() { refreshSkillTree(); }
+  function useSkill(skillId) { return castSkill(skillId); }
+
+  function populateShopFromDB() {
+    const list = document.getElementById('shop-items-list');
+    if (!list) return;
+    const items = Object.values(getDbItems()).filter(it => {
+      if (!it || it.price == null || it.price < 0) return false;
+      if (it.id === 'thawstone') return false;
+      return it.source === 'shop' || (it.tier != null && it.tier <= 2 && it.price > 0);
+    }).sort((a, b) => (a.reqLevel || 1) - (b.reqLevel || 1) || a.price - b.price);
+    if (!items.length) {
+      list.innerHTML = `<div class="shop-item"><div><strong>Red Potion</strong><br><small style="color:#b0bec5;">Restores 100 HP</small></div><button class="buy-btn" onclick="buyItemById('red_potion')">50 z</button></div>`;
+      return;
+    }
+    list.innerHTML = items.map(it => {
+      const req = it.reqLevel ? ` · Lv ${it.reqLevel}` : '';
+      return `<div class="shop-item"><div>${itemIconHtml(it)}<strong>${it.name}</strong><br><small style="color:#b0bec5;">${itemShortDesc(it)}${req}</small></div><button class="buy-btn" onclick="buyItemById('${it.id}')">${it.price} z</button></div>`;
+    }).join('');
+  }
+
+  function buyItemById(itemId) {
+    const it = getItem(itemId);
+    if (!it) { chatSystem('Unknown item.', '#ff5252'); return; }
+    const cost = it.price || 0;
+    if (player.zeny < cost) { chatSystem('Not enough Zeny.', '#ff5252'); return; }
+    if ((it.reqLevel || 1) > player.level) { chatSystem(`Requires Base Lv. ${it.reqLevel}.`, '#ff5252'); return; }
+    player.zeny -= cost;
+    addToInventory(itemId, 1);
+    updateHUD();
+    chatSystem(`Purchased ${it.name}! Open Equip [I] to use or equip.`, '#81c784');
+    savePlayerState();
+  }
+
+  function toggleSkillWindow(force) {
+    const el = document.getElementById('skill-window');
+    if (!el) return;
+    const open = force === false ? false : force === true ? true : !el.classList.contains('open');
+    el.classList.toggle('open', open);
+    el.style.display = open ? 'flex' : 'none';
+    if (open) {
+      const eq = document.getElementById('equip-window');
+      if (eq) { eq.classList.remove('open'); eq.style.display = 'none'; }
+      refreshSkillTree();
+    }
+  }
+
+  function toggleEquipWindow(force) {
+    const el = document.getElementById('equip-window');
+    if (!el) return;
+    const open = force === false ? false : force === true ? true : !el.classList.contains('open');
+    el.classList.toggle('open', open);
+    el.style.display = open ? 'flex' : 'none';
+    if (open) {
+      const sk = document.getElementById('skill-window');
+      if (sk) { sk.classList.remove('open'); sk.style.display = 'none'; }
+      refreshEquipPanel();
+    }
+  }
+
+  function getClassSkills(classId) {
+    return Object.values(getDbSkills()).filter(s => s.classId === classId);
+  }
+
+  function canLearnSkill(skillId) {
+    const sk = getSkill(skillId);
+    if (!sk || sk.classId !== player.classId) return false;
+    if (player.learnedSkills[skillId]) return false;
+    if ((player.level || 1) < (sk.reqLevel || 1)) return false;
+    if (sk.requires && !player.learnedSkills[sk.requires]) return false;
+    if ((player.skillPoints || 0) < 1) return false;
+    return true;
+  }
+
+  function learnSkill(skillId) {
+    if (!canLearnSkill(skillId)) return;
+    player.skillPoints -= 1;
+    player.learnedSkills[skillId] = 1;
+    const empty = player.skillHotbar.findIndex(x => !x);
+    if (empty >= 0) player.skillHotbar[empty] = skillId;
+    chatSystem(`Learned ${getSkill(skillId).name}!`, '#81c784');
+    refreshSkillTree();
+    updateHUD();
+    savePlayerState();
+  }
+
+  function bindSkillToHotbar(skillId, slotIndex) {
+    if (!player.learnedSkills[skillId]) return;
+    const idx = (slotIndex != null) ? slotIndex : player.skillHotbar.findIndex(x => !x);
+    if (idx < 0 || idx > 8) {
+      // replace first slot if full
+      player.skillHotbar[0] = skillId;
+    } else {
+      const existing = player.skillHotbar.indexOf(skillId);
+      if (existing >= 0) player.skillHotbar[existing] = null;
+      player.skillHotbar[idx] = skillId;
+    }
+    updateHotbarUI();
+    refreshSkillTree();
+    savePlayerState();
+  }
+
+  function refreshSkillTree() {
+    const grid = document.getElementById('skill-tree-grid');
+    if (!grid) return;
+    const classId = player.classId || 'vanguard';
+    const c = getDbClasses()[classId];
+    const classEl = document.getElementById('skill-tree-class');
+    const ptsEl = document.getElementById('skill-tree-points');
+    const lvEl = document.getElementById('skill-tree-level');
+    if (classEl) classEl.innerText = (c && c.name) || classId;
+    if (ptsEl) ptsEl.innerText = String(player.skillPoints || 0);
+    if (lvEl) lvEl.innerText = String(player.level || 1);
+
+    const skills = getClassSkills(classId);
+    const byTier = { 1: [], 2: [], 3: [] };
+    skills.forEach(s => {
+      const t = s.tier || 1;
+      if (!byTier[t]) byTier[t] = [];
+      byTier[t].push(s);
+    });
+    Object.keys(byTier).forEach(t => byTier[t].sort((a, b) => (a.reqLevel || 0) - (b.reqLevel || 0)));
+
+    let html = '';
+    [1, 2, 3].forEach(tier => {
+      const row = byTier[tier] || [];
+      html += `<div class="skill-tier-label">TIER ${tier}</div>`;
+      const left = row[0];
+      const right = row[1];
+      html += skillNodeHtml(left) + `<div class="skill-bridge">${tier < 3 ? '↕' : ''}</div>` + skillNodeHtml(right);
+    });
+    if (!skills.length) {
+      html = `<div style="grid-column:1/-1;color:#90a4ae;font-size:12px;">No skills in database for this class. Load zaggers_database.json (serve web/ over HTTP).</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function skillNodeHtml(sk) {
+    if (!sk) return `<div class="skill-node locked"><div class="sk-name">—</div></div>`;
+    const learned = !!player.learnedSkills[sk.id];
+    const available = canLearnSkill(sk.id);
+    const locked = !learned && !available;
+    let cls = 'skill-node';
+    if (learned) cls += ' learned';
+    else if (available) cls += ' available';
+    else cls += ' locked';
+    const prereq = sk.requires ? (getSkill(sk.requires) || {}).name || sk.requires : 'None';
+    const hb = player.skillHotbar.indexOf(sk.id);
+    let actions = '';
+    if (!learned && available) {
+      actions = `<button onclick="event.stopPropagation();learnSkill('${sk.id}')">Learn (1 pt)</button>`;
+    } else if (learned) {
+      actions = `<button onclick="event.stopPropagation();bindSkillToHotbar('${sk.id}')">Bind F${hb >= 0 ? hb + 1 : '?'}</button>`;
+      for (let i = 0; i < 6; i++) {
+        actions += `<button onclick="event.stopPropagation();bindSkillToHotbar('${sk.id}',${i})" title="F${i + 1}">F${i + 1}</button>`;
+      }
+    }
+    return `<div class="${cls}" title="${(sk.description || '').replace(/"/g, '&quot;')}">
+      <div class="sk-name">${sk.name}</div>
+      <div class="sk-meta">Lv ${sk.reqLevel || 1} · SP ${sk.spCost || 0} · CD ${((sk.cooldownMs || 0) / 1000).toFixed(1)}s<br>${sk.targetType || ''} · ${sk.element || 'Neutral'} · req: ${prereq}</div>
+      <div class="sk-actions">${actions}</div>
+    </div>`;
+  }
+
+  function applyBuff(id, name, durationMs, mods) {
+    const expiresAt = performance.now() + durationMs;
+    player.buffs = (player.buffs || []).filter(b => b.id !== id);
+    player.buffs.push({ id, name, expiresAt, mods: mods || {} });
+    floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 28, text: name, color: '#81d4fa', life: 45 });
+  }
+
+  function castHotbarSlot(slotIndex) {
+    const skillId = player.skillHotbar[slotIndex];
+    if (!skillId) return;
+    castSkill(skillId);
+  }
+
+  function castSkill(skillId) {
+    if (isPlayerDead) return;
+    const sk = getSkill(skillId);
+    if (!sk) return;
+    if (!player.learnedSkills[skillId]) { chatSystem('Skill not learned.', '#ff5252'); return; }
+    const now = performance.now();
+    if ((player.skillCooldowns[skillId] || 0) > now) return;
+    if (player.sp < (sk.spCost || 0)) { chatSystem('Not enough SP.', '#ff5252'); return; }
+
+    player.sp -= (sk.spCost || 0);
+    player.skillCooldowns[skillId] = now + (sk.cooldownMs || 1000);
+    const tt = sk.targetType || 'single_enemy';
+    player.isAttacking = true;
+    player.attackTimer = ATTACK_TOTAL_FRAMES;
+
+    try {
+      if (tt === 'single_enemy') {
+        const target = findNearestMonster(3.2);
+        if (target) applyMonsterHit(target, sk);
+        else floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: 'No target', color: '#90a4ae', life: 30 });
+      } else if (tt === 'aoe_enemy') {
+        let hit = 0;
+        monsters.forEach(m => {
+          if (m.hp > 0 && !m.dying && Math.hypot(m.wx - player.wx, m.wy - player.wy) < 3.5) {
+            if (applyMonsterHit(m, sk)) hit++;
+          }
+        });
+        if (!hit) floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: 'No targets', color: '#90a4ae', life: 30 });
+      } else if (tt === 'ally_heal') {
+        const healMult = (sk.multiplier != null) ? sk.multiplier : 1;
+        const heal = Math.max(1, Math.floor((20 + getEffectiveStat('int') * 4) * Math.max(1, healMult)));
+        player.hp = Math.min(player.maxHp, player.hp + heal);
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: `+${heal} HP`, color: '#66bb6a', life: 40 });
+      } else if (tt === 'self_buff') {
+        applySelfBuffForSkill(sk);
+      } else if (tt === 'party_buff') {
+        // Solo client: party buffs apply to self (same timed modifiers).
+        applyPartyBuffForSkill(sk);
+      } else if (tt === 'ally_single') {
+        applyAllySingleForSkill(sk);
+      } else if (tt === 'ground_trap') {
+        const trapRoll = calcCombatDamage(sk, { element: 'Neutral' });
+        groundTraps.push({
+          wx: player.wx, wy: player.wy, radius: 1.1,
+          expiresAt: now + 20000, skillId: sk.id, dmg: Math.floor(trapRoll.dmg * 0.8), element: sk.element || 'Neutral', triggered: false
+        });
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 22, text: 'Trap Set', color: '#aed581', life: 40 });
+      } else {
+        // Unknown targetType: no-op safe fallback
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: sk.name, color: '#90caf9', life: 30 });
+      }
+    } catch (err) {
+      console.warn('castSkill error', skillId, err);
+      chatSystem(`Skill ${sk.name} failed safely.`, '#ff5252');
+    }
+
+    updateHUD();
+    savePlayerState();
+  }
+
+  function applySelfBuffForSkill(sk) {
+    const id = sk.id;
+    if (id === 'shield_bulwark') applyBuff(id, 'Bulwark', 8000, { dmgTakenMult: 0.6 });
+    else if (id === 'iron_stance') applyBuff(id, 'Iron Stance', 10000, { defMult: 1.5, moveMult: 0.5, dmgTakenMult: 0.85 });
+    else if (id === 'mana_shield') applyBuff(id, 'Mana Shield', 12000, { manaShield: true });
+    else if (id === 'cloak_of_dusk') applyBuff(id, 'Cloak of Dusk', 10000, { atkMult: 1.35 });
+    else if (id === 'hawk_eye') applyBuff(id, 'Hawk Eye', 12000, { atkMult: 1.25, hitBonus: 20 });
+    else if (id === 'beast_bond') applyBuff(id, 'Beast Bond', 15000, { atkMult: 1.2 });
+    else applyBuff(id, sk.name, 8000, { atkMult: 1.15, defMult: 1.1 });
+  }
+
+  function applyPartyBuffForSkill(sk) {
+    const id = sk.id;
+    if (id === 'aegis_of_the_legion') applyBuff(id, 'Aegis Shield', 12000, { dmgTakenMult: 0.7 });
+    else if (id === 'sanctuary_ward') {
+      applyBuff(id, 'Sanctuary', 10000, { dmgTakenMult: 0.9 });
+      const heal = Math.max(1, Math.floor(15 + getEffectiveStat('int') * 2));
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 32, text: `+${heal} HP`, color: '#a5d6a7', life: 40 });
+    } else if (id === 'blessing_of_valor') applyBuff(id, 'Blessing of Valor', 20000, { atkMult: 1.2, defMult: 1.15 });
+    else applyBuff(id, sk.name, 10000, { atkMult: 1.1, defMult: 1.1 });
+  }
+
+  function applyAllySingleForSkill(sk) {
+    if (sk.id === 'purge_affliction') {
+      player.buffs = (player.buffs || []).filter(b => !(b.mods && b.mods.negative));
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 24, text: 'Purged', color: '#fff59d', life: 40 });
+    } else if (sk.id === 'resurrection_rite') {
+      if (player.hp < player.maxHp * 0.35) {
+        player.hp = Math.floor(player.maxHp * 0.5);
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 26, text: 'Rite Heal', color: '#ffe082', life: 50 });
+      } else {
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 26, text: 'Ready', color: '#b0bec5', life: 30 });
+      }
+    } else {
+      const heal = Math.max(1, Math.floor(25 + getEffectiveStat('int') * 3));
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 24, text: `+${heal} HP`, color: '#66bb6a', life: 40 });
+    }
+  }
+
+  function findNearestMonster(maxDist) {
+    let best = null, bestD = maxDist;
+    monsters.forEach(m => {
+      if (m.hp <= 0) return;
+      const d = Math.hypot(m.wx - player.wx, m.wy - player.wy);
+      if (d < bestD) { bestD = d; best = m; }
+    });
+    return best;
+  }
+
+  let hotbarLayoutKey = '';
+  function updateHotbarUI(forceRebuild) {
+    const bar = document.getElementById('skill-hotbar');
+    if (!bar) return;
+    const layoutKey = player.skillHotbar.join('|');
+    if (forceRebuild || layoutKey !== hotbarLayoutKey || bar.children.length !== 9) {
+      hotbarLayoutKey = layoutKey;
+      let html = '';
+      for (let i = 0; i < 9; i++) {
+        const sid = player.skillHotbar[i];
+        const sk = sid ? getSkill(sid) : null;
+        const name = sk ? sk.name : '';
+        html += `<div class="hotbar-slot ${sk ? '' : 'empty'}" data-slot="${i}" onclick="castHotbarSlot(${i})" title="${name || 'Empty'}">
+          <div class="hb-key">F${i + 1}</div>
+          <div class="hb-name">${name ? name.split(' ').slice(0, 2).join(' ') : '—'}</div>
+          <div class="hb-cd" style="height:0%"></div>
+        </div>`;
+      }
+      bar.innerHTML = html;
+    }
+    const now = performance.now();
+    for (let i = 0; i < 9; i++) {
+      const slotEl = bar.children[i];
+      if (!slotEl) continue;
+      const sid = player.skillHotbar[i];
+      const sk = sid ? getSkill(sid) : null;
+      const cdEl = slotEl.querySelector('.hb-cd');
+      if (!cdEl) continue;
+      if (!sk) { cdEl.style.height = '0%'; continue; }
+      const readyAt = player.skillCooldowns[sid] || 0;
+      const cdMs = sk.cooldownMs || 1000;
+      const remain = Math.max(0, readyAt - now);
+      cdEl.style.height = (remain > 0 ? Math.min(100, (remain / cdMs) * 100) : 0) + '%';
+    }
+  }
+
+  function refreshEquipPanel() {
+    const doll = document.getElementById('paperdoll-slots');
+    const inv = document.getElementById('inventory-list');
+    const stats = document.getElementById('equip-combat-stats');
+    if (!doll || !inv) return;
+    const shieldLocked = isShieldLocked();
+    doll.innerHTML = EQUIP_SLOT_ORDER.map(slot => {
+      const id = player.equipment[slot];
+      const it = id ? getItem(id) : null;
+      const locked = slot === 'shield' && shieldLocked;
+      return `<div class="equip-slot ${locked ? 'locked-slot' : ''}">
+        <div class="slot-label">${slot}${locked ? ' (2H lock)' : ''}</div>
+        <div class="slot-item">${it ? itemIconHtml(it) + it.name : '<span style="color:#607d8b;">Empty</span>'}</div>
+        <div class="slot-stats">${it ? itemShortDesc(it) : (locked ? 'Unequip two-handed weapon first' : '')}</div>
+        ${it ? `<button class="slot-btn" style="margin-top:4px;" onclick="unequipSlot('${slot}')">Unequip</button>` : ''}
+      </div>`;
+    }).join('');
+
+    if (!player.inventory.length) {
+      inv.innerHTML = `<div class="inv-row"><span style="color:#90a4ae;">Inventory empty — buy gear at the Shop [S].</span></div>`;
+    } else {
+      inv.innerHTML = player.inventory.map(stack => {
+        const it = getItem(stack.id);
+        const name = it ? it.name : stack.id;
+        const isEquip = it && it.slot;
+        const isCons = it && (it.type === 'consumable' || it.slot == null) && (it.healHp || it.healSp);
+        let actions = '';
+        if (isEquip) actions += `<button onclick="equipItem('${stack.id}')">Equip</button>`;
+        if (isCons) actions += `<button onclick="useConsumable('${stack.id}')">Use</button>`;
+        return `<div class="inv-row"><div>${itemIconHtml(it)}<strong>${name}</strong> ×${stack.qty}<br><small style="color:#90a4ae;">${itemShortDesc(it)}</small></div><div class="inv-actions">${actions}</div></div>`;
+      }).join('');
+    }
+
+    if (stats) {
+      const eq = getEquipBonuses();
+      const b = eq.bonus;
+      stats.innerHTML = `ATK ${getPlayerAtk()} · MATK ${getPlayerMatk()} · DEF ${getPlayerDef()} · MDEF ${getPlayerMdef()}<br>
+        Gear: ATK+${eq.atk} MATK+${eq.matk} DEF+${eq.def} MDEF+${eq.mdef}
+        ${b.str||b.agi||b.vit||b.int||b.dex||b.luk||b.crit||b.flee ? `<br>Bonus STR${b.str} AGI${b.agi} VIT${b.vit} INT${b.int} DEX${b.dex} LUK${b.luk} CRIT${b.crit} FLEE${b.flee}` : ''}`;
+    }
+  }
+
+  function equipItem(itemId) {
+    const it = getItem(itemId);
+    if (!it || !it.slot) { chatSystem('That item cannot be equipped.', '#ff5252'); return; }
+    if ((it.reqLevel || 1) > player.level) { chatSystem(`Requires Base Lv. ${it.reqLevel}.`, '#ff5252'); return; }
+    const slot = it.slot;
+    if (slot === 'shield' && isShieldLocked()) {
+      chatSystem('Cannot equip shield while using a two-handed weapon.', '#ff5252');
+      return;
+    }
+    if (!player.inventory.find(x => x.id === itemId)) return;
+
+    // Unequip existing in slot back to inventory
+    if (player.equipment[slot]) addToInventory(player.equipment[slot], 1);
+    if (it.twoHanded && player.equipment.shield) {
+      addToInventory(player.equipment.shield, 1);
+      player.equipment.shield = null;
+      chatSystem('Shield unequipped (two-handed weapon).', '#ffe082');
+    }
+    removeFromInventory(itemId, 1);
+    player.equipment[slot] = itemId;
+    chatSystem(`Equipped ${it.name}.`, '#81c784');
+    refreshEquipPanel();
+    updateHUD();
+    savePlayerState();
+  }
+
+  function unequipSlot(slot) {
+    const id = player.equipment[slot];
+    if (!id) return;
+    addToInventory(id, 1);
+    player.equipment[slot] = null;
+    refreshEquipPanel();
+    updateHUD();
+    savePlayerState();
+  }
+
+  function useConsumable(itemId) {
+    const it = getItem(itemId);
+    if (!it) return;
+    if (!removeFromInventory(itemId, 1)) return;
+    if (it.healHp) {
+      player.hp = Math.min(player.maxHp, player.hp + it.healHp);
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 24, text: `+${it.healHp} HP`, color: '#66bb6a', life: 40 });
+    }
+    if (it.healSp) {
+      player.sp = Math.min(player.maxSp, player.sp + it.healSp);
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 34, text: `+${it.healSp} SP`, color: '#42a5f5', life: 40 });
+    }
+    updateHUD();
+    refreshEquipPanel();
+    savePlayerState();
+  }
+
+  function tickSkillSystems() {
+    const buff = getActiveBuffMods();
+    player.speed = 0.08 * (buff.moveMult || 1);
+
+    const now = performance.now();
+    for (let i = groundTraps.length - 1; i >= 0; i--) {
+      const t = groundTraps[i];
+      if (t.expiresAt <= now) { groundTraps.splice(i, 1); continue; }
+      if (t.triggered) continue;
+      for (const m of monsters) {
+        if (m.hp <= 0) continue;
+        if (Math.hypot(m.wx - t.wx, m.wy - t.wy) <= t.radius) {
+          t.triggered = true;
+          applyDamageToMonster(m, t.dmg || 10, { color: '#c5e1a5' });
+          m.speed = Math.max(0.01, (m.speed || 0.04) * 0.4);
+          floatingTexts.push({ wx: t.wx, wy: t.wy, offsetY: 18, text: 'Snared!', color: '#aed581', life: 35 });
+          break;
+        }
+      }
+    }
+    if (frameCount % 3 === 0) updateHotbarUI(false);
+  }
+
+  function drawGroundTraps() {
+    const now = performance.now();
+    groundTraps.forEach(t => {
+      if (t.expiresAt <= now) return;
+      const iso = worldToIso(t.wx, t.wy);
+      const pulse = 0.35 + 0.25 * Math.sin(frameCount * 0.12);
+      ctx.beginPath();
+      ctx.ellipse(iso.x, iso.y, 14 * cameraZoom, 8 * cameraZoom, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = t.triggered ? `rgba(120,120,120,${pulse})` : `rgba(174,213,129,${pulse})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = t.triggered ? `rgba(80,80,80,0.15)` : `rgba(174,213,129,0.18)`;
+      ctx.fill();
+    });
   }
 
   let selectedCreatorClassId = 'vanguard';
@@ -1038,7 +2068,7 @@
     const classesMap = getDbClasses();
     const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
     if (!c) return;
-    const spriteKey = c.sprite || 'hero_knight';
+    const spriteKey = normalizeSpriteKey(c.sprite || 'hero_knight');
     const img = sprites[spriteKey];
 
     creatorPreviewAnimTimer++;
@@ -1061,9 +2091,12 @@
     const stats = c.baseStats || c.stats || { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 };
     const baseHp = 100 + stats.vit * 15;
     const baseSp = 30 + stats.int * 8;
+    const spriteKey = normalizeSpriteKey(c.sprite || 'hero_knight');
 
-    player.class = c.sprite || 'hero_knight';
-    player.sprite = c.sprite || 'hero_knight';
+    player.name = heroName;
+    player.classId = c.id || selectedCreatorClassId;
+    player.class = spriteKey;
+    player.sprite = spriteKey;
     player.str = stats.str;
     player.agi = stats.agi;
     player.vit = stats.vit;
@@ -1074,18 +2107,47 @@
     player.hp = baseHp;
     player.maxSp = baseSp;
     player.sp = baseSp;
+    player.level = 1;
+    player.xp = 0;
+    player.xpToLevel = 100;
+    player.skillPoints = 1;
+    player.learnedSkills = {};
+    player.skillHotbar = [null, null, null, null, null, null, null, null, null];
+    player.skillCooldowns = {};
+    player.inventory = [];
+    player.equipment = { weapon: null, shield: null, armor: null, headgear: null, accessory: null };
+    player.buffs = [];
+    player.zeny = 500;
+
+    // Seed reqLevel-1 class skills onto the hotbar so F1 works immediately.
+    getClassSkills(player.classId).filter(s => (s.reqLevel || 1) <= 1 && !s.requires).forEach((s, idx) => {
+      player.learnedSkills[s.id] = 1;
+      if (idx < player.skillHotbar.length) player.skillHotbar[idx] = s.id;
+    });
+
+    ['str','agi','vit','int','dex','luk'].forEach(s => {
+      const el = document.getElementById(`stat-${s}`);
+      if (el) el.innerText = player[s];
+    });
 
     const pNameEl = document.getElementById('player-name');
     if (pNameEl) pNameEl.innerText = `${heroName} [${c.name}]`;
 
     updateHUD();
+    populateShopFromDB();
+    refreshSkillTree();
+    updateHotbarUI(true);
+    refreshEquipPanel();
+    savePlayerState();
+    const hotbar = document.getElementById('skill-hotbar');
+    if (hotbar) hotbar.style.display = 'flex';
 
     const modal = document.getElementById('character-creator-modal');
     if (modal) modal.style.display = 'none';
 
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) {
-      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Welcome to Aethelgard Master Town, ${heroName}! Class set to <strong>${c.name}</strong>.</div>`;
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Welcome to Aethelgard Master Town, ${heroName}! Class set to <strong>${c.name}</strong>. Open Skills [K] and Equip [I].</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
     }
     showDistrictBanner("Entering Aethelgard Grand Plaza");
@@ -1173,13 +2235,18 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
-    renderCreatorClassCards();
     setInterval(updateCreatorPreviewCanvas, 50);
+    setInterval(() => { if (typeof updateHotbarUI === 'function') updateHotbarUI(); }, 200);
 
-    // Boot into the Aethelgard master town (WORLD_MAP_EXPANSION.md), then
-    // let a previously-saved custom map (from the "Load Map" button) win if
-    // one exists, preserving prior behavior.
-    loadZoneMap('aethelgard').then(() => {
+    // Fetch gameDB first (ROADMAP §3.0), then boot the town map so monster
+    // enrichment / shop / skills all see the loaded schema.
+    ensureGameDB().then(() => {
+      renderCreatorClassCards();
+      populateShopFromDB();
+      buildHotbarOnce();
+      updateHotbarUI();
+      return loadZoneMap('aethelgard');
+    }).then(() => {
       const savedMap = localStorage.getItem('zaggers_custom_map');
       if (savedMap) {
         try {
@@ -1188,6 +2255,10 @@
       }
     });
   });
+
+  function buildHotbarOnce() {
+    updateHotbarUI();
+  }
 
   // Draw 2.5D Diamond Isometric Tile (PNG Ground Tile Asset Textures & Fallback)
   function drawIsoDiamondTile(screenX, screenY, isOdd, wx, wy) {
@@ -1480,10 +2551,20 @@
         if (distToPlayer < 1.2 && m.attackCooldown <= 0) {
           m.attackCooldown = 60; // Attack once every 1s
           m.frame = 3; // Attack frame
-          const dmg = Math.floor(8 + Math.random() * 8);
-          player.hp = Math.max(0, player.hp - dmg);
-          player.hitFlashTimer = HIT_FLASH_DURATION; // white damage-flash, see render()
-          floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: `-${dmg}`, color: '#ff5252', life: 40 });
+          const buff = getActiveBuffMods();
+          let raw = Math.floor(8 + Math.random() * 8);
+          raw = Math.max(1, Math.floor(raw * (buff.dmgTakenMult || 1) - getPlayerDef() * 0.35));
+          if (buff.manaShield && player.sp > 0) {
+            const absorbed = Math.min(player.sp, raw);
+            player.sp -= absorbed;
+            raw -= absorbed;
+            if (absorbed > 0) floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 32, text: `-${absorbed} SP`, color: '#42a5f5', life: 30 });
+          }
+          if (raw > 0) {
+            player.hp = Math.max(0, player.hp - raw);
+            player.hitFlashTimer = HIT_FLASH_DURATION;
+            floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: `-${raw}`, color: '#ff5252', life: 40 });
+          }
           updateHUD();
           if (player.hp <= 0) {
             triggerPlayerDeath();
@@ -1527,6 +2608,10 @@
         m.frame = 1; // Idle frame
       }
     });
+
+    // 3b. Skill buffs / traps / hotbar cooldown sweep
+    tickSkillSystems();
+    drawGroundTraps();
 
     // 4. Draw Click Ripples
     for (let i = clickRipples.length - 1; i >= 0; i--) {
@@ -1733,10 +2818,24 @@
           ctx.fillStyle = (mIsBoss ? '#ff1744' : '#ff5252');
           ctx.fillRect(e.isoX - barW / 2, barY, (m.hp / m.maxHp) * barW, barH);
 
-          ctx.fillStyle = (mIsBoss ? '#ff8a80' : '#fff');
-          ctx.font = `${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+          const elName = m.element || 'Neutral';
+          const elColor = getElementColor(elName);
+          ctx.fillStyle = (mIsBoss ? '#ff8a80' : elColor);
+          ctx.font = `bold ${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
           ctx.textAlign = 'center';
           ctx.fillText(m.name, e.isoX, barY - 4);
+          ctx.font = `${Math.max(8, Math.floor(8 * cameraZoom))}px Segoe UI`;
+          ctx.fillStyle = elColor;
+          ctx.fillText(elName, e.isoX, barY - 4 - Math.max(10, 11 * cameraZoom));
+          if (elName !== 'Neutral') {
+            ctx.save();
+            ctx.globalAlpha = 0.16;
+            ctx.fillStyle = elColor;
+            ctx.beginPath();
+            ctx.ellipse(e.isoX, barY + 2, 22 * cameraZoom, 6 * cameraZoom, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
         }
       } else if (e.type === 'env') {
         const env = e.env;

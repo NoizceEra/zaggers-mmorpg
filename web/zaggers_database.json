@@ -791,7 +791,7 @@
       "atk": 35,
       "matk": 0,
       "def": 0,
-      "icon": "excalibur_ff.png",
+      "icon": "wpn_lance_dragon_ff.png",
       "slot": "weapon",
       "reqLevel": 34,
       "element": "Neutral",

@@ -119,40 +119,40 @@ Grouped by production priority: ship complete level bands, not scattered singles
 `potion_health_ff.png` already exists. `excalibur_ff.png` exists but is a placeholder standing in for a lance (`DESIGN_AUDIT.md` §2E) — flagged, not blocking.
 
 ### Consumables · 4
-- [ ] `potion_mana_ff.png` — Blue Potion
-- [ ] `food_bread_ff.png` — Meadow Bread
-- [ ] `potion_aetherite_ff.png` — Aetherite Draught (Holy, tier 4)
-- [ ] `key_thawstone_ff.png` — Thawstone (quest key, visibly melting)
+- [x] `potion_mana_ff.png` — Blue Potion
+- [x] `food_bread_ff.png` — Meadow Bread
+- [x] `potion_aetherite_ff.png` — Aetherite Draught (Holy, tier 4)
+- [x] `key_thawstone_ff.png` — Thawstone (quest key, visibly melting)
 
 ### Weapons · 6
-- [ ] `wpn_shortsword_ff.png` — Bellflower Shortsword (T1, Neutral)
-- [ ] `wpn_cleaver_ff.png` — Snagtooth Cleaver (T1, Neutral)
-- [ ] `wpn_trident_ff.png` — Tidebreak Trident (T2, Water, two-handed)
-- [ ] `wpn_emberglass_ff.png` — Emberglass Edge (T3, Fire)
-- [ ] `wpn_longbow_ff.png` — Hoarfrost Longbow (T4, Water, two-handed)
-- [ ] `wpn_staff_root_ff.png` — Rootfang Staff (T5, Shadow, two-handed)
-- [ ] *(optional)* `wpn_lance_dragon_ff.png` — replaces the `excalibur_ff.png` placeholder on Dragon Lance
+- [x] `wpn_shortsword_ff.png` — Bellflower Shortsword (T1, Neutral)
+- [x] `wpn_cleaver_ff.png` — Snagtooth Cleaver (T1, Neutral)
+- [x] `wpn_trident_ff.png` — Tidebreak Trident (T2, Water, two-handed)
+- [x] `wpn_emberglass_ff.png` — Emberglass Edge (T3, Fire)
+- [x] `wpn_longbow_ff.png` — Hoarfrost Longbow (T4, Water, two-handed)
+- [x] `wpn_staff_root_ff.png` — Rootfang Staff (T5, Shadow, two-handed)
+- [x] *(optional)* `wpn_lance_dragon_ff.png` — replaces the `excalibur_ff.png` placeholder on Dragon Lance
 
 ### Shields · 3
-- [ ] `shd_targe_ff.png` — Oaken Targe (T1, Earth)
-- [ ] `shd_aegis_ff.png` — Nave Aegis (T2, Water)
-- [ ] `shd_bulwark_ff.png` — Forgewrought Bulwark (T3, Fire)
+- [x] `shd_targe_ff.png` — Oaken Targe (T1, Earth)
+- [x] `shd_aegis_ff.png` — Nave Aegis (T2, Water)
+- [x] `shd_bulwark_ff.png` — Forgewrought Bulwark (T3, Fire)
 
 ### Armor · 4
-- [ ] `arm_jerkin_ff.png` — Traveller's Jerkin (T1, Neutral)
-- [ ] `arm_mythril_ff.png` — Mythril Armor (T2) — **retargeted** from the `prop_crystal_save.png` placeholder
-- [ ] `arm_slagplate_ff.png` — Slagworks Plate (T3, Fire)
-- [ ] `arm_shroud_ff.png` — Umbral Shroud (T5, Shadow)
+- [x] `arm_jerkin_ff.png` — Traveller's Jerkin (T1, Neutral)
+- [x] `arm_mythril_ff.png` — Mythril Armor (T2) — **retargeted** from the `prop_crystal_save.png` placeholder
+- [x] `arm_slagplate_ff.png` — Slagworks Plate (T3, Fire)
+- [x] `arm_shroud_ff.png` — Umbral Shroud (T5, Shadow)
 
 ### Headgear · 3
-- [ ] `hat_kettle_ff.png` — Militia Kettle Helm (T1)
-- [ ] `hat_circlet_ff.png` — Coral Circlet (T2, Water)
-- [ ] `hat_diadem_ff.png` — Aurora Diadem (T4, Holy)
+- [x] `hat_kettle_ff.png` — Militia Kettle Helm (T1)
+- [x] `hat_circlet_ff.png` — Coral Circlet (T2, Water)
+- [x] `hat_diadem_ff.png` — Aurora Diadem (T4, Holy)
 
 ### Accessories · 3
-- [ ] `acc_charm_ff.png` — Hedgerow Charm (T1, Earth)
-- [ ] `acc_pendant_ff.png` — Glasslight Pendant (T2, Holy)
-- [ ] `acc_signet_ff.png` — Sovereign's Signet (T6, Shadow)
+- [x] `acc_charm_ff.png` — Hedgerow Charm (T1, Earth)
+- [x] `acc_pendant_ff.png` — Glasslight Pendant (T2, Holy)
+- [x] `acc_signet_ff.png` — Sovereign's Signet (T6, Shadow)
 
 ---
 
