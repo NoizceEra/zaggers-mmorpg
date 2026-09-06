@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zaggers 2.5D MMORPG - Map Maker & Level Editor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: #0a0c12;
+      color: #e1e7f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    #top-bar {
+      height: 48px;
+      background: linear-gradient(180deg, #1b2233 0%, #121724 100%);
+      border-bottom: 2px solid #3d4c70;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffe082;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    .header-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(180deg, #2a344a 0%, #1e2638 100%);
+      border: 1px solid #4d5e85;
+      color: #e1e7f0;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(180deg, #384664 0%, #28334c 100%);
+      border-color: #7287ba;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(114, 135, 186, 0.4);
+    }
+    .btn-gold {
+      background: linear-gradient(180deg, #ca8a04 0%, #a16207 100%);
+      border-color: #fde047;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .btn-gold:hover {
+      background: linear-gradient(180deg, #eab308 0%, #ca8a04 100%);
+      border-color: #fef08a;
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    }
+    .btn-playtest {
+      background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+      border-color: #4ade80;
+      color: #fff;
+    }
+    .btn-playtest:hover {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+    .btn-active {
+      background: #3b82f6 !important;
+      border-color: #93c5fd !important;
+      color: #fff !important;
+    }
+
+    /* Main Editor Layout */
+    #editor-layout {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Sidebars */
+    .sidebar {
+      width: 280px;
+      background: #111520;
+      border-right: 2px solid #2e3850;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .sidebar-right {
+      border-right: none;
+      border-left: 2px solid #2e3850;
+    }
+    .sidebar-header {
+      background: #192030;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #ffd54f;
+      border-bottom: 1px solid #2e3850;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tab-bar {
+      display: flex;
+      background: #0d111a;
+      border-bottom: 1px solid #2e3850;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #8fa0c0;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: #fff; background: #161c2b; }
+    .tab-btn.active {
+      color: #ffe082;
+      border-bottom-color: #ffe082;
+      background: #182030;
+    }
+
+    .palette-container {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .palette-card {
+      background: #171e2c;
+      border: 1px solid #33415c;
+      border-radius: 6px;
+      padding: 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .palette-card:hover {
+      border-color: #60a5fa;
+      background: #1e283c;
+    }
+    .palette-card.selected {
+      border-color: #f59e0b;
+      background: #272115;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+    }
+    .palette-thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .palette-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .control-group {
+      background: #171e2c;
+      border: 1px solid #2e3850;
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .control-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .size-selector {
+      display: flex;
+      gap: 6px;
+    }
+    .size-btn {
+      flex: 1;
+      padding: 4px 0;
+      font-size: 11px;
+      font-weight: bold;
+      background: #222b3e;
+      border: 1px solid #3d4c70;
+      color: #cbd5e1;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .size-btn.active {
+      background: #3b82f6;
+      border-color: #60a5fa;
+      color: #fff;
+    }
+
+    /* Central Viewport & Canvas */
+    #viewport-container {
+      flex: 1;
+      position: relative;
+      background: #090b10;
+      overflow: hidden;
+    }
+    canvas#editorCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* HUD Overlay Panels on Canvas */
+    .canvas-hud {
+      position: absolute;
+      pointer-events: none;
+      z-index: 15;
+    }
+    #status-overlay {
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 20, 30, 0.88);
+      border: 1px solid #3b4866;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      backdrop-filter: blur(4px);
+      display: flex;
+      gap: 16px;
+      color: #cbd5e1;
+    }
+    #status-overlay strong { color: #ffe082; }
+
+    #playtest-banner {
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 163, 74, 0.92);
+      border: 2px solid #86efac;
+      border-radius: 20px;
+      padding: 6px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      display: none;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
+      pointer-events: auto;
+    }
+
+    #drag-drop-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      border: 4px dashed #60a5fa;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #93c5fd;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    /* RO Dialog Modal in Playtest */
+    .window-modal {
+      position: absolute;
+      background: rgba(14, 18, 26, 0.96);
+      border: 2px solid #5c6b94;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+      display: none;
+      z-index: 100;
+      pointer-events: auto;
+    }
+    .window-header {
+      background: #252e42;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 13px;
+      border-bottom: 1px solid #3d4a68;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .close-btn { cursor: pointer; color: #ff5252; font-weight: bold; padding: 0 4px; }
+    .window-body { padding: 12px; }
+    #npc-dialog-window { top: 50px; left: 50%; transform: translateX(-50%); width: 380px; }
+
+    .npc-option-btn {
+      width: 100%;
+      text-align: left;
+      background: #1c2536;
+      border: 1px solid #3a4a6e;
+      color: #e1e7f0;
+      padding: 8px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.15s;
+    }
+    .npc-option-btn:hover { background: #2b3954; color: #ffe082; }
+
+    /* Form Inputs in Inspector */
+    .inspector-input {
+      background: #0f1420;
+      border: 1px solid #33415c;
+      color: #fff;
+      padding: 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      width: 100%;
+    }
+    .inspector-input:focus {
+      outline: none;
+      border-color: #60a5fa;
+    }
+
+    /* Toast Notification */
+    #toast-notification {
+      position: absolute;
+      top: 60px;
+      right: 300px;
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid #64748b;
+      border-radius: 6px;
+      padding: 10px 16px;
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 40;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header id="top-bar">
+    <div class="brand-title">
+      <span>⚔️ Zaggers 2.5D Map Maker</span>
+      <span style="font-size: 11px; color: #94a3b8; font-weight: normal;">v1.0 Level Editor</span>
+    </div>
+
+    <!-- Mode & Tools -->
+    <div class="header-section">
+      <button class="btn btn-playtest" id="btn-playtest-toggle" onclick="togglePlaytestMode()">
+        <span>🎮 Playtest Mode</span>
+      </button>
+      <div style="width: 1px; height: 20px; background: #3d4c70; margin: 0 4px;"></div>
+      <button class="btn" onclick="rotateCamera(-1)" title="Rotate Counter-Clockwise (Q)">Cam ↺ [Q]</button>
+      <button class="btn" onclick="rotateCamera(1)" title="Rotate Clockwise (E)">Cam ↻ [E]</button>
+      <button class="btn" id="btn-angle" onclick="resetCamera()" title="Reset View (R)">0° [R]</button>
+      <button class="btn" onclick="adjustZoom(1.2)" title="Zoom In">+</button>
+      <button class="btn" onclick="adjustZoom(0.8)" title="Zoom Out">-</button>
+      <div style="width: 1px; height: 20px; background: #3d4c70; margin: 0 4px;"></div>
+      <button class="btn btn-active" id="btn-grid-toggle" onclick="toggleGridLines()">Grid: ON</button>
+      <button class="btn btn-active" id="btn-coords-toggle" onclick="toggleCoordsLabels()">Coords: ON</button>
+    </div>
+
+    <!-- Import / Export Actions -->
+    <div class="header-section">
+      <input type="file" id="map-file-input" accept=".json" style="display: none;" onchange="importMapFile(event)">
+      <button class="btn" onclick="document.getElementById('map-file-input').click()">📂 Load JSON</button>
+      <button class="btn btn-gold" onclick="exportMapJSON()">💾 Export JSON</button>
+      <button class="btn" onclick="copyJSArrayCode()">📋 Copy JS Code</button>
+      <button class="btn" style="color: #f87171;" onclick="clearMapConfirm()">🗑 Clear</button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div id="editor-layout">
+    
+    <!-- Left Sidebar: Palette & Tools -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span>TOOL PALETTE</span>
+        <span id="active-tool-indicator" style="font-size: 11px; color: #60a5fa;">[Terrain Brush]</span>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('terrain')">🌾 Terrain</button>
+        <button class="tab-btn" onclick="switchTab('props')">🏛 Props</button>
+        <button class="tab-btn" onclick="switchTab('npcs')">🧙 NPCs</button>
+        <button class="tab-btn" onclick="switchTab('monsters')">👾 Monsters</button>
+        <button class="tab-btn" onclick="switchTab('tools')">🛠 Tools</button>
+      </div>
+
+      <!-- Tab Panels -->
+      <div class="palette-container" id="palette-content">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </aside>
+
+    <!-- Central Viewport -->
+    <main id="viewport-container">
+      <canvas id="editorCanvas"></canvas>
+
+      <!-- Drag and Drop Overlay -->
+      <div id="drag-drop-overlay">
+        📥 Drop Map JSON File Here to Load!
+      </div>
+
+      <!-- Playtest Mode Banner -->
+      <div id="playtest-banner">
+        🎮 PLAYTEST MODE ACTIVE — Press ESC or click Playtest Mode to Exit
+      </div>
+
+      <!-- Status Bar Overlay -->
+      <div id="status-overlay" class="canvas-hud">
+        <div>Tile: <strong id="hud-tile-coord">X: 0, Y: 0</strong></div>
+        <div>Hover Asset: <strong id="hud-asset-name">Town Cobble</strong></div>
+        <div>Zoom: <strong id="hud-zoom-val">100%</strong></div>
+        <div>Controls: <span style="color: #94a3b8;">L-Click Paint | R-Drag Rotate | M-Drag/WASD Pan</span></div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div id="toast-notification">Notification message</div>
+
+      <!-- RO-Style NPC Dialog Window Modal (Playtest Mode) -->
+      <div id="npc-dialog-window" class="window-modal">
+        <div class="window-header" style="background: linear-gradient(90deg, #1b263b, #2b3a55); border-bottom: 2px solid #e0a938;">
+          <span id="npc-dialog-title" style="color: #ffd54f; font-weight: bold;">[NPC] Dialog</span>
+          <span class="close-btn" onclick="closeNpcDialog()">✕</span>
+        </div>
+        <div class="window-body" style="background: rgba(12, 16, 25, 0.98); padding: 14px;">
+          <div style="display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;">
+            <div style="width: 64px; height: 64px; background: #1a2233; border: 2px solid #4a5c84; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+              <canvas id="npc-portrait-canvas" width="64" height="64" style="width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+            </div>
+            <div style="flex: 1; background: #182030; border: 1px solid #384666; border-radius: 6px; padding: 10px; font-size: 12px; line-height: 1.5; color: #e1e7f0;">
+              <div style="font-weight: bold; color: #81d4fa; margin-bottom: 4px;" id="npc-dialog-speaker">NPC Speaker</div>
+              <div id="npc-dialog-text">Hello adventurer!</div>
+            </div>
+          </div>
+          <div id="npc-dialog-options" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Sidebar: Inspector & Presets -->
+    <aside class="sidebar sidebar-right">
+      <div class="sidebar-header">
+        <span>MAP INSPECTOR</span>
+      </div>
+
+      <div class="palette-container">
+        <!-- Preset Maps Section -->
+        <div class="control-group">
+          <div class="control-label">Load Map Preset</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button class="btn" onclick="loadPresetMap('prontera')">🏰 Prontera</button>
+            <button class="btn" onclick="loadPresetMap('meadow')">🌾 Meadow</button>
+            <button class="btn" onclick="loadPresetMap('dungeon')">🌋 Dungeon</button>
+            <button class="btn" onclick="loadPresetMap('blank')">📄 Blank Grid</button>
+          </div>
+        </div>
+
+        <!-- Inspector Properties Panel -->
+        <div class="control-group" id="inspector-panel">
+          <div class="control-label" id="inspector-title">No Selection</div>
+          <div id="inspector-body" style="font-size: 12px; color: #94a3b8;">
+            Select an object using the <strong>Select Tool</strong> to view or edit properties.
+          </div>
+        </div>
+
+        <!-- Map Statistics -->
+        <div class="control-group">
+          <div class="control-label">Map Statistics</div>
+          <div style="font-size: 12px; display: flex; flex-direction: column; gap: 4px; color: #cbd5e1;">
+            <div>Custom Ground Tiles: <strong id="stat-tiles-count" style="color: #60a5fa;">0</strong></div>
+            <div>Environment Props: <strong id="stat-props-count" style="color: #f59e0b;">0</strong></div>
+            <div>NPC Entities: <strong id="stat-npcs-count" style="color: #34d399;">0</strong></div>
+            <div>Monster Spawners: <strong id="stat-monsters-count" style="color: #f87171;">0</strong></div>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Help -->
+        <div class="control-group">
+          <div class="control-label">Shortcuts & Tips</div>
+          <div style="font-size: 11px; color: #94a3b8; line-height: 1.5;">
+            • <strong>Q / E</strong>: Rotate 2.5D Camera 90°<br>
+            • <strong>R</strong>: Reset Camera Angle & Zoom<br>
+            • <strong>WASD / M-Drag</strong>: Pan Viewport<br>
+            • <strong>1 / 3 / 5</strong>: Change Brush Size<br>
+            • <strong>Del / Backspace</strong>: Delete Selected Object<br>
+            • <strong>ESC</strong>: Exit Playtest Mode
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <script>
+    // Asset Definitions
+    const TERRAIN_TILES = [
+      { key: 'tile_town_cobble', name: 'Town Cobble', category: 'town' },
+      { key: 'tile_town_cobble2', name: 'Town Cobble Alt', category: 'town' },
+      { key: 'tile_town_brick', name: 'Town Brick', category: 'town' },
+      { key: 'tile_town_border', name: 'Town Border', category: 'town' },
+      { key: 'tile_meadow_grass', name: 'Meadow Grass', category: 'meadow' },
+      { key: 'tile_meadow_dirt', name: 'Meadow Dirt', category: 'meadow' },
+      { key: 'tile_meadow_flowers', name: 'Meadow Flowers', category: 'meadow' },
+      { key: 'tile_meadow_water', name: 'Meadow Water', category: 'meadow' },
+      { key: 'tile_dungeon_slate', name: 'Dungeon Slate', category: 'dungeon' },
+      { key: 'tile_dungeon_obsidian', name: 'Obsidian Slate', category: 'dungeon' },
+      { key: 'tile_dungeon_lava', name: 'Lava Tile', category: 'dungeon' },
+      { key: 'tile_dungeon_rune', name: 'Rune Circle', category: 'dungeon' }
+    ];
+
+    const ENV_PROPS = [
+      { type: 'env_house_shop', name: 'Shop Building', width: 128, height: 128, anchorX: 64, anchorY: 98 },
+      { type: 'env_fountain', name: 'Fountain', width: 96, height: 96, anchorX: 48, anchorY: 64 },
+      { type: 'env_market_stall', name: 'Market Stall', width: 96, height: 96, anchorX: 48, anchorY: 64 },
+      { type: 'env_barrel_crate', name: 'Barrels & Crate', width: 64, height: 64, anchorX: 32, anchorY: 48 },
+      { type: 'env_tree_meadow', name: 'Meadow Tree', width: 96, height: 128, anchorX: 48, anchorY: 112 },
+      { type: 'env_bush', name: 'Bush', width: 64, height: 64, anchorX: 32, anchorY: 48 },
+      { type: 'env_rock', name: 'Rock', width: 64, height: 64, anchorX: 32, anchorY: 48 },
+      { type: 'env_crystal', name: 'Save Crystal', width: 64, height: 96, anchorX: 32, anchorY: 82 },
+      { type: 'env_dungeon_pillar', name: 'Dungeon Pillar', width: 64, height: 128, anchorX: 32, anchorY: 116 },
+      { type: 'env_torch_brazier', name: 'Torch Brazier', width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true }
+    ];
+
+    const NPC_TYPES = [
+      {
+        id: 'kafra', name: '[NPC] Kafra Staff', title: 'Kafra Service Staff', sprite: 'npc_kafra',
+        dialogHeader: 'Kafra Service Staff',
+        dialogText: 'Welcome to Kafra Service! Save point recorded!',
+        options: [{ text: '💾 Save & Heal', action: 'kafra_save' }, { text: '❌ Cancel', action: 'close' }]
+      },
+      {
+        id: 'merchant', name: '[NPC] Merchant', title: 'Item Shop Trader', sprite: 'npc_merchant',
+        dialogHeader: 'Prontera Merchant',
+        dialogText: 'Potions and fresh gear for sale!',
+        options: [{ text: '🧪 Open Item Shop', action: 'open_shop' }, { text: '❌ Cancel', action: 'close' }]
+      },
+      {
+        id: 'blacksmith', name: '[NPC] Blacksmith', title: 'Master Equipment Forger', sprite: 'npc_blacksmith',
+        dialogHeader: 'Master Blacksmith',
+        dialogText: 'Need your weapon sharpened or armor reinforced?',
+        options: [{ text: '⚔️ Refine Weapon (+2 STR)', action: 'upgrade_weapon' }, { text: '❌ Cancel', action: 'close' }]
+      },
+      {
+        id: 'elder', name: '[NPC] Elder Guide', title: 'Wise Town Elder', sprite: 'npc_elder',
+        dialogHeader: 'Elder Quest Guide',
+        dialogText: 'Welcome hero. Slay monsters in the field for rewards!',
+        options: [{ text: '📜 Accept Quest', action: 'quest_accept' }, { text: '❌ Cancel', action: 'close' }]
+      },
+      {
+        id: 'guard', name: '[NPC] Town Guard', title: 'Royal Guard', sprite: 'hero_knight',
+        dialogHeader: 'Royal Town Guard',
+        dialogText: 'Halt! Keep peace within the town walls, adventurer.',
+        options: [{ text: '💬 Ask Rumors', action: 'close' }, { text: '❌ Cancel', action: 'close' }]
+      }
+    ];
+
+    const MONSTER_TYPES = [
+      { id: 'poring', name: 'Poring', sprite: 'slime_green_ff', hp: 50, maxHp: 50, speed: 0.02, isAggro: false },
+      { id: 'goblin', name: 'Goblin', sprite: 'goblin_ff', hp: 140, maxHp: 140, speed: 0.035, isAggro: true },
+      { id: 'skeleton', name: 'Skeleton', sprite: 'skeleton_ff', hp: 200, maxHp: 200, speed: 0.03, isAggro: true },
+      { id: 'baphomet', name: 'Baphomet (Boss)', sprite: 'boss_baphomet_ff', hp: 800, maxHp: 800, speed: 0.04, isAggro: true },
+      { id: 'cactuar', name: 'Cactuar', sprite: 'cactuar_ff', hp: 80, maxHp: 80, speed: 0.03, isAggro: true },
+      { id: 'bomb', name: 'Bomb', sprite: 'bomb_ff', hp: 100, maxHp: 100, speed: 0.035, isAggro: true }
+    ];
+
+    // Canvas & Context Setup
+    const canvas = document.getElementById('editorCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    // Sprite Asset Preloader
+    const sprites = {};
+    const allSpriteNames = [
+      'hero_knight', 'hero_blackmage', 'hero_whitemage', 'hero_dragoon', 'hero_redmage', 'hero_thief', 'hero_monk',
+      'slime_green_ff', 'goblin_ff', 'skeleton_ff', 'boss_baphomet_ff', 'cactuar_ff', 'bomb_ff',
+      'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder',
+      'env_house_shop', 'env_fountain', 'env_market_stall', 'env_barrel_crate', 'env_tree_meadow', 'env_bush', 'env_rock', 'env_crystal', 'env_dungeon_pillar', 'env_torch_brazier',
+      'tile_town_cobble', 'tile_town_cobble2', 'tile_town_brick', 'tile_town_border',
+      'tile_meadow_grass', 'tile_meadow_dirt', 'tile_meadow_flowers', 'tile_meadow_water',
+      'tile_dungeon_slate', 'tile_dungeon_obsidian', 'tile_dungeon_lava', 'tile_dungeon_rune'
+    ];
+
+    let loadedSpriteCount = 0;
+    allSpriteNames.forEach(name => {
+      const img = new Image();
+      const isTileOrEnv = name.startsWith('tile_') || name.startsWith('env_');
+      img.src = isTileOrEnv ? `assets/tiles_ff/${name}.png` : `assets/sprites_ff/${name}.png`;
+      img.onload = () => {
+        loadedSpriteCount++;
+        if (loadedSpriteCount === allSpriteNames.length) {
+          renderTabContent();
+        }
+      };
+      sprites[name] = img;
+    });
+
+    // 2.5D Isometric World Projection Metrics
+    const TILE_W = 48;
+    const TILE_H = 24;
+
+    // Editor Viewport & State
+    let cameraAngle = 0; // 0, 1, 2, 3
+    let cameraX = 0;
+    let cameraY = 0;
+    let cameraZoom = 1.0;
+
+    let currentTab = 'terrain'; // 'terrain', 'props', 'npcs', 'monsters', 'tools'
+    let activeTool = 'terrain'; // 'terrain', 'prop', 'npc', 'monster', 'select', 'eraser'
+    let selectedTileKey = 'tile_town_cobble';
+    let selectedPropIndex = 0;
+    let selectedNpcIndex = 0;
+    let selectedMonsterIndex = 0;
+    let brushSize = 1; // 1, 3, 5
+
+    let gridLinesEnabled = true;
+    let coordLabelsEnabled = true;
+    let isPlaytest = false;
+
+    let hoveredGrid = { wx: 0, wy: 0 };
+    let isMouseDown = false;
+    let isRightDragging = false;
+    let isMiddleDragging = false;
+    let rightDragStartX = 0;
+    let middleDragStartX = 0;
+    let middleDragStartY = 0;
+
+    let selectedObject = null; // Currently selected prop / npc / monster in select mode
+
+    // Map Data Container
+    let mapData = {
+      gridWidth: 30,
+      gridHeight: 30,
+      defaultTile: 'tile_town_cobble',
+      tiles: {}, // "wx,wy": "tile_key"
+      envStructures: [],
+      npcs: [],
+      monsters: []
+    };
+
+    // Playtest State
+    const player = {
+      wx: 0, wy: 0, targetWx: 0, targetWy: 0,
+      speed: 0.08, dir: 0, frame: 1, isAttacking: false, attackTimer: 0,
+      hp: 180, maxHp: 180, sp: 50, maxSp: 50, zeny: 500, str: 10, class: 'hero_knight'
+    };
+    let playtestMonsters = [];
+    let playtestNpcs = [];
+    const floatingTexts = [];
+    const clickRipples = [];
+    const keys = {};
+
+    // Camera Projections
+    function worldToIso(wx, wy) {
+      const relX = wx - cameraX;
+      const relY = wy - cameraY;
+
+      let rx = relX, ry = relY;
+      if (cameraAngle === 1) { rx = -relY; ry = relX; }
+      else if (cameraAngle === 2) { rx = -relX; ry = -relY; }
+      else if (cameraAngle === 3) { rx = relY; ry = -relX; }
+
+      const tw = TILE_W * cameraZoom;
+      const th = TILE_H * cameraZoom;
+      const isoX = (rx - ry) * (tw / 2) + canvas.width / 2;
+      const isoY = (rx + ry) * (th / 2) + canvas.height / 2;
+      return { x: isoX, y: isoY };
+    }
+
+    function isoToWorld(screenX, screenY) {
+      const tw = TILE_W * cameraZoom;
+      const th = TILE_H * cameraZoom;
+      const sx = screenX - canvas.width / 2;
+      const sy = screenY - canvas.height / 2;
+
+      const rx = (sy / (th / 2) + sx / (tw / 2)) / 2;
+      const ry = (sy / (th / 2) - sx / (tw / 2)) / 2;
+
+      let relX = rx, relY = ry;
+      if (cameraAngle === 1) { relX = ry; relY = -rx; }
+      else if (cameraAngle === 2) { relX = -rx; relY = -ry; }
+      else if (cameraAngle === 3) { relX = -ry; relY = rx; }
+
+      return { wx: cameraX + relX, wy: cameraY + relY };
+    }
+
+    // Camera Controls
+    function rotateCamera(dir) {
+      cameraAngle = (cameraAngle + dir + 4) % 4;
+      document.getElementById('btn-angle').innerText = `${cameraAngle * 90}° [R]`;
+    }
+
+    function resetCamera() {
+      cameraAngle = 0;
+      cameraX = 0;
+      cameraY = 0;
+      cameraZoom = 1.0;
+      document.getElementById('btn-angle').innerText = `0° [R]`;
+      updateHUDOverlay();
+    }
+
+    function adjustZoom(factor) {
+      cameraZoom = Math.max(0.4, Math.min(2.2, cameraZoom * factor));
+      updateHUDOverlay();
+    }
+
+    function toggleGridLines() {
+      gridLinesEnabled = !gridLinesEnabled;
+      const btn = document.getElementById('btn-grid-toggle');
+      btn.innerText = `Grid: ${gridLinesEnabled ? 'ON' : 'OFF'}`;
+      btn.classList.toggle('btn-active', gridLinesEnabled);
+    }
+
+    function toggleCoordsLabels() {
+      coordLabelsEnabled = !coordLabelsEnabled;
+      const btn = document.getElementById('btn-coords-toggle');
+      btn.innerText = `Coords: ${coordLabelsEnabled ? 'ON' : 'OFF'}`;
+      btn.classList.toggle('btn-active', coordLabelsEnabled);
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast-notification');
+      el.innerText = msg;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 2600);
+    }
+
+    // UI Tab & Palette Renderers
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.toLowerCase().includes(tab));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tab === 'terrain') activeTool = 'terrain';
+      else if (tab === 'props') activeTool = 'prop';
+      else if (tab === 'npcs') activeTool = 'npc';
+      else if (tab === 'monsters') activeTool = 'monster';
+
+      renderTabContent();
+      updateActiveToolIndicator();
+    }
+
+    function updateActiveToolIndicator() {
+      const el = document.getElementById('active-tool-indicator');
+      const toolNames = {
+        terrain: `[Terrain: ${selectedTileKey}]`,
+        prop: `[Prop: ${ENV_PROPS[selectedPropIndex].name}]`,
+        npc: `[NPC: ${NPC_TYPES[selectedNpcIndex].name}]`,
+        monster: `[Monster: ${MONSTER_TYPES[selectedMonsterIndex].name}]`,
+        select: '[Select / Move Tool]',
+        eraser: '[Eraser Tool]'
+      };
+      el.innerText = toolNames[activeTool] || activeTool;
+    }
+
+    function renderTabContent() {
+      const container = document.getElementById('palette-content');
+      container.innerHTML = '';
+
+      if (currentTab === 'terrain') {
+        const sizeGroup = document.createElement('div');
+        sizeGroup.className = 'control-group';
+        sizeGroup.innerHTML = `
+          <div class="control-label">Brush Size</div>
+          <div class="size-selector">
+            <div class="size-btn ${brushSize===1?'active':''}" onclick="setBrushSize(1)">1x1</div>
+            <div class="size-btn ${brushSize===3?'active':''}" onclick="setBrushSize(3)">3x3</div>
+            <div class="size-btn ${brushSize===5?'active':''}" onclick="setBrushSize(5)">5x5</div>
+          </div>
+        `;
+        container.appendChild(sizeGroup);
+
+        const grid = document.createElement('div');
+        grid.className = 'palette-grid';
+        TERRAIN_TILES.forEach(t => {
+          const card = document.createElement('div');
+          card.className = `palette-card ${selectedTileKey === t.key ? 'selected' : ''}`;
+          card.onclick = () => {
+            selectedTileKey = t.key;
+            activeTool = 'terrain';
+            renderTabContent();
+            updateActiveToolIndicator();
+          };
+          const img = sprites[t.key];
+          const thumbSrc = (img && img.src) ? img.src : '';
+          card.innerHTML = `<img class="palette-thumb" src="${thumbSrc}" alt="${t.name}"><div class="palette-label">${t.name}</div>`;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+      } else if (currentTab === 'props') {
+        const grid = document.createElement('div');
+        grid.className = 'palette-grid';
+        ENV_PROPS.forEach((p, idx) => {
+          const card = document.createElement('div');
+          card.className = `palette-card ${selectedPropIndex === idx ? 'selected' : ''}`;
+          card.onclick = () => {
+            selectedPropIndex = idx;
+            activeTool = 'prop';
+            renderTabContent();
+            updateActiveToolIndicator();
+          };
+          const img = sprites[p.type];
+          const thumbSrc = (img && img.src) ? img.src : '';
+          card.innerHTML = `<img class="palette-thumb" src="${thumbSrc}" alt="${p.name}"><div class="palette-label">${p.name}</div>`;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+      } else if (currentTab === 'npcs') {
+        const grid = document.createElement('div');
+        grid.className = 'palette-grid';
+        NPC_TYPES.forEach((n, idx) => {
+          const card = document.createElement('div');
+          card.className = `palette-card ${selectedNpcIndex === idx ? 'selected' : ''}`;
+          card.onclick = () => {
+            selectedNpcIndex = idx;
+            activeTool = 'npc';
+            renderTabContent();
+            updateActiveToolIndicator();
+          };
+          const img = sprites[n.sprite];
+          const thumbSrc = (img && img.src) ? img.src : '';
+          card.innerHTML = `<img class="palette-thumb" src="${thumbSrc}" alt="${n.name}"><div class="palette-label">${n.name}</div>`;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+      } else if (currentTab === 'monsters') {
+        const grid = document.createElement('div');
+        grid.className = 'palette-grid';
+        MONSTER_TYPES.forEach((m, idx) => {
+          const card = document.createElement('div');
+          card.className = `palette-card ${selectedMonsterIndex === idx ? 'selected' : ''}`;
+          card.onclick = () => {
+            selectedMonsterIndex = idx;
+            activeTool = 'monster';
+            renderTabContent();
+            updateActiveToolIndicator();
+          };
+          const img = sprites[m.sprite];
+          const thumbSrc = (img && img.src) ? img.src : '';
+          card.innerHTML = `<img class="palette-thumb" src="${thumbSrc}" alt="${m.name}"><div class="palette-label">${m.name}</div>`;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+      } else if (currentTab === 'tools') {
+        const toolGroup = document.createElement('div');
+        toolGroup.className = 'control-group';
+        toolGroup.innerHTML = `
+          <div class="control-label">Editor Action Tools</div>
+          <button class="btn ${activeTool==='select'?'btn-active':''}" style="width:100%; margin-bottom: 6px;" onclick="selectToolMode('select')">🔍 Select & Move Tool</button>
+          <button class="btn ${activeTool==='eraser'?'btn-active':''}" style="width:100%; color: #f87171;" onclick="selectToolMode('eraser')">🧹 Eraser Tool</button>
+        `;
+        container.appendChild(toolGroup);
+      }
+    }
+
+    function setBrushSize(size) {
+      brushSize = size;
+      renderTabContent();
+    }
+
+    function selectToolMode(mode) {
+      activeTool = mode;
+      renderTabContent();
+      updateActiveToolIndicator();
+    }
+
+    // Map Presets Loader
+    function loadPresetMap(presetName) {
+      if (presetName === 'blank') {
+        mapData = {
+          gridWidth: 30, gridHeight: 30, defaultTile: 'tile_town_cobble',
+          tiles: {}, envStructures: [], npcs: [], monsters: []
+        };
+        showToast('Loaded Blank Map Canvas!');
+      } else if (presetName === 'prontera') {
+        mapData = {
+          gridWidth: 30, gridHeight: 30, defaultTile: 'tile_town_cobble',
+          tiles: {
+            '0,0': 'tile_town_brick', '1,0': 'tile_town_brick', '-1,0': 'tile_town_brick',
+            '0,1': 'tile_town_brick', '0,-1': 'tile_town_brick',
+            '0,3': 'tile_town_brick'
+          },
+          envStructures: [
+            { type: 'env_house_shop', wx: -4, wy: -4, width: 128, height: 128, anchorX: 64, anchorY: 98, name: 'Prontera Shop' },
+            { type: 'env_fountain', wx: 0, wy: 0, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Town Fountain' },
+            { type: 'env_market_stall', wx: 3, wy: -2, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Market Stall' },
+            { type: 'env_barrel_crate', wx: -5, wy: -3, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+            { type: 'env_crystal', wx: 0, wy: 3, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'Save Crystal' }
+          ],
+          npcs: [
+            { ...NPC_TYPES[0], id: 'kafra_1', wx: 0, wy: -2 },
+            { ...NPC_TYPES[1], id: 'merchant_1', wx: -2, wy: 0 },
+            { ...NPC_TYPES[2], id: 'blacksmith_1', wx: 2, wy: 0 },
+            { ...NPC_TYPES[3], id: 'elder_1', wx: 0, wy: 2 }
+          ],
+          monsters: [
+            { ...MONSTER_TYPES[0], id: 'm_1', wx: -6, wy: -6 },
+            { ...MONSTER_TYPES[0], id: 'm_2', wx: 6, wy: 6 }
+          ]
+        };
+        showToast('Loaded Prontera Town Preset!');
+      } else if (presetName === 'meadow') {
+        mapData = {
+          gridWidth: 30, gridHeight: 30, defaultTile: 'tile_meadow_grass',
+          tiles: {
+            '0,0': 'tile_meadow_dirt', '0,1': 'tile_meadow_dirt', '0,2': 'tile_meadow_dirt',
+            '-3,-3': 'tile_meadow_water', '-3,-2': 'tile_meadow_water', '-2,-3': 'tile_meadow_water'
+          },
+          envStructures: [
+            { type: 'env_tree_meadow', wx: -4, wy: -4, width: 96, height: 128, anchorX: 48, anchorY: 112 },
+            { type: 'env_tree_meadow', wx: 5, wy: -3, width: 96, height: 128, anchorX: 48, anchorY: 112 },
+            { type: 'env_bush', wx: -2, wy: 2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+            { type: 'env_rock', wx: 3, wy: 4, width: 64, height: 64, anchorX: 32, anchorY: 48 }
+          ],
+          npcs: [
+            { ...NPC_TYPES[4], id: 'guard_1', wx: 0, wy: 0 }
+          ],
+          monsters: [
+            { ...MONSTER_TYPES[0], id: 'm_1', wx: -3, wy: 4 },
+            { ...MONSTER_TYPES[4], id: 'm_2', wx: 4, wy: -2 }
+          ]
+        };
+        showToast('Loaded Meadow Field Preset!');
+      } else if (presetName === 'dungeon') {
+        mapData = {
+          gridWidth: 30, gridHeight: 30, defaultTile: 'tile_dungeon_slate',
+          tiles: {
+            '0,0': 'tile_dungeon_rune',
+            '-3,3': 'tile_dungeon_lava', '3,-3': 'tile_dungeon_lava'
+          },
+          envStructures: [
+            { type: 'env_dungeon_pillar', wx: -4, wy: -4, width: 64, height: 128, anchorX: 32, anchorY: 116 },
+            { type: 'env_dungeon_pillar', wx: 4, wy: -4, width: 64, height: 128, anchorX: 32, anchorY: 116 },
+            { type: 'env_torch_brazier', wx: -2, wy: 0, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+            { type: 'env_torch_brazier', wx: 2, wy: 0, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true }
+          ],
+          npcs: [],
+          monsters: [
+            { ...MONSTER_TYPES[1], id: 'm_1', wx: -2, wy: 3 },
+            { ...MONSTER_TYPES[2], id: 'm_2', wx: 2, wy: 3 },
+            { ...MONSTER_TYPES[3], id: 'm_3', wx: 0, wy: 5 }
+          ]
+        };
+        showToast('Loaded Dungeon Sanctum Preset!');
+      }
+      selectedObject = null;
+      updateInspector();
+      updateMapStats();
+    }
+
+    function clearMapConfirm() {
+      if (confirm('Are you sure you want to clear the entire map?')) {
+        loadPresetMap('blank');
+      }
+    }
+
+    // Import / Export JSON & Copy JS Code
+    function exportMapJSON() {
+      const jsonStr = JSON.stringify(mapData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'zaggers_custom_map.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Exported zaggers_custom_map.json successfully!');
+    }
+
+    function copyJSArrayCode() {
+      const jsCode = `// Zaggers Custom Map JS Export\nconst zaggersCustomMap = ${JSON.stringify(mapData, null, 2)};\n`;
+      navigator.clipboard.writeText(jsCode).then(() => {
+        showToast('Copied JS Map Data to Clipboard!');
+      }).catch(err => {
+        showToast('Failed to copy to clipboard.');
+      });
+    }
+
+    function importMapFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const loaded = JSON.parse(evt.target.result);
+          if (loaded.tiles && loaded.envStructures) {
+            mapData = loaded;
+            selectedObject = null;
+            updateInspector();
+            updateMapStats();
+            showToast(`Loaded map "${loaded.name || file.name}" successfully!`);
+          } else {
+            alert('Invalid Zaggers Map JSON format!');
+          }
+        } catch (err) {
+          alert('Error parsing JSON file!');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Drag-and-Drop file load support
+    const viewportEl = document.getElementById('viewport-container');
+    const dragOverlay = document.getElementById('drag-drop-overlay');
+
+    window.addEventListener('dragover', e => {
+      e.preventDefault();
+      dragOverlay.style.display = 'flex';
+    });
+    window.addEventListener('dragleave', e => {
+      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+        dragOverlay.style.display = 'none';
+      }
+    });
+    window.addEventListener('drop', e => {
+      e.preventDefault();
+      dragOverlay.style.display = 'none';
+      if (e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        if (file.name.endsWith('.json')) {
+          const fakeEvent = { target: { files: [file] } };
+          importMapFile(fakeEvent);
+        }
+      }
+    });
+
+    // Inspector Panel Updates
+    function updateInspector() {
+      const titleEl = document.getElementById('inspector-title');
+      const bodyEl = document.getElementById('inspector-body');
+
+      if (!selectedObject) {
+        titleEl.innerText = 'No Selection';
+        bodyEl.innerHTML = 'Select an object using the <strong>Select Tool</strong> to view or edit properties.';
+        return;
+      }
+
+      if (selectedObject.objType === 'prop') {
+        const prop = selectedObject.data;
+        titleEl.innerText = `Prop: ${prop.name || prop.type}`;
+        bodyEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div><label class="control-label">Prop Type</label><input type="text" class="inspector-input" value="${prop.type}" readonly></div>
+            <div><label class="control-label">World X</label><input type="number" class="inspector-input" value="${prop.wx}" onchange="updateSelectedObjProp('wx', parseFloat(this.value))"></div>
+            <div><label class="control-label">World Y</label><input type="number" class="inspector-input" value="${prop.wy}" onchange="updateSelectedObjProp('wy', parseFloat(this.value))"></div>
+            <div><label class="control-label">Display Name</label><input type="text" class="inspector-input" value="${prop.name || ''}" onchange="updateSelectedObjProp('name', this.value)"></div>
+            <button class="btn" style="color: #f87171; width: 100%; margin-top: 4px;" onclick="deleteSelectedObject()">🗑 Delete Prop</button>
+          </div>
+        `;
+      } else if (selectedObject.objType === 'npc') {
+        const npc = selectedObject.data;
+        titleEl.innerText = `NPC: ${npc.name}`;
+        bodyEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div><label class="control-label">NPC Name</label><input type="text" class="inspector-input" value="${npc.name}" onchange="updateSelectedObjProp('name', this.value)"></div>
+            <div><label class="control-label">World X</label><input type="number" class="inspector-input" value="${npc.wx}" onchange="updateSelectedObjProp('wx', parseFloat(this.value))"></div>
+            <div><label class="control-label">World Y</label><input type="number" class="inspector-input" value="${npc.wy}" onchange="updateSelectedObjProp('wy', parseFloat(this.value))"></div>
+            <div><label class="control-label">Dialog Header</label><input type="text" class="inspector-input" value="${npc.dialogHeader || ''}" onchange="updateSelectedObjProp('dialogHeader', this.value)"></div>
+            <div><label class="control-label">Dialog Text</label><textarea class="inspector-input" rows="3" onchange="updateSelectedObjProp('dialogText', this.value)">${npc.dialogText || ''}</textarea></div>
+            <button class="btn" style="color: #f87171; width: 100%; margin-top: 4px;" onclick="deleteSelectedObject()">🗑 Delete NPC</button>
+          </div>
+        `;
+      } else if (selectedObject.objType === 'monster') {
+        const m = selectedObject.data;
+        titleEl.innerText = `Monster: ${m.name}`;
+        bodyEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div><label class="control-label">Monster Name</label><input type="text" class="inspector-input" value="${m.name}" onchange="updateSelectedObjProp('name', this.value)"></div>
+            <div><label class="control-label">World X</label><input type="number" class="inspector-input" value="${m.wx}" onchange="updateSelectedObjProp('wx', parseFloat(this.value))"></div>
+            <div><label class="control-label">World Y</label><input type="number" class="inspector-input" value="${m.wy}" onchange="updateSelectedObjProp('wy', parseFloat(this.value))"></div>
+            <div><label class="control-label">Max HP</label><input type="number" class="inspector-input" value="${m.maxHp}" onchange="updateSelectedObjProp('maxHp', parseInt(this.value)); updateSelectedObjProp('hp', parseInt(this.value));"></div>
+            <div><label class="control-label">Aggressive Behavior</label>
+              <select class="inspector-input" onchange="updateSelectedObjProp('isAggro', this.value==='true')">
+                <option value="true" ${m.isAggro ? 'selected' : ''}>Aggressive (Hostile)</option>
+                <option value="false" ${!m.isAggro ? 'selected' : ''}>Passive (Wandering)</option>
+              </select>
+            </div>
+            <button class="btn" style="color: #f87171; width: 100%; margin-top: 4px;" onclick="deleteSelectedObject()">🗑 Delete Monster</button>
+          </div>
+        `;
+      }
+    }
+
+    function updateSelectedObjProp(key, val) {
+      if (!selectedObject) return;
+      selectedObject.data[key] = val;
+      updateMapStats();
+    }
+
+    function deleteSelectedObject() {
+      if (!selectedObject) return;
+      if (selectedObject.objType === 'prop') {
+        mapData.envStructures = mapData.envStructures.filter(p => p !== selectedObject.data);
+      } else if (selectedObject.objType === 'npc') {
+        mapData.npcs = mapData.npcs.filter(n => n !== selectedObject.data);
+      } else if (selectedObject.objType === 'monster') {
+        mapData.monsters = mapData.monsters.filter(m => m !== selectedObject.data);
+      }
+      selectedObject = null;
+      updateInspector();
+      updateMapStats();
+      showToast('Object deleted.');
+    }
+
+    function updateMapStats() {
+      document.getElementById('stat-tiles-count').innerText = Object.keys(mapData.tiles).length;
+      document.getElementById('stat-props-count').innerText = mapData.envStructures.length;
+      document.getElementById('stat-npcs-count').innerText = mapData.npcs.length;
+      document.getElementById('stat-monsters-count').innerText = mapData.monsters.length;
+    }
+
+    // Playtest Mode Switcher
+    function togglePlaytestMode() {
+      isPlaytest = !isPlaytest;
+      const btn = document.getElementById('btn-playtest-toggle');
+      const banner = document.getElementById('playtest-banner');
+
+      if (isPlaytest) {
+        btn.innerHTML = '<span>✏️ Exit Playtest</span>';
+        btn.classList.add('btn-active');
+        banner.style.display = 'block';
+
+        // Initialize Playtest player & entities
+        player.wx = 0; player.wy = 0;
+        player.targetWx = 0; player.targetWy = 0;
+        player.hp = player.maxHp; player.sp = player.maxSp;
+
+        // Clone NPCs & Monsters for playtest sandbox
+        playtestNpcs = JSON.parse(JSON.stringify(mapData.npcs));
+        playtestMonsters = JSON.parse(JSON.stringify(mapData.monsters));
+        playtestMonsters.forEach((m, idx) => {
+          m.id = idx + 1;
+          m.targetWx = m.wx; m.targetWy = m.wy;
+          m.dir = 0; m.frame = 1; m.attackCooldown = 0;
+        });
+
+        showToast('🎮 Playtest Mode Started! Move with WASD/Click, attack with Space/J.');
+      } else {
+        btn.innerHTML = '<span>🎮 Playtest Mode</span>';
+        btn.classList.remove('btn-active');
+        banner.style.display = 'none';
+        closeNpcDialog();
+        showToast('Returned to Editor Mode.');
+      }
+    }
+
+    // Input Listeners
+    function setupInputListeners() {
+      window.addEventListener('resize', resizeCanvas);
+
+      window.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        keys[e.code] = true;
+        if (e.code === 'KeyQ') rotateCamera(-1);
+        if (e.code === 'KeyE') rotateCamera(1);
+        if (e.code === 'KeyR') resetCamera();
+        if (e.code === 'Digit1') setBrushSize(1);
+        if (e.code === 'Digit3') setBrushSize(3);
+        if (e.code === 'Digit5') setBrushSize(5);
+        if (e.code === 'Delete' || e.code === 'Backspace') deleteSelectedObject();
+        if (e.code === 'Escape') {
+          if (isPlaytest) togglePlaytestMode();
+          else closeNpcDialog();
+        }
+        if (isPlaytest && (e.code === 'Space' || e.code === 'KeyJ')) triggerPlaytestAttack();
+      });
+
+      window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+      canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+      canvas.addEventListener('mousedown', e => {
+        const rect = canvas.getBoundingClientRect();
+        const clickSx = e.clientX - rect.left;
+        const clickSy = e.clientY - rect.top;
+
+        if (e.button === 0) { // Left-click
+          isMouseDown = true;
+          if (isPlaytest) {
+            handlePlaytestClick(clickSx, clickSy);
+          } else {
+            handleEditorClick(clickSx, clickSy);
+          }
+        } else if (e.button === 2) { // Right-click rotation
+          isRightDragging = true;
+          rightDragStartX = e.clientX;
+        } else if (e.button === 1) { // Middle-click pan
+          isMiddleDragging = true;
+          middleDragStartX = e.clientX;
+          middleDragStartY = e.clientY;
+        }
+      });
+
+      window.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        const mouseSx = e.clientX - rect.left;
+        const mouseSy = e.clientY - rect.top;
+        const worldPos = isoToWorld(mouseSx, mouseSy);
+
+        hoveredGrid = { wx: Math.round(worldPos.wx), wy: Math.round(worldPos.wy) };
+        updateHUDOverlay();
+
+        if (isMouseDown && !isPlaytest) {
+          handleEditorClick(mouseSx, mouseSy);
+        }
+
+        if (isRightDragging) {
+          const deltaX = e.clientX - rightDragStartX;
+          if (deltaX > 40) { rotateCamera(1); rightDragStartX = e.clientX; }
+          else if (deltaX < -40) { rotateCamera(-1); rightDragStartX = e.clientX; }
+        }
+
+        if (isMiddleDragging) {
+          const deltaX = (e.clientX - middleDragStartX) * 0.015;
+          const deltaY = (e.clientY - middleDragStartY) * 0.015;
+          let relPanX = -deltaX + deltaY;
+          let relPanY = deltaX + deltaY;
+          cameraX += relPanX;
+          cameraY += relPanY;
+          middleDragStartX = e.clientX;
+          middleDragStartY = e.clientY;
+        }
+      });
+
+      window.addEventListener('mouseup', e => {
+        if (e.button === 0) isMouseDown = false;
+        if (e.button === 2) isRightDragging = false;
+        if (e.button === 1) isMiddleDragging = false;
+      });
+
+      canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+        adjustZoom(factor);
+      }, { passive: false });
+    }
+
+    function resizeCanvas() {
+      canvas.width = viewportEl.clientWidth;
+      canvas.height = viewportEl.clientHeight;
+    }
+
+    function updateHUDOverlay() {
+      document.getElementById('hud-tile-coord').innerText = `X: ${hoveredGrid.wx}, Y: ${hoveredGrid.wy}`;
+      document.getElementById('hud-zoom-val').innerText = `${Math.round(cameraZoom * 100)}%`;
+
+      let name = selectedTileKey;
+      if (activeTool === 'prop') name = ENV_PROPS[selectedPropIndex].name;
+      if (activeTool === 'npc') name = NPC_TYPES[selectedNpcIndex].name;
+      if (activeTool === 'monster') name = MONSTER_TYPES[selectedMonsterIndex].name;
+      if (activeTool === 'select') name = 'Select & Move Tool';
+      if (activeTool === 'eraser') name = 'Eraser Tool';
+      document.getElementById('hud-asset-name').innerText = name;
+    }
+
+    // Editor Interaction Handlers
+    function handleEditorClick(screenX, screenY) {
+      const pos = isoToWorld(screenX, screenY);
+      const gx = Math.round(pos.wx);
+      const gy = Math.round(pos.wy);
+
+      if (activeTool === 'terrain') {
+        const offset = Math.floor(brushSize / 2);
+        for (let dy = -offset; dy <= offset; dy++) {
+          for (let dx = -offset; dx <= offset; dx++) {
+            const k = `${gx + dx},${gy + dy}`;
+            mapData.tiles[k] = selectedTileKey;
+          }
+        }
+        updateMapStats();
+      } else if (activeTool === 'prop') {
+        const propDef = ENV_PROPS[selectedPropIndex];
+        // Prevent duplicate at exact position
+        const existing = mapData.envStructures.find(p => p.wx === gx && p.wy === gy);
+        if (!existing) {
+          mapData.envStructures.push({
+            type: propDef.type, wx: gx, wy: gy,
+            width: propDef.width, height: propDef.height,
+            anchorX: propDef.anchorX, anchorY: propDef.anchorY,
+            name: propDef.name, animated: propDef.animated || false
+          });
+          updateMapStats();
+        }
+      } else if (activeTool === 'npc') {
+        const npcDef = NPC_TYPES[selectedNpcIndex];
+        const existing = mapData.npcs.find(n => n.wx === gx && n.wy === gy);
+        if (!existing) {
+          mapData.npcs.push({
+            ...JSON.parse(JSON.stringify(npcDef)),
+            id: `npc_${Date.now()}`, wx: gx, wy: gy
+          });
+          updateMapStats();
+        }
+      } else if (activeTool === 'monster') {
+        const mDef = MONSTER_TYPES[selectedMonsterIndex];
+        const existing = mapData.monsters.find(m => m.wx === gx && m.wy === gy);
+        if (!existing) {
+          mapData.monsters.push({
+            ...JSON.parse(JSON.stringify(mDef)),
+            id: `monster_${Date.now()}`, wx: gx, wy: gy
+          });
+          updateMapStats();
+        }
+      } else if (activeTool === 'select') {
+        // Find clicked entity or prop near gx, gy
+        let found = null;
+        const npc = mapData.npcs.find(n => Math.abs(n.wx - gx) <= 1 && Math.abs(n.wy - gy) <= 1);
+        if (npc) found = { objType: 'npc', data: npc };
+
+        if (!found) {
+          const m = mapData.monsters.find(m => Math.abs(m.wx - gx) <= 1 && Math.abs(m.wy - gy) <= 1);
+          if (m) found = { objType: 'monster', data: m };
+        }
+
+        if (!found) {
+          const prop = mapData.envStructures.find(p => Math.abs(p.wx - gx) <= 1 && Math.abs(p.wy - gy) <= 1);
+          if (prop) found = { objType: 'prop', data: prop };
+        }
+
+        if (found) {
+          selectedObject = found;
+          updateInspector();
+        } else if (selectedObject) {
+          // Move selected object to clicked tile
+          selectedObject.data.wx = gx;
+          selectedObject.data.wy = gy;
+          updateInspector();
+        }
+      } else if (activeTool === 'eraser') {
+        // Delete entity or tile at gx, gy
+        mapData.npcs = mapData.npcs.filter(n => !(n.wx === gx && n.wy === gy));
+        mapData.monsters = mapData.monsters.filter(m => !(m.wx === gx && m.wy === gy));
+        mapData.envStructures = mapData.envStructures.filter(p => !(p.wx === gx && p.wy === gy));
+        delete mapData.tiles[`${gx},${gy}`];
+        if (selectedObject && selectedObject.data.wx === gx && selectedObject.data.wy === gy) {
+          selectedObject = null;
+          updateInspector();
+        }
+        updateMapStats();
+      }
+    }
+
+    // Playtest Interaction & Combat
+    function handlePlaytestClick(screenX, screenY) {
+      const pos = isoToWorld(screenX, screenY);
+      
+      // Check if clicked NPC
+      let clickedNpc = null;
+      playtestNpcs.forEach(npc => {
+        const nIso = worldToIso(npc.wx, npc.wy);
+        if (Math.hypot(screenX - nIso.x, screenY - (nIso.y - 20 * cameraZoom)) < 30 * cameraZoom) {
+          clickedNpc = npc;
+        }
+      });
+
+      if (clickedNpc) {
+        if (Math.hypot(player.wx - clickedNpc.wx, player.wy - clickedNpc.wy) <= 2.2) {
+          openNpcDialog(clickedNpc);
+        } else {
+          player.targetWx = clickedNpc.wx;
+          player.targetWy = clickedNpc.wy;
+        }
+        return;
+      }
+
+      player.targetWx = pos.wx;
+      player.targetWy = pos.wy;
+      clickRipples.push({ wx: pos.wx, wy: pos.wy, radius: 4, alpha: 1.0 });
+    }
+
+    function triggerPlaytestAttack() {
+      if (player.isAttacking) return;
+      player.isAttacking = true;
+      player.attackTimer = 18;
+
+      playtestMonsters.forEach(m => {
+        const dist = Math.hypot(m.wx - player.wx, m.wy - player.wy);
+        if (dist < 2.5 && m.hp > 0) {
+          const dmg = Math.floor(22 + player.str * 1.6 + Math.random() * 12);
+          m.hp = Math.max(0, m.hp - dmg);
+          floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color: (dmg > 30 ? '#ffd54f' : '#ff5252'), life: 40 });
+          if (m.hp === 0) {
+            player.zeny += 50;
+            setTimeout(() => { m.hp = m.maxHp; }, 5000);
+          }
+        }
+      });
+    }
+
+    function openNpcDialog(npc) {
+      const modal = document.getElementById('npc-dialog-window');
+      document.getElementById('npc-dialog-title').innerText = npc.name;
+      document.getElementById('npc-dialog-speaker').innerText = npc.dialogHeader || npc.name;
+      document.getElementById('npc-dialog-text').innerText = npc.dialogText || 'Greetings adventurer!';
+
+      const portraitCanvas = document.getElementById('npc-portrait-canvas');
+      if (portraitCanvas) {
+        const pctx = portraitCanvas.getContext('2d');
+        pctx.imageSmoothingEnabled = false;
+        pctx.clearRect(0, 0, 64, 64);
+        const img = sprites[npc.sprite];
+        if (img && img.complete && img.naturalWidth > 0) {
+          pctx.drawImage(img, 0, 0, 64, 64, 0, 0, 64, 64);
+        }
+      }
+
+      const optionsContainer = document.getElementById('npc-dialog-options');
+      optionsContainer.innerHTML = '';
+      (npc.options || [{ text: '❌ Close', action: 'close' }]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'npc-option-btn';
+        btn.innerText = opt.text;
+        btn.onclick = () => closeNpcDialog();
+        optionsContainer.appendChild(btn);
+      });
+
+      modal.style.display = 'block';
+    }
+
+    function closeNpcDialog() {
+      const modal = document.getElementById('npc-dialog-window');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Main Canvas Render Loop
+    let frameCount = 0;
+    function renderLoop() {
+      frameCount++;
+
+      // Viewport Auto Panning in Playtest mode
+      if (isPlaytest) {
+        cameraX += (player.wx - cameraX) * 0.1;
+        cameraY += (player.wy - cameraY) * 0.1;
+      }
+
+      ctx.fillStyle = '#0a0d14';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Visible Grid Bounds
+      const minWx = Math.floor(cameraX - 18 / cameraZoom);
+      const maxWx = Math.ceil(cameraX + 18 / cameraZoom);
+      const minWy = Math.floor(cameraY - 18 / cameraZoom);
+      const maxWy = Math.ceil(cameraY + 18 / cameraZoom);
+
+      const tw = TILE_W * cameraZoom;
+      const th = TILE_H * cameraZoom;
+
+      // 1. Render 2.5D Diamond Ground Tiles
+      for (let wy = minWy; wy <= maxWy; wy++) {
+        for (let wx = minWx; wx <= maxWx; wx++) {
+          const iso = worldToIso(wx, wy);
+
+          if (iso.x >= -60 && iso.x <= canvas.width + 60 && iso.y >= -60 && iso.y <= canvas.height + 60) {
+            const tileKey = mapData.tiles[`${wx},${wy}`] || mapData.defaultTile;
+            const img = sprites[tileKey];
+
+            if (img && img.complete && img.naturalWidth > 0) {
+              ctx.drawImage(img, 0, 0, 128, 64, iso.x - tw / 2, iso.y - th / 2, tw, th);
+            } else {
+              ctx.beginPath();
+              ctx.moveTo(iso.x, iso.y - th / 2);
+              ctx.lineTo(iso.x + tw / 2, iso.y);
+              ctx.lineTo(iso.x, iso.y + th / 2);
+              ctx.lineTo(iso.x - tw / 2, iso.y);
+              ctx.closePath();
+              ctx.fillStyle = (Math.abs(wx + wy) % 2 === 0) ? '#1e2738' : '#263147';
+              ctx.fill();
+            }
+
+            // Grid lines overlay
+            if (gridLinesEnabled && !isPlaytest) {
+              ctx.beginPath();
+              ctx.moveTo(iso.x, iso.y - th / 2);
+              ctx.lineTo(iso.x + tw / 2, iso.y);
+              ctx.lineTo(iso.x, iso.y + th / 2);
+              ctx.lineTo(iso.x - tw / 2, iso.y);
+              ctx.closePath();
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+
+            // Coordinate labels overlay
+            if (coordLabelsEnabled && !isPlaytest && cameraZoom >= 0.7) {
+              if (wx % 2 === 0 && wy % 2 === 0) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                ctx.font = `${Math.max(8, Math.floor(9 * cameraZoom))}px Segoe UI`;
+                ctx.textAlign = 'center';
+                ctx.fillText(`${wx},${wy}`, iso.x, iso.y + 3);
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Playtest Movement & AI Updates
+      if (isPlaytest) {
+        // Keyboard Movement WASD
+        let drx = 0, dry = 0, screenDir = -1;
+        if (keys['KeyA'] || keys['ArrowLeft']) { drx -= 1; dry += 1; screenDir = 1; }
+        if (keys['KeyD'] || keys['ArrowRight']) { drx += 1; dry -= 1; screenDir = 2; }
+        if (keys['KeyW'] || keys['ArrowUp']) { drx -= 1; dry -= 1; screenDir = 3; }
+        if (keys['KeyS'] || keys['ArrowDown']) { drx += 1; dry += 1; screenDir = 0; }
+
+        if (drx !== 0 || dry !== 0) {
+          let dwx = drx, dwy = dry;
+          if (cameraAngle === 1) { dwx = dry; dwy = -drx; }
+          else if (cameraAngle === 2) { dwx = -drx; dwy = -dry; }
+          else if (cameraAngle === 3) { dwx = -dry; dwy = drx; }
+
+          const len = Math.hypot(dwx, dwy);
+          player.wx += (dwx / len) * player.speed;
+          player.wy += (dwy / len) * player.speed;
+          player.targetWx = player.wx; player.targetWy = player.wy;
+          if (screenDir !== -1) player.dir = screenDir;
+          player.frame = (Math.floor(frameCount / 8) % 2) * 2;
+        } else {
+          const dwx_t = player.targetWx - player.wx;
+          const dwy_t = player.targetWy - player.wy;
+          const dist = Math.hypot(dwx_t, dwy_t);
+          if (dist > 0.1) {
+            player.wx += (dwx_t / dist) * player.speed;
+            player.wy += (dwy_t / dist) * player.speed;
+            player.frame = (Math.floor(frameCount / 8) % 2) * 2;
+          } else {
+            player.frame = 1;
+          }
+        }
+
+        // Monsters Wandering & Aggro
+        playtestMonsters.forEach(m => {
+          if (m.hp <= 0) return;
+          const distToPlayer = Math.hypot(player.wx - m.wx, player.wy - m.wy);
+
+          if (m.isAggro && distToPlayer < 4.5) {
+            m.targetWx = player.wx; m.targetWy = player.wy;
+          } else if (Math.random() < 0.015) {
+            m.targetWx = m.wx + (Math.random() * 4 - 2);
+            m.targetWy = m.wy + (Math.random() * 4 - 2);
+          }
+
+          const dwx = m.targetWx - m.wx;
+          const dwy = m.targetWy - m.wy;
+          const dist = Math.hypot(dwx, dwy);
+          if (dist > 0.15) {
+            m.wx += (dwx / dist) * m.speed;
+            m.wy += (dwy / dist) * m.speed;
+            m.frame = (Math.floor(frameCount / 8) % 2 === 0) ? 0 : 2;
+          } else {
+            m.frame = 1;
+          }
+        });
+      }
+
+      // 3. Depth-Sorted Entity Rendering
+      const drawList = [];
+
+      // Add Environment Props
+      mapData.envStructures.forEach(env => {
+        const eIso = worldToIso(env.wx, env.wy);
+        drawList.push({ type: 'env', isoX: eIso.x, isoY: eIso.y, env: env });
+      });
+
+      // Add NPCs
+      const activeNpcs = isPlaytest ? playtestNpcs : mapData.npcs;
+      activeNpcs.forEach(n => {
+        const nIso = worldToIso(n.wx, n.wy);
+        drawList.push({ type: 'npc', isoX: nIso.x, isoY: nIso.y, npc: n });
+      });
+
+      // Add Monsters
+      const activeMonsters = isPlaytest ? playtestMonsters : mapData.monsters;
+      activeMonsters.forEach(m => {
+        if (!isPlaytest || m.hp > 0) {
+          const mIso = worldToIso(m.wx, m.wy);
+          drawList.push({ type: 'monster', isoX: mIso.x, isoY: mIso.y, monster: m });
+        }
+      });
+
+      // Add Player in Playtest
+      if (isPlaytest) {
+        const pIso = worldToIso(player.wx, player.wy);
+        drawList.push({ type: 'player', isoX: pIso.x, isoY: pIso.y });
+      }
+
+      // Sort by isoY (screen Y position) for 2.5D isometric depth ordering
+      drawList.sort((a, b) => a.isoY - b.isoY);
+
+      // Render Depth Sorted Items
+      drawList.forEach(item => {
+        const sw = 64 * cameraZoom;
+        const sh = 64 * cameraZoom;
+
+        if (item.type === 'player') {
+          const img = sprites[player.class];
+          if (img && img.complete && img.naturalWidth > 0) {
+            const colIndex = player.isAttacking ? 3 : player.frame;
+            ctx.drawImage(img, colIndex * 64, player.dir * 64, 64, 64, item.isoX - 32 * cameraZoom, item.isoY - 52 * cameraZoom, sw, sh);
+          }
+        } else if (item.type === 'npc') {
+          const n = item.npc;
+          const img = sprites[n.sprite];
+          if (img && img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, 0, 0, 64, 64, item.isoX - 32 * cameraZoom, item.isoY - 52 * cameraZoom, sw, sh);
+          }
+          // Name Tag
+          ctx.fillStyle = '#ffd54f';
+          ctx.font = `bold ${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+          ctx.textAlign = 'center';
+          ctx.fillText(n.name, item.isoX, item.isoY - 58 * cameraZoom);
+
+          // Selection highlight box
+          if (selectedObject && selectedObject.data === n) {
+            drawSelectionHighlight(item.isoX, item.isoY);
+          }
+        } else if (item.type === 'monster') {
+          const m = item.monster;
+          const img = sprites[m.sprite];
+          if (img && img.complete && img.naturalWidth > 0) {
+            const col = (m.frame || 1) * 64;
+            ctx.drawImage(img, col, 0, 64, 64, item.isoX - 32 * cameraZoom, item.isoY - 52 * cameraZoom, sw, sh);
+          }
+          // Name & HP
+          ctx.fillStyle = '#ff5252';
+          ctx.font = `${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+          ctx.textAlign = 'center';
+          ctx.fillText(m.name, item.isoX, item.isoY - 58 * cameraZoom);
+
+          if (selectedObject && selectedObject.data === m) {
+            drawSelectionHighlight(item.isoX, item.isoY);
+          }
+        } else if (item.type === 'env') {
+          const env = item.env;
+          const img = sprites[env.type];
+          if (img && img.complete && img.naturalWidth > 0) {
+            const esw = env.width * cameraZoom;
+            const esh = env.height * cameraZoom;
+            const renderX = item.isoX - (env.anchorX * cameraZoom);
+            const renderY = item.isoY - (env.anchorY * cameraZoom);
+
+            if (env.animated && env.type === 'env_torch_brazier') {
+              const frame = Math.floor(frameCount / 8) % 4;
+              ctx.drawImage(img, frame * 64, 0, 64, 64, renderX, renderY, esw, esh);
+            } else {
+              ctx.drawImage(img, 0, 0, env.width, env.height, renderX, renderY, esw, esh);
+            }
+          }
+          if (selectedObject && selectedObject.data === env) {
+            drawSelectionHighlight(item.isoX, item.isoY);
+          }
+        }
+      });
+
+      // 4. Render Editor Cursor / Ghost Preview
+      if (!isPlaytest) {
+        const hoverIso = worldToIso(hoveredGrid.wx, hoveredGrid.wy);
+
+        // Hover Diamond Box
+        ctx.beginPath();
+        ctx.moveTo(hoverIso.x, hoverIso.y - th / 2);
+        ctx.lineTo(hoverIso.x + tw / 2, hoverIso.y);
+        ctx.lineTo(hoverIso.x, hoverIso.y + th / 2);
+        ctx.lineTo(hoverIso.x - tw / 2, hoverIso.y);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(96, 165, 250, 0.25)';
+        ctx.fill();
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Ghost asset preview
+        if (activeTool === 'prop') {
+          const p = ENV_PROPS[selectedPropIndex];
+          const img = sprites[p.type];
+          if (img && img.complete) {
+            ctx.globalAlpha = 0.6;
+            ctx.drawImage(img, 0, 0, p.width, p.height, hoverIso.x - p.anchorX * cameraZoom, hoverIso.y - p.anchorY * cameraZoom, p.width * cameraZoom, p.height * cameraZoom);
+            ctx.globalAlpha = 1.0;
+          }
+        } else if (activeTool === 'npc') {
+          const n = NPC_TYPES[selectedNpcIndex];
+          const img = sprites[n.sprite];
+          if (img && img.complete) {
+            ctx.globalAlpha = 0.6;
+            ctx.drawImage(img, 0, 0, 64, 64, hoverIso.x - 32 * cameraZoom, hoverIso.y - 52 * cameraZoom, 64 * cameraZoom, 64 * cameraZoom);
+            ctx.globalAlpha = 1.0;
+          }
+        } else if (activeTool === 'monster') {
+          const m = MONSTER_TYPES[selectedMonsterIndex];
+          const img = sprites[m.sprite];
+          if (img && img.complete) {
+            ctx.globalAlpha = 0.6;
+            ctx.drawImage(img, 0, 0, 64, 64, hoverIso.x - 32 * cameraZoom, hoverIso.y - 52 * cameraZoom, 64 * cameraZoom, 64 * cameraZoom);
+            ctx.globalAlpha = 1.0;
+          }
+        }
+      }
+
+      // 5. Floating texts & Ripples
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.offsetY += 0.6; ft.life--;
+        const ftIso = worldToIso(ft.wx, ft.wy);
+        ctx.fillStyle = ft.color;
+        ctx.font = `bold ${Math.max(10, Math.floor(13 * cameraZoom))}px Segoe UI`;
+        ctx.textAlign = 'center';
+        ctx.fillText(ft.text, ftIso.x, ftIso.y - ft.offsetY * cameraZoom);
+        if (ft.life <= 0) floatingTexts.splice(i, 1);
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    function drawSelectionHighlight(isoX, isoY) {
+      ctx.beginPath();
+      ctx.arc(isoX, isoY, 18 * cameraZoom, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Initialize Editor on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      resizeCanvas();
+      setupInputListeners();
+      switchTab('terrain');
+      loadPresetMap('prontera');
+      requestAnimationFrame(renderLoop);
+    });
+  </script>
+</body>
+</html>

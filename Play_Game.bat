@@ -1,0 +1,3 @@
+@echo off
+echo Starting Zaggers MMORPG Client...
+& "D:\FOF\Godot_v4.6.2-stable_win64.exe\Godot_v4.6.2-stable_win64.exe" --path "D:\ai-studio\Zaggers"

@@ -1,0 +1,82 @@
+# Material file for shop_building
+
+newmtl plaster_wall
+Ka 0.2000 0.2000 0.2000
+Kd 0.8800 0.8500 0.7800
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl wood_frame
+Ka 0.2000 0.2000 0.2000
+Kd 0.3500 0.2200 0.1200
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl stone_base
+Ka 0.2000 0.2000 0.2000
+Kd 0.4500 0.4500 0.4800
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl roof_tile
+Ka 0.2000 0.2000 0.2000
+Kd 0.6800 0.2600 0.1800
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl cloth_red
+Ka 0.2000 0.2000 0.2000
+Kd 0.8500 0.1800 0.1800
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl cloth_white
+Ka 0.2000 0.2000 0.2000
+Kd 0.9200 0.9000 0.8500
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl wood_door
+Ka 0.2000 0.2000 0.2000
+Kd 0.4200 0.2800 0.1500
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl iron_trim
+Ka 0.2000 0.2000 0.2000
+Kd 0.2000 0.2000 0.2200
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl brick_chimney
+Ka 0.2000 0.2000 0.2000
+Kd 0.5200 0.3600 0.3000
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl wood_sign
+Ka 0.2000 0.2000 0.2000
+Kd 0.5500 0.3800 0.2200
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+

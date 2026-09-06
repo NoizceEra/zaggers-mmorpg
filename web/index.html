@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zaggers MMORPG - Ragnarok Online Style 2.5D</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background: #0a0c10; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    
+    #game-container { position: relative; width: 100%; max-width: 1280px; aspect-ratio: 16/9; max-height: 100vh; background: #12151e; border: 2px solid #3a4256; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden; }
+    canvas { width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; display: block; background: #181d28; }
+    
+    /* RO Style HUD Overlay */
+    .hud-panel { position: absolute; background: rgba(18, 22, 32, 0.88); border: 2px solid #4a5573; border-radius: 6px; padding: 8px; font-size: 13px; backdrop-filter: blur(4px); pointer-events: auto; }
+    #status-window { top: 12px; left: 12px; width: 220px; }
+    .bar-container { background: #101218; height: 14px; border-radius: 3px; border: 1px solid #303648; margin: 4px 0; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; transition: width 0.2s; }
+    #hp-bar { background: linear-gradient(90deg, #e53935, #ff5252); }
+    #sp-bar { background: linear-gradient(90deg, #1e88e5, #42a5f5); }
+    .bar-text { position: absolute; width: 100%; text-align: center; font-size: 10px; font-weight: bold; top: 0; line-height: 14px; text-shadow: 1px 1px 2px #000; }
+    
+    /* Minimap HUD Panel */
+    #minimap-container { top: 12px; right: 12px; width: 144px; text-align: center; }
+    #minimap-zone-title { font-size: 11px; font-weight: bold; color: #ffe082; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #minimap-canvas { width: 128px; height: 128px; border: 1px solid #3d4a68; border-radius: 4px; background: #0c0e14; display: block; margin: 0 auto; }
+
+    /* Chat Overlay */
+    #chat-window { bottom: 12px; left: 12px; width: 320px; height: 140px; display: flex; flex-direction: column; }
+    #chat-messages { flex: 1; overflow-y: auto; font-size: 12px; line-height: 1.4; padding-right: 4px; }
+    #chat-input { background: #0c0e14; border: 1px solid #3a4256; color: #fff; padding: 4px 8px; border-radius: 4px; outline: none; margin-top: 6px; font-size: 12px; }
+    
+    /* Stat & Shop Floating Windows */
+    .window-modal { position: absolute; background: rgba(14, 18, 26, 0.96); border: 2px solid #5c6b94; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.9); display: none; z-index: 100; pointer-events: auto; }
+    .window-header { background: #252e42; padding: 6px 12px; font-weight: bold; font-size: 13px; border-bottom: 1px solid #3d4a68; display: flex; justify-content: space-between; align-items: center; }
+    .close-btn { cursor: pointer; color: #ff5252; font-weight: bold; padding: 0 4px; }
+    .window-body { padding: 12px; }
+    
+    #stat-window { top: 12px; right: 168px; width: 220px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px; }
+    .stat-btn { background: #2b364f; border: 1px solid #54668f; color: #fff; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .stat-btn:hover { background: #3d4d70; }
+    
+    #shop-window { top: 50px; left: 50%; transform: translateX(-50%); width: 340px; }
+    .shop-items { max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
+    .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #283246; cursor: pointer; }
+    .shop-item:hover { background: #222a3a; }
+    .buy-btn { background: #2e7d32; border: none; color: #fff; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .buy-btn:hover { background: #388e3c; }
+    
+    /* Controls Bar */
+    #controls-hint { position: absolute; top: 12px; right: 168px; display: flex; gap: 6px; pointer-events: auto; }
+    .btn-icon { background: #202636; border: 1px solid #485678; color: #fff; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    .btn-icon:hover { background: #323d56; }
+
+    /* District Banner Overlay */
+    #district-banner { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); background: rgba(16, 22, 34, 0.94); border: 2px solid #ffd54f; border-radius: 6px; padding: 6px 22px; font-size: 14px; font-weight: bold; color: #ffe082; text-shadow: 0 2px 4px #000; opacity: 0; transition: opacity 0.4s; pointer-events: none; z-index: 90; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+    
+    /* Character Creator Screen Overlay */
+    #character-creator-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #1c2638 0%, #090c14 100%); z-index: 500; display: flex; flex-direction: column; padding: 18px; color: #fff; pointer-events: auto; }
+    .creator-class-card { background: #131b28; border: 1px solid #33435e; border-radius: 6px; padding: 8px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+    .creator-class-card:hover { background: #1c283c; border-color: #ffd54f; }
+    .creator-class-card.active { background: #23324c; border: 2px solid #ffd54f; box-shadow: 0 0 10px rgba(255,213,79,0.3); }
+
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+
+  <!-- Floating District Banner Overlay -->
+  <div id="district-banner">Entering Aethelgard Grand Plaza</div>
+
+  <!-- Character Creation & Class Selector Modal -->
+  <div id="character-creator-modal">
+    <div style="text-align: center; margin-bottom: 10px;">
+      <h1 style="font-size: 22px; color: #ffd54f; letter-spacing: 2px; text-shadow: 0 2px 8px rgba(255,213,79,0.5);">ZAGGERS MMORPG</h1>
+      <p style="font-size: 12px; color: #94a3b8;">Choose your Hero Class & Enter the Realm of Aethelgard</p>
+    </div>
+
+    <div style="flex: 1; display: flex; gap: 14px; min-height: 0;">
+      <!-- Left Column: Name & Class Cards -->
+      <div style="width: 260px; background: rgba(18, 25, 38, 0.95); border: 1px solid #3d4d6c; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div>
+          <label style="font-size: 11px; font-weight: bold; color: #ffd54f; text-transform: uppercase;">Hero Name</label>
+          <input type="text" id="creator-name-input" value="AethelHero" style="width: 100%; background: #0c111a; border: 1px solid #4a5c82; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 13px; outline: none; margin-top: 4px;" />
+        </div>
+        
+        <label style="font-size: 11px; font-weight: bold; color: #ffd54f; text-transform: uppercase; margin-top: 2px;">Select Class</label>
+        <div id="creator-class-cards" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;"></div>
+      </div>
+
+      <!-- Center Column: 2.5D Animated Sprite Preview Canvas -->
+      <div style="flex: 1; background: rgba(12, 16, 26, 0.95); border: 2px solid #4a5c84; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">
+        <div style="position: absolute; top: 12px; font-size: 15px; font-weight: bold; color: #81d4fa;" id="creator-class-title">Vanguard Titan</div>
+        <canvas id="creator-preview-canvas" width="160" height="160" style="image-rendering: pixelated; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));"></canvas>
+        <div style="position: absolute; bottom: 12px; display: flex; gap: 8px;">
+          <button class="btn-icon" onclick="rotateCreatorPreview(-1)">Rotate Left ↺</button>
+          <button class="btn-icon" onclick="rotateCreatorPreview(1)">Rotate Right ↻</button>
+        </div>
+      </div>
+
+      <!-- Right Column: Stats & Lore Breakdown -->
+      <div style="width: 280px; background: rgba(18, 25, 38, 0.95); border: 1px solid #3d4d6c; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="font-size: 12px; font-weight: bold; color: #ffe082; margin-bottom: 8px; border-bottom: 1px solid #2e3d58; padding-bottom: 4px;">Class Attributes</div>
+          <div id="creator-stats-list" style="display: flex; flex-direction: column; gap: 5px; font-size: 11px;"></div>
+        </div>
+        <div>
+          <div style="font-size: 12px; font-weight: bold; color: #81c784; margin-bottom: 4px;">Class Lore</div>
+          <div id="creator-lore-text" style="font-size: 11px; color: #cbd5e1; line-height: 1.35; background: #0e1420; border: 1px solid #28364f; border-radius: 4px; padding: 6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 10px; text-align: center;">
+      <button onclick="confirmCharacterCreation()" style="background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%); border: 2px solid #81c784; color: #fff; padding: 8px 28px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 15px rgba(46,125,50,0.6); text-transform: uppercase; letter-spacing: 1px;">⚔️ Enter Aethelgard Master Town</button>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas" width="640" height="360"></canvas>
+  
+  <!-- Status Window -->
+  <div id="status-window" class="hud-panel">
+    <div style="font-weight: bold; color: #ffe082; margin-bottom: 4px;" id="player-name">Hero [Knight]</div>
+    <div class="bar-container">
+      <div id="hp-bar" class="bar-fill" style="width: 100%;"></div>
+      <div class="bar-text" id="hp-text">HP: 180 / 180</div>
+    </div>
+    <div class="bar-container">
+      <div id="sp-bar" class="bar-fill" style="width: 100%;"></div>
+      <div class="bar-text" id="sp-text">SP: 50 / 50</div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: #b0bec5;">
+      <span>Zeny: <strong style="color: #ffd54f;" id="zeny-val">500 z</strong></span>
+      <span>Base Lv. 1</span>
+    </div>
+  </div>
+
+  <!-- Mini-Map HUD Overlay -->
+  <div id="minimap-container" class="hud-panel">
+    <div id="minimap-zone-title">Aethelgard Master Town</div>
+    <canvas id="minimap-canvas" width="128" height="128"></canvas>
+  </div>
+
+  <!-- Chat Window -->
+  <div id="chat-window" class="hud-panel">
+    <div id="chat-messages">
+      <div><span style="color: #ffd54f;">[System]:</span> Welcome to Zaggers 2.5D MMORPG World Map!</div>
+      <div><span style="color: #81c784;">[Guide]:</span> Explore Aethelgard Master Town, Whispering Meadows, & Sunken Sanctum. Left-click to move/attack, WASD to walk, Q/E or Right-Drag to rotate cam, Scroll to zoom, Middle-Drag to pan, R to reset cam.</div>
+    </div>
+    <input type="text" id="chat-input" placeholder="Press Enter to chat..." />
+  </div>
+
+  <!-- Action Controls -->
+  <div id="controls-hint">
+    <button class="btn-icon" onclick="rotateCamera(-1)" title="Rotate Counter-Clockwise (Q)">Cam ↺ [Q]</button>
+    <button class="btn-icon" onclick="rotateCamera(1)" title="Rotate Clockwise (E)">Cam ↻ [E]</button>
+    <button class="btn-icon" id="cam-angle-btn" onclick="resetCamera()" title="Reset Camera View (R)">0°</button>
+    <button class="btn-icon" onclick="toggleWindow('stat-window')">Stats [C]</button>
+    <button class="btn-icon" onclick="toggleWindow('shop-window')">Shop [S]</button>
+    <button class="btn-icon" onclick="openMapEditor()" title="Open Map Editor in new tab">🛠️ Map Editor</button>
+    <button class="btn-icon" onclick="openDBEditor()" title="Open Engine DB Editor in new tab">⚙️ DB Editor</button>
+    <button class="btn-icon" onclick="triggerMapFileInput()" title="Load Custom Map JSON">📁 Load Map</button>
+    <input type="file" id="map-file-input" accept=".json" style="display:none" onchange="handleMapFileUpload(event)" />
+  </div>
+
+  <!-- Stat Window Modal -->
+  <div id="stat-window" class="window-modal">
+    <div class="window-header">
+      <span>Character Stats</span>
+      <span class="close-btn" onclick="toggleWindow('stat-window')">✕</span>
+    </div>
+    <div class="window-body">
+      <div class="stat-row"><span>STR (Attack)</span><span id="stat-str">10</span><button class="stat-btn" onclick="addStat('str')">+</button></div>
+      <div class="stat-row"><span>AGI (ASPD/Flee)</span><span id="stat-agi">10</span><button class="stat-btn" onclick="addStat('agi')">+</button></div>
+      <div class="stat-row"><span>VIT (Max HP)</span><span id="stat-vit">10</span><button class="stat-btn" onclick="addStat('vit')">+</button></div>
+      <div class="stat-row"><span>INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
+      <div class="stat-row"><span>DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
+      <div class="stat-row"><span>LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button></div>
+    </div>
+  </div>
+
+  <!-- Shop Window Modal -->
+  <div id="shop-window" class="window-modal">
+    <div class="window-header">
+      <span>Aethelgard Equipment Shop</span>
+      <span class="close-btn" onclick="toggleWindow('shop-window')">✕</span>
+    </div>
+    <div class="window-body">
+      <div class="shop-items">
+        <div class="shop-item"><div><strong>Red Potion</strong><br><small style="color: #b0bec5;">Restores 100 HP</small></div><button class="buy-btn" onclick="buyItem('Red Potion', 50)">50 z</button></div>
+        <div class="shop-item"><div><strong>Mythril Armor</strong><br><small style="color: #b0bec5;">Def +15, Max HP +50</small></div><button class="buy-btn" onclick="buyItem('Mythril Armor', 300)">300 z</button></div>
+        <div class="shop-item"><div><strong>Archmage Staff</strong><br><small style="color: #b0bec5;">MATK +25, Max SP +40</small></div><button class="buy-btn" onclick="buyItem('Archmage Staff', 450)">450 z</button></div>
+        <div class="shop-item"><div><strong>Dragon Lance</strong><br><small style="color: #b0bec5;">ATK +35, Crit +10%</small></div><button class="buy-btn" onclick="buyItem('Dragon Lance', 600)">600 z</button></div>
+      </div>
+    </div>
+  <!-- RO-Style NPC Dialog Window Modal -->
+  <div id="npc-dialog-window" class="window-modal">
+    <div class="window-header" style="background: linear-gradient(90deg, #1b263b, #2b3a55); border-bottom: 2px solid #e0a938;">
+      <span id="npc-dialog-title" style="color: #ffd54f; font-weight: bold;">[NPC] Kafra Staff</span>
+      <span class="close-btn" onclick="closeNpcDialog()">✕</span>
+    </div>
+    <div class="window-body" style="background: rgba(12, 16, 25, 0.98); padding: 14px;">
+      <div style="display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;">
+        <div style="width: 64px; height: 64px; background: #1a2233; border: 2px solid #4a5c84; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+          <canvas id="npc-portrait-canvas" width="64" height="64" style="width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+        <div style="flex: 1; background: #182030; border: 1px solid #384666; border-radius: 6px; padding: 10px; font-size: 12px; line-height: 1.5; color: #e1e7f0; position: relative;">
+          <div style="font-weight: bold; color: #81d4fa; margin-bottom: 4px;" id="npc-dialog-speaker">Kafra Service Staff</div>
+          <div id="npc-dialog-text">Welcome to Kafra Service! How may I assist you today?</div>
+        </div>
+      </div>
+      <div id="npc-dialog-options" style="display: flex; flex-direction: column; gap: 6px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  const minimapCanvas = document.getElementById('minimap-canvas');
+  const minimapCtx = minimapCanvas ? minimapCanvas.getContext('2d') : null;
+
+  // Sprites Container
+  const sprites = {};
+  const spriteNames = [
+    'hero_knight', 'hero_blackmage', 'hero_whitemage', 'hero_dragoon', 
+    'hero_redmage', 'hero_thief', 'hero_monk', 'slime_green_ff', 
+    'goblin_ff', 'skeleton_ff', 'boss_baphomet_ff', 'cactuar_ff', 'tileset_town_ff',
+    'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder'
+  ];
+
+  const envSpriteNames = [
+    'env_house_shop', 'env_fountain', 'env_market_stall', 'env_barrel_crate',
+    'env_tree_meadow', 'env_bush', 'env_rock', 'env_crystal',
+    'env_dungeon_pillar', 'env_torch_brazier'
+  ];
+
+  const terrainSpriteNames = [
+    'tileset_town_ff', 'tileset_meadow_ff', 'tileset_dungeon_ff',
+    'tile_town_cobble', 'tile_town_cobble2', 'tile_town_border', 'tile_town_brick',
+    'tile_meadow_grass', 'tile_meadow_dirt', 'tile_meadow_flowers', 'tile_meadow_water',
+    'tile_dungeon_slate', 'tile_dungeon_obsidian', 'tile_dungeon_lava', 'tile_dungeon_rune'
+  ];
+
+  spriteNames.forEach(name => {
+    const img = new Image();
+    img.src = (name === 'tileset_town_ff') ? `assets/tiles_ff/${name}.png` : `assets/sprites_ff/${name}.png`;
+    sprites[name] = img;
+  });
+
+  envSpriteNames.forEach(name => {
+    const img = new Image();
+    img.src = `assets/tiles_ff/${name}.png`;
+    sprites[name] = img;
+  });
+
+  terrainSpriteNames.forEach(name => {
+    const img = new Image();
+    img.src = `assets/tiles_ff/${name}.png`;
+    sprites[name] = img;
+  });
+
+  // Town NPCs distributed across Aethelgard Master Town Districts
+  const npcs = [
+    {
+      id: 'kafra',
+      name: '[NPC] Kafra Staff',
+      title: 'Kafra Service Staff',
+      wx: 0, wy: -2,
+      dir: 0, frame: 1,
+      sprite: 'npc_kafra',
+      dialogHeader: 'Kafra Service Staff',
+      dialogText: 'Welcome to the Aethelgard Kafra Depot! We provide save point recording and teleportation services across the 5 realms. How may I serve you today, adventurer?',
+      options: [
+        { text: '💾 Save Position & Heal (Aethelgard)', action: 'kafra_save' },
+        { text: '🌀 Teleport to Wilderness Fields', action: 'kafra_teleport' },
+        { text: '❌ Cancel', action: 'close' }
+      ]
+    },
+    {
+      id: 'merchant',
+      name: '[NPC] Market Merchant',
+      title: 'Market Bazaar Trader',
+      wx: 18, wy: 0,
+      dir: 0, frame: 1,
+      sprite: 'npc_merchant',
+      dialogHeader: 'Market Merchant',
+      dialogText: 'Welcome to the Market Bazaar! I have fresh potions brewed from royal herbs and sturdy adventure equipment. What would you like to buy?',
+      options: [
+        { text: '🧪 Open Item Shop (Potions & Gear)', action: 'open_shop' },
+        { text: '🍷 Buy Red Potion (50 z)', action: 'buy_red_potion' },
+        { text: '❌ Cancel', action: 'close' }
+      ]
+    },
+    {
+      id: 'blacksmith',
+      name: '[NPC] Master Smith',
+      title: 'Smithy Row Blacksmith',
+      wx: -18, wy: 0,
+      dir: 0, frame: 1,
+      sprite: 'npc_blacksmith',
+      dialogHeader: 'Master Smith Ironhide',
+      dialogText: 'Clang! Clang! Welcome to Smithy Row! Need your weapon sharpened or your armor reinforced? I can upgrade your gear for a modest fee!',
+      options: [
+        { text: '⚔️ Refine Weapon (+2 STR) [100 z]', action: 'upgrade_weapon' },
+        { text: '🛡️ Reinforce Armor (+20 Max HP, +10 Max SP) [150 z]', action: 'upgrade_armor' },
+        { text: '❌ Cancel', action: 'close' }
+      ]
+    },
+    {
+      id: 'elder',
+      name: '[NPC] Guildmaster',
+      title: 'Training Grounds Elder',
+      wx: 0, wy: 18,
+      dir: 0, frame: 1,
+      sprite: 'npc_elder',
+      dialogHeader: 'Guildmaster Elder',
+      dialogText: 'Greetings, brave hero. Shadows grow long in the surrounding wilderness and monsters threaten Aethelgard. Are you ready to take on a hero’s quest?',
+      options: [
+        { text: '📜 Accept Quest: Defeat Lord Baphomet', action: 'quest_accept' },
+        { text: '🎁 Claim Quest Reward (500 z)', action: 'quest_claim' },
+        { text: '💡 Seek Wisdom & Training Advice', action: 'elder_advice' },
+        { text: '❌ Cancel', action: 'close' }
+      ]
+    }
+  ];
+
+  let activeNpc = null;
+  let pendingNpcTarget = null;
+  let hasQuest = false;
+  let questCompleted = false;
+
+  // 2.5D Isometric Environment Structures Library (Expanded Multi-District Aethelgard & Wilderness)
+  const envStructures = [
+    // District 1: Grand Fountain Plaza (Center: wx: -8..8, wy: -8..8)
+    { type: 'env_fountain', wx: 0, wy: 0, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Aethelgard Central Fountain' },
+    { type: 'env_crystal', wx: 0, wy: 3, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'Aetherite Save Crystal' },
+    { type: 'env_market_stall', wx: -4, wy: -3, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Kafra Info Booth' },
+    { type: 'env_barrel_crate', wx: -5.2, wy: -3.2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+    { type: 'env_barrel_crate', wx: 4.2, wy: -1.2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+
+    // District 2: Smithy Row (West: wx: -25..-9, wy: -10..10)
+    { type: 'env_house_shop', wx: -18, wy: -4, width: 128, height: 128, anchorX: 64, anchorY: 98, name: 'Ironhide Blacksmith Forge' },
+    { type: 'env_barrel_crate', wx: -20, wy: 2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+    { type: 'env_barrel_crate', wx: -16, wy: 3, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+    { type: 'env_torch_brazier', wx: -15, wy: -2, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+    { type: 'env_torch_brazier', wx: -15, wy: 2, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+
+    // District 3: High Temple Plaza (North: wx: -10..10, wy: -25..-9)
+    { type: 'env_dungeon_pillar', wx: -6, wy: -18, width: 64, height: 128, anchorX: 32, anchorY: 116 },
+    { type: 'env_dungeon_pillar', wx: 6, wy: -18, width: 64, height: 128, anchorX: 32, anchorY: 116 },
+    { type: 'env_crystal', wx: 0, wy: -20, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'High Temple Sanctuary Shrine' },
+    { type: 'env_torch_brazier', wx: -3, wy: -16, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+    { type: 'env_torch_brazier', wx: 3, wy: -16, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+
+    // District 4: Market District & Bazaars (East: wx: 9..25, wy: -10..10)
+    { type: 'env_market_stall', wx: 18, wy: -3, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Potion & Elixir Stall' },
+    { type: 'env_market_stall', wx: 18, wy: 3, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Exotic Goods Merchant' },
+    { type: 'env_barrel_crate', wx: 16, wy: 0, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+    { type: 'env_barrel_crate', wx: 21, wy: -2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+
+    // District 5: Adventurer Guild & Training Grounds (South: wx: -10..10, wy: 9..25)
+    { type: 'env_house_shop', wx: 0, wy: 22, width: 128, height: 128, anchorX: 64, anchorY: 98, name: 'Adventurer Guild Hall' },
+    { type: 'env_barrel_crate', wx: -4, wy: 16, width: 64, height: 64, anchorX: 32, anchorY: 48, name: 'Training Target Dummy A' },
+    { type: 'env_barrel_crate', wx: 4, wy: 16, width: 64, height: 64, anchorX: 32, anchorY: 48, name: 'Training Target Dummy B' },
+
+    // District 6: Northern Wilderness Gate (North-East: wy: -45..-26)
+    { type: 'env_tree_meadow', wx: -8, wy: -30, width: 96, height: 128, anchorX: 48, anchorY: 112 },
+    { type: 'env_tree_meadow', wx: 7, wy: -34, width: 96, height: 128, anchorX: 48, anchorY: 112 },
+    { type: 'env_tree_meadow', wx: -6, wy: -40, width: 96, height: 128, anchorX: 48, anchorY: 112 },
+    { type: 'env_tree_meadow', wx: 8, wy: -44, width: 96, height: 128, anchorX: 48, anchorY: 112 },
+    { type: 'env_bush', wx: -4, wy: -28, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+    { type: 'env_bush', wx: 5, wy: -37, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+    { type: 'env_rock', wx: 3, wy: -32, width: 64, height: 64, anchorX: 32, anchorY: 48 },
+
+    // Underground Sanctum Catacombs (South Deep: wy: 26..45)
+    { type: 'env_dungeon_pillar', wx: -6, wy: 30, width: 64, height: 128, anchorX: 32, anchorY: 116 },
+    { type: 'env_dungeon_pillar', wx: 6, wy: 30, width: 64, height: 128, anchorX: 32, anchorY: 116 },
+    { type: 'env_torch_brazier', wx: -4, wy: 28, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+    { type: 'env_torch_brazier', wx: 4, wy: 28, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+    { type: 'env_crystal', wx: 0, wy: 42, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'Sanctum Core' }
+  ];
+
+  // 2.5D Isometric World Projection & Dynamic Camera
+  const TILE_W = 48;
+  const TILE_H = 24;
+
+  let cameraAngle = 0; // 0: 0°, 1: 90°, 2: 180°, 3: 270°
+  let cameraX = 0;
+  let cameraY = 0;
+  let cameraPanX = 0;
+  let cameraPanY = 0;
+  let cameraZoom = 1.0;
+
+  function rotateCamera(dir) {
+    cameraAngle = (cameraAngle + dir + 4) % 4;
+    const angleDeg = cameraAngle * 90;
+    const angleBtn = document.getElementById('cam-angle-btn');
+    if (angleBtn) angleBtn.innerText = `${angleDeg}°`;
+  }
+
+  function resetCamera() {
+    cameraAngle = 0;
+    cameraPanX = 0;
+    cameraPanY = 0;
+    cameraZoom = 1.0;
+    const angleBtn = document.getElementById('cam-angle-btn');
+    if (angleBtn) angleBtn.innerText = `0°`;
+  }
+
+  function worldToIso(wx, wy) {
+    const relX = wx - cameraX;
+    const relY = wy - cameraY;
+
+    let rx = relX, ry = relY;
+    if (cameraAngle === 1) { rx = -relY; ry = relX; }
+    else if (cameraAngle === 2) { rx = -relX; ry = -relY; }
+    else if (cameraAngle === 3) { rx = relY; ry = -relX; }
+
+    const tw = TILE_W * cameraZoom;
+    const th = TILE_H * cameraZoom;
+    const isoX = (rx - ry) * (tw / 2) + canvas.width / 2;
+    const isoY = (rx + ry) * (th / 2) + canvas.height / 2;
+    return { x: isoX, y: isoY };
+  }
+
+  function isoToWorld(screenX, screenY) {
+    const tw = TILE_W * cameraZoom;
+    const th = TILE_H * cameraZoom;
+    const sx = screenX - canvas.width / 2;
+    const sy = screenY - canvas.height / 2;
+
+    const rx = (sy / (th / 2) + sx / (tw / 2)) / 2;
+    const ry = (sy / (th / 2) - sx / (tw / 2)) / 2;
+
+    let relX = rx, relY = ry;
+    if (cameraAngle === 1) { relX = ry; relY = -rx; }
+    else if (cameraAngle === 2) { relX = -rx; relY = -ry; }
+    else if (cameraAngle === 3) { relX = -ry; relY = rx; }
+
+    return { wx: cameraX + relX, wy: cameraY + relY };
+  }
+
+  // Game State
+  const player = {
+    wx: 0, wy: 0, targetWx: 0, targetWy: 0,
+    speed: 0.08, dir: 0, frame: 1, isAttacking: false, attackTimer: 0,
+    hp: 180, maxHp: 180, sp: 50, maxSp: 50, zeny: 500,
+    str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10, class: 'hero_knight'
+  };
+
+  // Monsters across 3 zones
+  const monsters = [
+    // South Meadow Field Monsters (wy: -45..-16)
+    { id: 1, name: 'Poring', wx: -4, wy: -22, targetWx: -4, targetWy: -22, speed: 0.02, dir: 0, frame: 1, hp: 50, maxHp: 50, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
+    { id: 2, name: 'Poring', wx: 5, wy: -28, targetWx: 5, targetWy: -28, speed: 0.02, dir: 0, frame: 1, hp: 50, maxHp: 50, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
+    { id: 3, name: 'Poring', wx: -3, wy: -36, targetWx: -3, targetWy: -36, speed: 0.02, dir: 0, frame: 1, hp: 50, maxHp: 50, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
+    { id: 4, name: 'Cactuar', wx: 4, wy: -20, targetWx: 4, targetWy: -20, speed: 0.03, dir: 0, frame: 1, hp: 80, maxHp: 80, sprite: 'cactuar_ff', isAggro: true, attackCooldown: 0, zone: 'south' },
+    { id: 5, name: 'Cactuar', wx: -6, wy: -32, targetWx: -6, targetWy: -32, speed: 0.03, dir: 0, frame: 1, hp: 80, maxHp: 80, sprite: 'cactuar_ff', isAggro: true, attackCooldown: 0, zone: 'south' },
+    { id: 6, name: 'Slime', wx: -2, wy: -25, targetWx: -2, targetWy: -25, speed: 0.025, dir: 0, frame: 1, hp: 60, maxHp: 60, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
+    { id: 7, name: 'Slime', wx: 6, wy: -40, targetWx: 6, targetWy: -40, speed: 0.025, dir: 0, frame: 1, hp: 60, maxHp: 60, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
+
+    // Underground Sanctum Monsters (wy: 16..45)
+    { id: 8, name: 'Goblin', wx: -4, wy: 20, targetWx: -4, targetWy: 20, speed: 0.035, dir: 0, frame: 1, hp: 140, maxHp: 140, sprite: 'goblin_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
+    { id: 9, name: 'Goblin', wx: 5, wy: 26, targetWx: 5, targetWy: 26, speed: 0.035, dir: 0, frame: 1, hp: 140, maxHp: 140, sprite: 'goblin_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
+    { id: 10, name: 'Skeleton', wx: 4, wy: 22, targetWx: 4, targetWy: 22, speed: 0.03, dir: 0, frame: 1, hp: 200, maxHp: 200, sprite: 'skeleton_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
+    { id: 11, name: 'Skeleton', wx: -5, wy: 32, targetWx: -5, targetWy: 32, speed: 0.03, dir: 0, frame: 1, hp: 200, maxHp: 200, sprite: 'skeleton_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
+    { id: 12, name: 'Baphomet (Boss)', wx: 0, wy: 40, targetWx: 0, targetWy: 40, speed: 0.04, dir: 0, frame: 1, hp: 800, maxHp: 800, sprite: 'boss_baphomet_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' }
+  ];
+
+  const floatingTexts = [];
+  const clickRipples = [];
+  const keys = {};
+
+  // Drag & Mouse States
+  let isRightDragging = false;
+  let rightDragStartX = 0;
+
+  let isMiddleDragging = false;
+  let middleDragStartX = 0;
+  let middleDragStartY = 0;
+
+  // Input Listeners
+  window.addEventListener('keydown', e => {
+    if (document.activeElement === document.getElementById('chat-input')) {
+      if (e.code === 'Enter') handleChatInput();
+      return;
+    }
+    keys[e.code] = true;
+    if (e.code === 'KeyC') toggleWindow('stat-window');
+    if (e.code === 'KeyS') toggleWindow('shop-window');
+    if (e.code === 'KeyQ') rotateCamera(-1);
+    if (e.code === 'KeyE') rotateCamera(1);
+    if (e.code === 'KeyR') resetCamera();
+    if (e.code === 'Space' || e.code === 'KeyJ') triggerAttack();
+    if (e.code === 'Enter') handleChatInput();
+  });
+  window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+  canvas.addEventListener('mousedown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clickSx = (e.clientX - rect.left) * scaleX;
+    const clickSy = (e.clientY - rect.top) * scaleY;
+    
+    if (e.button === 0) { // Left-click: Walk / Attack / NPC Interaction
+      const worldPos = isoToWorld(clickSx, clickSy);
+
+      // Check if left-click hit an NPC on screen
+      let clickedNpc = null;
+      npcs.forEach(npc => {
+        const nIso = worldToIso(npc.wx, npc.wy);
+        const npcMinX = nIso.x - 24 * cameraZoom;
+        const npcMaxX = nIso.x + 24 * cameraZoom;
+        const npcMinY = nIso.y - 56 * cameraZoom;
+        const npcMaxY = nIso.y + 8 * cameraZoom;
+        if (clickSx >= npcMinX && clickSx <= npcMaxX && clickSy >= npcMinY && clickSy <= npcMaxY) {
+          clickedNpc = npc;
+        }
+      });
+
+      if (clickedNpc) {
+        const dist = Math.hypot(player.wx - clickedNpc.wx, player.wy - clickedNpc.wy);
+        if (dist <= 2.2) {
+          openNpcDialog(clickedNpc);
+        } else {
+          pendingNpcTarget = clickedNpc;
+          player.targetWx = clickedNpc.wx;
+          player.targetWy = clickedNpc.wy;
+          clickRipples.push({ wx: clickedNpc.wx, wy: clickedNpc.wy, radius: 4, alpha: 1.0 });
+        }
+        return;
+      }
+
+      player.targetWx = Math.max(-15, Math.min(15, worldPos.wx));
+      player.targetWy = Math.max(-45, Math.min(45, worldPos.wy));
+      pendingNpcTarget = null;
+      clickRipples.push({ wx: player.targetWx, wy: player.targetWy, radius: 4, alpha: 1.0 });
+    } else if (e.button === 2) { // Right-click: Camera Rotation Drag
+      isRightDragging = true;
+      rightDragStartX = e.clientX;
+    } else if (e.button === 1) { // Middle-click: Camera Pan Drag
+      isMiddleDragging = true;
+      middleDragStartX = e.clientX;
+      middleDragStartY = e.clientY;
+    }
+  });
+
+  window.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mouseSx = (e.clientX - rect.left) * scaleX;
+    const mouseSy = (e.clientY - rect.top) * scaleY;
+
+    let hoveringNpc = false;
+    npcs.forEach(npc => {
+      const nIso = worldToIso(npc.wx, npc.wy);
+      if (mouseSx >= nIso.x - 24 * cameraZoom && mouseSx <= nIso.x + 24 * cameraZoom &&
+          mouseSy >= nIso.y - 56 * cameraZoom && mouseSy <= nIso.y + 8 * cameraZoom) {
+        hoveringNpc = true;
+      }
+    });
+    canvas.style.cursor = hoveringNpc ? 'pointer' : 'default';
+
+    if (isRightDragging) {
+      const deltaX = e.clientX - rightDragStartX;
+      if (deltaX > 40) {
+        rotateCamera(1);
+        rightDragStartX = e.clientX;
+      } else if (deltaX < -40) {
+        rotateCamera(-1);
+        rightDragStartX = e.clientX;
+      }
+    }
+    if (isMiddleDragging) {
+      const deltaX = (e.clientX - middleDragStartX) * 0.01;
+      const deltaY = (e.clientY - middleDragStartY) * 0.01;
+      let relPanX = -deltaX + deltaY;
+      let relPanY = deltaX + deltaY;
+      cameraPanX = Math.max(-10, Math.min(10, cameraPanX + relPanX * 0.1));
+      cameraPanY = Math.max(-15, Math.min(15, cameraPanY + relPanY * 0.1));
+      middleDragStartX = e.clientX;
+      middleDragStartY = e.clientY;
+    }
+  });
+
+  window.addEventListener('mouseup', e => {
+    if (e.button === 2) isRightDragging = false;
+    if (e.button === 1) isMiddleDragging = false;
+  });
+
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    cameraZoom = Math.max(0.6, Math.min(1.8, cameraZoom * zoomFactor));
+  }, { passive: false });
+
+  function triggerAttack() {
+    if (player.isAttacking) return;
+    player.isAttacking = true;
+    player.attackTimer = 18;
+
+    monsters.forEach(m => {
+      const dist = Math.hypot(m.wx - player.wx, m.wy - player.wy);
+      if (dist < 2.5 && m.hp > 0) {
+        const dmg = Math.floor(22 + player.str * 1.6 + Math.random() * 12);
+        m.hp = Math.max(0, m.hp - dmg);
+        floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color: (dmg > 30 ? '#ffd54f' : '#ff5252'), life: 40 });
+        if (m.hp === 0) {
+          player.zeny += (m.sprite === 'boss_baphomet_ff' ? 500 : 50);
+          updateHUD();
+          setTimeout(() => { m.hp = m.maxHp; }, 5000);
+        }
+      }
+    });
+  }
+
+  function handleChatInput() {
+    const input = document.getElementById('chat-input');
+    if (document.activeElement === input) {
+      const text = input.value.trim();
+      if (text) {
+        const chatBox = document.getElementById('chat-messages');
+        chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Hero]:</span> ${text}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        input.value = '';
+      }
+      input.blur();
+    } else {
+      input.focus();
+    }
+  }
+
+  function toggleWindow(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'block' ? 'none' : 'block');
+  }
+
+  function openNpcDialog(npc) {
+    activeNpc = npc;
+    const modal = document.getElementById('npc-dialog-window');
+    document.getElementById('npc-dialog-title').innerText = npc.name;
+    document.getElementById('npc-dialog-speaker').innerText = npc.dialogHeader;
+    document.getElementById('npc-dialog-text').innerText = npc.dialogText;
+
+    const portraitCanvas = document.getElementById('npc-portrait-canvas');
+    if (portraitCanvas) {
+      const pctx = portraitCanvas.getContext('2d');
+      pctx.imageSmoothingEnabled = false;
+      pctx.clearRect(0, 0, 64, 64);
+      const img = sprites[npc.sprite];
+      if (img && img.complete && img.naturalWidth > 0) {
+        pctx.drawImage(img, 0, 0, 64, 64, 0, 0, 64, 64);
+      }
+    }
+
+    const optionsContainer = document.getElementById('npc-dialog-options');
+    optionsContainer.innerHTML = '';
+    npc.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'npc-option-btn';
+      btn.innerHTML = opt.text;
+      btn.onclick = () => handleNpcOption(opt.action, npc);
+      optionsContainer.appendChild(btn);
+    });
+
+    modal.style.display = 'block';
+
+    const chatBox = document.getElementById('chat-messages');
+    chatBox.innerHTML += `<div><span style="color: #ffd54f;">${npc.name}:</span> ${npc.dialogText}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function closeNpcDialog() {
+    const modal = document.getElementById('npc-dialog-window');
+    if (modal) modal.style.display = 'none';
+    activeNpc = null;
+  }
+
+  function handleNpcOption(action, npc) {
+    const chatBox = document.getElementById('chat-messages');
+    if (action === 'close') {
+      closeNpcDialog();
+      return;
+    }
+
+    if (action === 'kafra_save') {
+      player.hp = player.maxHp;
+      player.sp = player.maxSp;
+      updateHUD();
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '★ SAVED & HEALED! ★', color: '#81c784', life: 50 });
+      chatBox.innerHTML += `<div><span style="color: #81c784;">[Kafra]:</span> Save point recorded at Prontera Town Center! HP & SP fully restored.</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      document.getElementById('npc-dialog-text').innerText = 'Your save point has been recorded and your HP/SP fully restored! Have a safe journey, adventurer!';
+    } else if (action === 'kafra_teleport') {
+      player.wx = 5;
+      player.wy = 20;
+      player.targetWx = 5;
+      player.targetWy = 20;
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🌀 TELEPORT!', color: '#4fc3f7', life: 50 });
+      chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Kafra]:</span> Teleported to Dungeon Entrance!</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      closeNpcDialog();
+    } else if (action === 'open_shop') {
+      closeNpcDialog();
+      toggleWindow('shop-window');
+    } else if (action === 'buy_red_potion') {
+      if (player.zeny >= 50) {
+        player.zeny -= 50;
+        player.hp = Math.min(player.maxHp, player.hp + 100);
+        updateHUD();
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '+100 HP', color: '#66bb6a', life: 40 });
+        chatBox.innerHTML += `<div><span style="color: #81c784;">[Merchant]:</span> Thank you! Restored 100 HP.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } else {
+        chatBox.innerHTML += `<div><span style="color: #ff5252;">[Merchant]:</span> You do not have enough Zeny!</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (action === 'upgrade_weapon') {
+      if (player.zeny >= 100) {
+        player.zeny -= 100;
+        player.str += 2;
+        document.getElementById('stat-str').innerText = player.str;
+        updateHUD();
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '⚔️ +2 STR!', color: '#ffd54f', life: 50 });
+        chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Blacksmith]:</span> Clang! Weapon refined! STR increased by +2.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        document.getElementById('npc-dialog-text').innerText = 'Clang! Your weapon gleams with new power! STR +2 added!';
+      } else {
+        chatBox.innerHTML += `<div><span style="color: #ff5252;">[Blacksmith]:</span> You need at least 100 Zeny for weapon refinement!</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (action === 'upgrade_armor') {
+      if (player.zeny >= 150) {
+        player.zeny -= 150;
+        player.maxHp += 20;
+        player.hp += 20;
+        player.maxSp += 10;
+        player.sp += 10;
+        updateHUD();
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🛡️ MAX HP +20!', color: '#81c784', life: 50 });
+        chatBox.innerHTML += `<div><span style="color: #81c784;">[Blacksmith]:</span> Clang! Armor reinforced! Max HP +20, Max SP +10.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        document.getElementById('npc-dialog-text').innerText = 'Clang! Armor reinforced! Max HP increased by +20 and Max SP by +10!';
+      } else {
+        chatBox.innerHTML += `<div><span style="color: #ff5252;">[Blacksmith]:</span> You need at least 150 Zeny for armor reinforcement!</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (action === 'quest_accept') {
+      hasQuest = true;
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Elder]:</span> Quest Accepted! Venture to Underground Sanctum and slay Baphomet (Boss) at coordinates (0, 40).</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      document.getElementById('npc-dialog-text').innerText = 'Quest active! Hunt down Baphomet in the Underground Sanctum (0, 40) and return to me for your 500 z reward!';
+    } else if (action === 'quest_claim') {
+      const baphomet = monsters.find(m => m.id === 12);
+      if (hasQuest && baphomet && baphomet.hp <= 0) {
+        hasQuest = false;
+        questCompleted = true;
+        player.zeny += 500;
+        updateHUD();
+        floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🎉 QUEST COMPLETE! +500z', color: '#ffd54f', life: 60 });
+        chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Elder]:</span> Outstanding victory! You defeated Baphomet! Here is your 500 Zeny reward.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        document.getElementById('npc-dialog-text').innerText = 'Incredible bravery! The town is safe thanks to you. Here is your 500 Zeny reward!';
+      } else if (!hasQuest) {
+        chatBox.innerHTML += `<div><span style="color: #b0bec5;">[Elder]:</span> You must accept the Baphomet quest first.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } else {
+        chatBox.innerHTML += `<div><span style="color: #ff5252;">[Elder]:</span> Baphomet is still alive! Slay the boss at (0, 40) first.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (action === 'elder_advice') {
+      chatBox.innerHTML += `<div><span style="color: #81d4fa;">[Elder]:</span> Advice: STR boosts physical damage, VIT raises Max HP, INT increases MATK & SP, and AGI grants speed and flee rate. Balance your stats wisely!</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      document.getElementById('npc-dialog-text').innerText = 'STR boosts physical damage, VIT raises Max HP, INT increases MATK & SP, and AGI grants speed and flee rate!';
+    }
+  }
+
+  function addStat(stat) {
+    player[stat]++;
+    if (stat === 'vit') { player.maxHp += 15; player.hp += 15; }
+    if (stat === 'int') { player.maxSp += 10; player.sp += 10; }
+    document.getElementById(`stat-${stat}`).innerText = player[stat];
+    updateHUD();
+  }
+
+  function buyItem(name, cost) {
+    if (player.zeny >= cost) {
+      player.zeny -= cost;
+      updateHUD();
+      const chatBox = document.getElementById('chat-messages');
+      chatBox.innerHTML += `<div><span style="color: #81c784;">[Shop]:</span> Purchased ${name}!</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  function updateHUD() {
+    document.getElementById('hp-bar').style.width = `${(player.hp / player.maxHp) * 100}%`;
+    document.getElementById('hp-text').innerText = `HP: ${player.hp} / ${player.maxHp}`;
+    document.getElementById('sp-bar').style.width = `${(player.sp / player.maxSp) * 100}%`;
+    document.getElementById('sp-text').innerText = `SP: ${player.sp} / ${player.maxSp}`;
+    document.getElementById('zeny-val').innerText = `${player.zeny} z`;
+  }
+
+  let customTileMap = {};
+
+  function loadCustomMapData(mapJson) {
+    if (!mapJson) return;
+    let mapData = mapJson;
+    if (typeof mapJson === 'string') {
+      try {
+        mapData = JSON.parse(mapJson);
+      } catch (err) {
+        console.error('Failed to parse mapJson', err);
+        return;
+      }
+    }
+    if (mapData.tiles) {
+      customTileMap = mapData.tiles;
+    }
+    if (Array.isArray(mapData.envStructures)) {
+      envStructures.length = 0;
+      envStructures.push(...mapData.envStructures);
+    }
+    if (Array.isArray(mapData.npcs)) {
+      npcs.length = 0;
+      npcs.push(...mapData.npcs);
+    }
+    if (Array.isArray(mapData.monsters)) {
+      monsters.length = 0;
+      monsters.push(...mapData.monsters);
+    }
+    try {
+      localStorage.setItem('zaggers_custom_map', JSON.stringify(mapData));
+    } catch(e) {}
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #81c784;">[System]:</span> Custom map layout loaded successfully!</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  function openMapEditor() {
+    window.open('editor.html', '_blank');
+  }
+
+  function openDBEditor() {
+    window.open('db_editor.html', '_blank');
+  }
+
+  function triggerMapFileInput() {
+    const input = document.getElementById('map-file-input');
+    if (input) input.click();
+  }
+
+  function handleMapFileUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      loadCustomMapData(e.target.result);
+    };
+    reader.readAsText(file);
+  }
+
+  
+  // ==========================================
+  // Character Creation & Class Selection System
+  // ==========================================
+  const HERO_CLASSES = {
+    vanguard: {
+      id: 'vanguard',
+      name: 'Vanguard Titan',
+      sprite: 'hero_knight',
+      stats: { str: 14, agi: 10, vit: 16, int: 6, dex: 12, luk: 8 },
+      hp: 180, sp: 50,
+      weapon: 'Sword & Shield',
+      lore: 'Stalwart frontline defender. High VIT & STR allows Vanguard tanks to absorb heavy enemy assaults while protecting allies.'
+    },
+    spellweaver: {
+      id: 'spellweaver',
+      name: 'Spellweaver',
+      sprite: 'hero_blackmage',
+      stats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 },
+      hp: 110, sp: 140,
+      weapon: 'Archmage Staff',
+      lore: 'Wielder of elemental tempests. High INT enables destructive AoE spells and massive magic damage.'
+    },
+    shadowblade: {
+      id: 'shadowblade',
+      name: 'Shadowblade',
+      sprite: 'hero_thief',
+      stats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 },
+      hp: 130, sp: 60,
+      weapon: 'Dual Daggers',
+      lore: 'Agile killer in the night. High AGI & LUK delivers blindingly fast attack speeds and critical strikes.'
+    },
+    cleric: {
+      id: 'cleric',
+      name: 'Cleric Priest',
+      sprite: 'hero_whitemage',
+      stats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 },
+      hp: 140, sp: 120,
+      weapon: 'Holy Mace',
+      lore: 'Divine sanctuary healer. High INT & VIT provides party restoration, protective barriers, and holy holy light.'
+    },
+    ranger: {
+      id: 'ranger',
+      name: 'Ranger Marksman',
+      sprite: 'hero_redmage',
+      stats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 },
+      hp: 140, sp: 70,
+      weapon: 'Composite Bow',
+      lore: 'Precision long-range sniper. High DEX & AGI ensures pinpoint accuracy and lethal physical shots.'
+    }
+  };
+
+
+  // 2.5D Isometric Structure & Boundary Collision Engine
+  function checkCollision(wx, wy) {
+    // 1. World Map Perimeter Bounds (Aethelgard 60x60 Grid: wx: -28..28, wy: -45..45)
+    if (wx < -28 || wx > 28 || wy < -45 || wy > 45) return true;
+
+    // 2. Environment Structures Collision Bounding Boxes
+    for (let i = 0; i < envStructures.length; i++) {
+      const s = envStructures[i];
+      let radius = 0.8; // Default collision radius
+      if (s.type === 'env_house_shop') radius = 2.2;
+      else if (s.type === 'env_fountain') radius = 1.8;
+      else if (s.type === 'env_market_stall') radius = 1.4;
+      else if (s.type === 'env_crystal' || s.type === 'env_dungeon_pillar') radius = 1.0;
+      else if (s.type === 'env_tree_meadow') radius = 0.9;
+      else if (s.type === 'env_torch_brazier' || s.type === 'env_barrel_crate') radius = 0.7;
+
+      const dist = Math.hypot(wx - s.wx, wy - s.wy);
+      if (dist < radius) return true;
+    }
+    return false;
+  }
+
+  let selectedCreatorClassId = 'vanguard';
+  let creatorPreviewDir = 0;
+  let creatorPreviewFrame = 0;
+  let creatorPreviewAnimTimer = 0;
+  let currentDistrictName = 'Aethelgard Grand Plaza';
+
+  function renderCreatorClassCards() {
+    const container = document.getElementById('creator-class-cards');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.values(HERO_CLASSES).forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'creator-class-card' + (c.id === selectedCreatorClassId ? ' active' : '');
+      card.onclick = () => selectCreatorClass(c.id);
+      card.innerHTML = `<div><strong>${c.name}</strong><br><small style="color: #94a3b8;">${c.weapon}</small></div><span style="color: #ffd54f;">★</span>`;
+      container.appendChild(card);
+    });
+    updateCreatorClassDetails();
+  }
+
+  function selectCreatorClass(classId) {
+    selectedCreatorClassId = classId;
+    renderCreatorClassCards();
+  }
+
+  function rotateCreatorPreview(dir) {
+    creatorPreviewDir = (creatorPreviewDir + dir + 4) % 4;
+  }
+
+  function updateCreatorClassDetails() {
+    const c = HERO_CLASSES[selectedCreatorClassId];
+    if (!c) return;
+    const titleEl = document.getElementById('creator-class-title');
+    if (titleEl) titleEl.innerText = c.name;
+
+    const statsEl = document.getElementById('creator-stats-list');
+    if (statsEl) {
+      statsEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between;"><span>STR (Attack)</span><strong style="color:#ff8a80;">${c.stats.str}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>AGI (Speed/Flee)</span><strong style="color:#b9f6ca;">${c.stats.agi}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>VIT (Max HP)</span><strong style="color:#ffd180;">${c.stats.vit}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>INT (MATK/SP)</span><strong style="color:#80d8ff;">${c.stats.int}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>DEX (Hit Speed)</span><strong style="color:#ea80fc;">${c.stats.dex}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>LUK (Critical)</span><strong style="color:#ffff8d;">${c.stats.luk}</strong></div>
+        <div style="border-top:1px solid #2e3d58; margin-top:4px; padding-top:4px; display:flex; justify-space-between;">
+          <span>Base HP: <strong style="color:#ff5252;">${c.hp}</strong></span>
+          <span>Base SP: <strong style="color:#42a5f5;">${c.sp}</strong></span>
+        </div>
+      `;
+    }
+
+    const loreEl = document.getElementById('creator-lore-text');
+    if (loreEl) loreEl.innerText = c.lore;
+  }
+
+  function updateCreatorPreviewCanvas() {
+    const pCanvas = document.getElementById('creator-preview-canvas');
+    if (!pCanvas) return;
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.imageSmoothingEnabled = false;
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+
+    const c = HERO_CLASSES[selectedCreatorClassId];
+    if (!c) return;
+    const img = sprites[c.sprite];
+
+    creatorPreviewAnimTimer++;
+    if (creatorPreviewAnimTimer >= 10) {
+      creatorPreviewAnimTimer = 0;
+      creatorPreviewFrame = (creatorPreviewFrame + 1) % 4;
+    }
+
+    if (img && img.complete && img.naturalWidth > 0) {
+      pCtx.drawImage(img, creatorPreviewFrame * 64, creatorPreviewDir * 64, 64, 64, 16, 16, 128, 128);
+    }
+  }
+
+  function confirmCharacterCreation() {
+    const input = document.getElementById('creator-name-input');
+    const heroName = input ? (input.value.trim() || 'Hero') : 'Hero';
+    const c = HERO_CLASSES[selectedCreatorClassId];
+
+    player.class = c.sprite;
+    player.sprite = c.sprite;
+    player.str = c.stats.str;
+    player.agi = c.stats.agi;
+    player.vit = c.stats.vit;
+    player.int = c.stats.int;
+    player.dex = c.stats.dex;
+    player.luk = c.stats.luk;
+    player.maxHp = c.hp;
+    player.hp = c.hp;
+    player.maxSp = c.sp;
+    player.sp = c.sp;
+
+    const pNameEl = document.getElementById('player-name');
+    if (pNameEl) pNameEl.innerText = `${heroName} [${c.name}]`;
+
+    updateHUD();
+
+    const modal = document.getElementById('character-creator-modal');
+    if (modal) modal.style.display = 'none';
+
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Welcome to Aethelgard Master Town, ${heroName}! Class set to <strong>${c.name}</strong>.</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    showDistrictBanner("Entering Aethelgard Grand Plaza");
+  }
+
+  function showDistrictBanner(name) {
+    currentDistrictName = name;
+    const b = document.getElementById('district-banner');
+    if (b) {
+      b.innerText = name;
+      b.style.opacity = '1';
+      setTimeout(() => { b.style.opacity = '0'; }, 3000);
+    }
+    const zoneTitle = document.getElementById('minimap-zone-title');
+    if (zoneTitle) zoneTitle.innerText = name;
+  }
+
+  function checkDistrictTransition() {
+    let newDistrict = 'Aethelgard Grand Plaza';
+    if (player.wy < -25) {
+      newDistrict = 'Whispering Meadows Wilderness';
+    } else if (player.wy > 25) {
+      newDistrict = 'Sunken Sanctum Catacombs';
+    } else if (player.wx < -8 && Math.abs(player.wy) <= 12) {
+      newDistrict = 'Smithy Row Forge District';
+    } else if (player.wy < -8 && Math.abs(player.wx) <= 12) {
+      newDistrict = 'High Temple Sacred Plaza';
+    } else if (player.wx > 8 && Math.abs(player.wy) <= 12) {
+      newDistrict = 'Market District & Bazaars';
+    } else if (player.wy > 8 && Math.abs(player.wx) <= 12) {
+      newDistrict = 'Adventurer Guild & Training Grounds';
+    }
+
+    if (newDistrict !== currentDistrictName) {
+      showDistrictBanner(newDistrict);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    renderCreatorClassCards();
+    setInterval(updateCreatorPreviewCanvas, 50);
+    const savedMap = localStorage.getItem('zaggers_custom_map');
+    if (savedMap) {
+      try {
+        loadCustomMapData(JSON.parse(savedMap));
+      } catch(e) {}
+    }
+  });
+
+  // Draw 2.5D Diamond Isometric Tile (PNG Ground Tile Asset Textures & Fallback)
+  function drawIsoDiamondTile(screenX, screenY, isOdd, wx, wy) {
+    const tw = TILE_W * cameraZoom + 0.5;
+    const th = TILE_H * cameraZoom + 0.5;
+
+    // Determine tile asset key based on custom map or world coordinates (wx, wy)
+    let tileKey = customTileMap[`${wx},${wy}`] || 'tile_town_cobble';
+
+    if (!customTileMap[`${wx},${wy}`]) {
+      if (wy < -25.5) {
+        // Northern Wilderness Gate & Whispering Meadows
+        if (Math.abs(wx) <= 1) {
+          tileKey = 'tile_meadow_dirt';
+        } else if (wx <= -12 && wy <= -35) {
+          tileKey = 'tile_meadow_water';
+        } else if ((Math.abs(wx) + Math.abs(wy)) % 5 === 0) {
+          tileKey = 'tile_meadow_flowers';
+        } else {
+          tileKey = 'tile_meadow_grass';
+        }
+      } else if (wy > 25.5) {
+        // Sunken Sanctum Catacombs
+        if (Math.hypot(wx, wy - 40) <= 3) {
+          tileKey = 'tile_dungeon_rune';
+        } else if ((Math.abs(wx) + Math.abs(wy)) % 6 === 0 || wy >= 42) {
+          tileKey = 'tile_dungeon_lava';
+        } else if (Math.abs(wx) <= 2) {
+          tileKey = 'tile_dungeon_obsidian';
+        } else {
+          tileKey = 'tile_dungeon_slate';
+        }
+      } else {
+        // Aethelgard Master Town (5 Districts)
+        if (Math.hypot(wx, wy) <= 3) {
+          tileKey = 'tile_town_brick';
+        } else if (wy > 8 && Math.abs(wx) <= 10) {
+          // Training Grounds (dirt paths)
+          tileKey = ((Math.abs(wx) + Math.abs(wy)) % 2 === 0) ? 'tile_meadow_dirt' : 'tile_town_cobble';
+        } else if (wy < -8 && Math.abs(wx) <= 10) {
+          // High Temple Plaza (sacred stone)
+          tileKey = ((Math.abs(wx) + Math.abs(wy)) % 3 === 0) ? 'tile_dungeon_slate' : 'tile_town_brick';
+        } else if (wx < -8 && Math.abs(wy) <= 10) {
+          // Smithy Row (forge brick)
+          tileKey = ((Math.abs(wx) + Math.abs(wy)) % 2 === 0) ? 'tile_town_cobble2' : 'tile_town_brick';
+        } else if (Math.abs(wx) === 25 || Math.abs(wy) === 25) {
+          tileKey = 'tile_town_border';
+        } else if ((Math.abs(wx) + Math.abs(wy)) % 4 === 0) {
+          tileKey = 'tile_town_cobble2';
+        } else {
+          tileKey = 'tile_town_cobble';
+        }
+      }
+    }
+
+    const tileImg = sprites[tileKey];
+    if (tileImg && tileImg.complete && tileImg.naturalWidth > 0) {
+      ctx.drawImage(tileImg, 0, 0, 128, 64, screenX - tw / 2, screenY - th / 2, tw, th);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(screenX, screenY - th / 2);
+      ctx.lineTo(screenX + tw / 2, screenY);
+      ctx.lineTo(screenX, screenY + th / 2);
+      ctx.lineTo(screenX - tw / 2, screenY);
+      ctx.closePath();
+
+      if (wy < -15.5) ctx.fillStyle = isOdd ? '#1b3a24' : '#152e1c';
+      else if (wy > 15.5) ctx.fillStyle = isOdd ? '#1c1824' : '#15121b';
+      else ctx.fillStyle = isOdd ? '#263147' : '#1e2738';
+      ctx.fill();
+      ctx.strokeStyle = '#354563';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  // Dynamic Mini-Map HUD Overlay Renderer
+  function renderMinimap() {
+    if (!minimapCtx) return;
+    minimapCtx.imageSmoothingEnabled = false;
+    const mw = minimapCanvas.width;  // 128
+    const mh = minimapCanvas.height; // 128
+
+    // Clear background
+    minimapCtx.fillStyle = '#0a0c10';
+    minimapCtx.fillRect(0, 0, mw, mh);
+
+    // Map coordinate projection: wx: -30..30 -> mx: 14..114, wy: -45..45 -> my: 10..118
+    const mapPaddingX = 14;
+    const mapPaddingY = 10;
+    const mapW = mw - mapPaddingX * 2; // 100
+    const mapH = mh - mapPaddingY * 2; // 108
+
+    function worldToMinimap(wx, wy) {
+      const mx = mapPaddingX + ((wx + 30) / 60) * mapW;
+      const my = mapPaddingY + ((wy + 45) / 90) * mapH;
+      return { x: mx, y: my };
+    }
+
+    // 1. Draw Zone Background Terrains
+    // North Wilderness Gate: wy: -45..-25
+    const topMeadow = worldToMinimap(-30, -45);
+    const botMeadow = worldToMinimap(30, -25);
+    minimapCtx.fillStyle = '#163820';
+    minimapCtx.fillRect(topMeadow.x, topMeadow.y, mapW, botMeadow.y - topMeadow.y);
+
+    // Aethelgard Master Town (5 Districts): wy: -25..25
+    const topTown = worldToMinimap(-30, -25);
+    const botTown = worldToMinimap(30, 25);
+    minimapCtx.fillStyle = '#222b3e';
+    minimapCtx.fillRect(topTown.x, topTown.y, mapW, botTown.y - topTown.y);
+
+    // Sunken Sanctum Catacombs: wy: 25..45
+    const topDungeon = worldToMinimap(-30, 25);
+    const botDungeon = worldToMinimap(30, 45);
+    minimapCtx.fillStyle = '#191522';
+    minimapCtx.fillRect(topDungeon.x, topDungeon.y, mapW, botDungeon.y - topDungeon.y);
+
+    // Zone Divider Lines
+    minimapCtx.strokeStyle = '#4a5573';
+    minimapCtx.lineWidth = 1;
+    minimapCtx.beginPath();
+    minimapCtx.moveTo(topTown.x, topTown.y);
+    minimapCtx.lineTo(topTown.x + mapW, topTown.y);
+    minimapCtx.moveTo(botTown.x, botTown.y);
+    minimapCtx.lineTo(botTown.x + mapW, botTown.y);
+    minimapCtx.stroke();
+
+    // Map Border Frame
+    minimapCtx.strokeStyle = '#3d4a68';
+    minimapCtx.lineWidth = 1.5;
+    minimapCtx.strokeRect(topMeadow.x, topMeadow.y, mapW, mapH);
+
+    // 2. Camera Viewport Box Indicator
+    const camIsoMin = isoToWorld(0, 0);
+    const camIsoMax = isoToWorld(canvas.width, canvas.height);
+    const p1 = worldToMinimap(camIsoMin.wx, camIsoMin.wy);
+    const p2 = worldToMinimap(camIsoMax.wx, camIsoMax.wy);
+    const vx = Math.min(p1.x, p2.x);
+    const vy = Math.min(p1.y, p2.y);
+    const vw = Math.max(2, Math.abs(p2.x - p1.x));
+    const vh = Math.max(2, Math.abs(p2.y - p1.y));
+    minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    minimapCtx.lineWidth = 1;
+    minimapCtx.strokeRect(vx, vy, vw, vh);
+
+    // 3. Draw Dots for Entities
+    // Gold Dots for NPCs
+    npcs.forEach(n => {
+      const pos = worldToMinimap(n.wx, n.wy);
+      minimapCtx.fillStyle = '#ffd700';
+      minimapCtx.beginPath();
+      minimapCtx.arc(pos.x, pos.y, 2.5, 0, Math.PI * 2);
+      minimapCtx.fill();
+    });
+
+    // Red Dots for Monsters
+    monsters.forEach(m => {
+      if (m.hp > 0) {
+        const pos = worldToMinimap(m.wx, m.wy);
+        minimapCtx.fillStyle = (m.sprite === 'boss_baphomet_ff') ? '#ff1744' : '#ff5252';
+        minimapCtx.beginPath();
+        minimapCtx.arc(pos.x, pos.y, (m.sprite === 'boss_baphomet_ff' ? 4 : 2), 0, Math.PI * 2);
+        minimapCtx.fill();
+      }
+    });
+
+    // Green Dot for Player
+    const playerPos = worldToMinimap(player.wx, player.wy);
+    minimapCtx.fillStyle = '#00ff66';
+    minimapCtx.beginPath();
+    minimapCtx.arc(playerPos.x, playerPos.y, 3.5, 0, Math.PI * 2);
+    minimapCtx.fill();
+    minimapCtx.strokeStyle = '#ffffff';
+    minimapCtx.lineWidth = 1;
+    minimapCtx.stroke();
+
+    // Update Zone Name Title
+    let currentZone = "Prontera Town Center";
+    if (player.wy < -15.5) {
+      currentZone = "South Prontera Field";
+    } else if (player.wy > 15.5) {
+      currentZone = "Underground Sanctum";
+    }
+    const zoneTitleEl = document.getElementById('minimap-zone-title');
+    if (zoneTitleEl && zoneTitleEl.innerText !== currentZone) {
+      zoneTitleEl.innerText = currentZone;
+    }
+  }
+
+  // Render & Logic Loop
+  let frameCount = 0;
+  function render() {
+    frameCount++;
+
+    // Smooth Camera Tracking to Player Position (plus cameraPan offsets)
+    const targetCamX = player.wx + cameraPanX;
+    const targetCamY = player.wy + cameraPanY;
+    cameraX += (targetCamX - cameraX) * 0.1;
+    cameraY += (targetCamY - cameraY) * 0.1;
+
+    // Clamp Camera to Expanded World Map Boundaries
+    cameraX = Math.max(-15, Math.min(15, cameraX));
+    cameraY = Math.max(-45, Math.min(45, cameraY));
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#10141f';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Render 2.5D Isometric Diamond Grid Terrain (Visible range around camera)
+    const minWx = Math.max(-15, Math.floor(cameraX - 20));
+    const maxWx = Math.min(15, Math.ceil(cameraX + 20));
+    const minWy = Math.max(-45, Math.floor(cameraY - 20));
+    const maxWy = Math.min(45, Math.ceil(cameraY + 20));
+
+    for (let wy = minWy; wy <= maxWy; wy++) {
+      for (let wx = minWx; wx <= maxWx; wx++) {
+        const iso = worldToIso(wx, wy);
+        // Frustum culling check
+        if (iso.x >= -60 && iso.x <= canvas.width + 60 && iso.y >= -60 && iso.y <= canvas.height + 60) {
+          drawIsoDiamondTile(iso.x, iso.y, (Math.abs(wx + wy)) % 2 === 0, wx, wy);
+        }
+      }
+    }
+
+    // 2. Keyboard & Mouse Movement Calculation
+    let drx = 0, dry = 0;
+    let screenDir = -1;
+
+    if (keys['KeyA'] || keys['ArrowLeft']) { drx -= 1; dry += 1; screenDir = 1; }
+    if (keys['KeyD'] || keys['ArrowRight']) { drx += 1; dry -= 1; screenDir = 2; }
+    if (keys['KeyW'] || keys['ArrowUp']) { drx -= 1; dry -= 1; screenDir = 3; }
+    if (keys['KeyS'] || keys['ArrowDown']) { drx += 1; dry += 1; screenDir = 0; }
+
+    if (drx !== 0 || dry !== 0) {
+      let dwx = drx, dwy = dry;
+      if (cameraAngle === 1) { dwx = dry; dwy = -drx; }
+      else if (cameraAngle === 2) { dwx = -drx; dwy = -dry; }
+      else if (cameraAngle === 3) { dwx = -dry; dwy = drx; }
+
+      const len = Math.hypot(dwx, dwy);
+      player.wx += (dwx / len) * player.speed;
+      player.wy += (dwy / len) * player.speed;
+      player.targetWx = player.wx;
+      player.targetWy = player.wy;
+      
+      if (screenDir !== -1) player.dir = screenDir;
+      player.frame = Math.floor(frameCount / 8) % 2 * 2;
+    } else {
+      const dwx_t = player.targetWx - player.wx;
+      const dwy_t = player.targetWy - player.wy;
+      const dist = Math.hypot(dwx_t, dwy_t);
+      if (dist > 0.1) {
+        const angle = Math.atan2(dwy_t, dwx_t);
+        player.wx += Math.cos(angle) * player.speed;
+        player.wy += Math.sin(angle) * player.speed;
+        
+        let drx_t = dwx_t, dry_t = dwy_t;
+        if (cameraAngle === 1) { drx_t = -dwy_t; dry_t = dwx_t; }
+        else if (cameraAngle === 2) { drx_t = -dwx_t; dry_t = -dwy_t; }
+        else if (cameraAngle === 3) { drx_t = dwy_t; dry_t = -dwx_t; }
+
+        if (dry_t > 0 && Math.abs(dry_t) >= Math.abs(drx_t)) player.dir = 0;
+        else if (drx_t < 0 && Math.abs(drx_t) >= Math.abs(dry_t)) player.dir = 1;
+        else if (drx_t > 0 && Math.abs(drx_t) >= Math.abs(dry_t)) player.dir = 2;
+        else if (dry_t < 0 && Math.abs(dry_t) >= Math.abs(drx_t)) player.dir = 3;
+        player.frame = Math.floor(frameCount / 8) % 2 * 2;
+      } else {
+        player.frame = 1;
+      }
+    }
+
+    // World Boundaries (-15..15 wx, -45..45 wy)
+    player.wx = Math.max(-28, Math.min(28, player.wx));
+    player.wy = Math.max(-45, Math.min(45, player.wy));
+
+    // Check pending NPC interaction proximity
+    if (pendingNpcTarget) {
+      const dist = Math.hypot(player.wx - pendingNpcTarget.wx, player.wy - pendingNpcTarget.wy);
+      if (dist <= 2.2) {
+        openNpcDialog(pendingNpcTarget);
+        pendingNpcTarget = null;
+      }
+    }
+
+    let colIndex = player.frame;
+    if (player.isAttacking) {
+      player.attackTimer--;
+      colIndex = 3;
+      if (player.attackTimer <= 0) player.isAttacking = false;
+    }
+
+    // 3. Update Monster AI & Movement (Wandering & Aggro Pursuit)
+    monsters.forEach(m => {
+      if (m.hp <= 0) return;
+
+      if (m.attackCooldown > 0) m.attackCooldown--;
+
+      const distToPlayer = Math.hypot(player.wx - m.wx, player.wy - m.wy);
+
+      // Aggro Pursuit logic
+      if (m.isAggro && distToPlayer < 4.5) {
+        m.targetWx = player.wx;
+        m.targetWy = player.wy;
+
+        // Attack strike when within 1.2 tiles
+        if (distToPlayer < 1.2 && m.attackCooldown <= 0) {
+          m.attackCooldown = 60; // Attack once every 1s
+          m.frame = 3; // Attack frame
+          const dmg = Math.floor(8 + Math.random() * 8);
+          player.hp = Math.max(0, player.hp - dmg);
+          floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: `-${dmg}`, color: '#ff5252', life: 40 });
+          updateHUD();
+        }
+      } else {
+        // Wandering logic: pick random target every ~120 frames within zone bounds
+        if (Math.random() < 0.015 && Math.hypot(m.targetWx - m.wx, m.targetWy - m.wy) < 0.2) {
+          m.targetWx = m.wx + (Math.random() * 4 - 2);
+          m.targetWy = m.wy + (Math.random() * 4 - 2);
+          m.targetWx = Math.max(-14, Math.min(14, m.targetWx));
+          if (m.zone === 'south') {
+            m.targetWy = Math.max(-44, Math.min(-17, m.targetWy));
+          } else if (m.zone === 'dungeon') {
+            m.targetWy = Math.max(17, Math.min(44, m.targetWy));
+          }
+        }
+      }
+
+      // Move towards targetWx, targetWy
+      const dwx_m = m.targetWx - m.wx;
+      const dwy_m = m.targetWy - m.wy;
+      const distToTarget = Math.hypot(dwx_m, dwy_m);
+
+      if (distToTarget > 0.15) {
+        const angle = Math.atan2(dwy_m, dwx_m);
+        m.wx += Math.cos(angle) * m.speed;
+        m.wy += Math.sin(angle) * m.speed;
+
+        // Facing direction relative to camera angle
+        let drx_m = dwx_m, dry_m = dwy_m;
+        if (cameraAngle === 1) { drx_m = -dwy_m; dry_m = dwx_m; }
+        else if (cameraAngle === 2) { drx_m = -dwx_m; dry_m = -dwy_m; }
+        else if (cameraAngle === 3) { drx_m = dwy_m; dry_m = -dwx_m; }
+
+        if (dry_m > 0 && Math.abs(dry_m) >= Math.abs(drx_m)) m.dir = 0; // Down
+        else if (drx_m < 0 && Math.abs(drx_m) >= Math.abs(dry_m)) m.dir = 1; // Left
+        else if (drx_m > 0 && Math.abs(drx_m) >= Math.abs(dry_m)) m.dir = 2; // Right
+        else if (dry_m < 0 && Math.abs(dry_m) >= Math.abs(drx_m)) m.dir = 3; // Up
+
+        m.frame = (Math.floor(frameCount / 8) % 2 === 0) ? 0 : 2; // Walk0 / Walk1
+      } else if (m.attackCooldown <= 40) {
+        m.frame = 1; // Idle frame
+      }
+    });
+
+    // 4. Draw Click Ripples
+    for (let i = clickRipples.length - 1; i >= 0; i--) {
+      const r = clickRipples[i];
+      r.radius += 0.8;
+      r.alpha -= 0.04;
+      const rIso = worldToIso(r.wx, r.wy);
+      ctx.beginPath();
+      ctx.arc(rIso.x, rIso.y, r.radius * cameraZoom, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(129, 212, 250, ${Math.max(0, r.alpha)})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      if (r.alpha <= 0) clickRipples.splice(i, 1);
+    }
+
+    // 5. Collect & Depth-Sort 2.5D Entities (Player, NPCs, Monsters, & Environment Structures)
+    const drawList = [];
+
+    // Add Player
+    const playerIso = worldToIso(player.wx, player.wy);
+    drawList.push({
+      type: 'player',
+      isoX: playerIso.x,
+      isoY: playerIso.y,
+      dir: player.dir,
+      colIndex: colIndex
+    });
+
+    // Add NPCs
+    npcs.forEach(n => {
+      const nIso = worldToIso(n.wx, n.wy);
+      if (nIso.x >= -60 && nIso.x <= canvas.width + 60 && nIso.y >= -60 && nIso.y <= canvas.height + 60) {
+        drawList.push({
+          type: 'npc',
+          isoX: nIso.x,
+          isoY: nIso.y,
+          npc: n
+        });
+      }
+    });
+
+    // Add Monsters
+    monsters.forEach(m => {
+      if (m.hp > 0) {
+        const mIso = worldToIso(m.wx, m.wy);
+        if (mIso.x >= -60 && mIso.x <= canvas.width + 60 && mIso.y >= -60 && mIso.y <= canvas.height + 60) {
+          drawList.push({
+            type: 'monster',
+            isoX: mIso.x,
+            isoY: mIso.y,
+            monster: m
+          });
+        }
+      }
+    });
+
+    // Add Environment Structures
+    envStructures.forEach(env => {
+      const eIso = worldToIso(env.wx, env.wy);
+      if (eIso.x >= -120 && eIso.x <= canvas.width + 120 && eIso.y >= -120 && eIso.y <= canvas.height + 120) {
+        drawList.push({
+          type: 'env',
+          isoX: eIso.x,
+          isoY: eIso.y,
+          env: env
+        });
+      }
+    });
+
+    // Sort by screen Y (isoY) - farthest drawn first, closest drawn last for 2.5D depth-sorting
+    drawList.sort((a, b) => (a.isoY - b.isoY) || (a.isoX - b.isoX));
+
+    // Render Depth-Sorted 2.5D Entities
+    drawList.forEach(e => {
+      const sw = 64 * cameraZoom;
+      const sh = 64 * cameraZoom;
+
+      if (e.type === 'player' || e.type === 'monster' || e.type === 'npc') {
+        // Oval Ground Shadow for units
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.beginPath();
+        ctx.ellipse(e.isoX, e.isoY + 4 * cameraZoom, 16 * cameraZoom, 8 * cameraZoom, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (e.type === 'env') {
+        // Oval Ground Shadow for structures
+        const shadowRx = Math.max(12, (e.env.width / 4)) * cameraZoom;
+        const shadowRy = Math.max(6, (e.env.height / 12)) * cameraZoom;
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(e.isoX, e.isoY + 2 * cameraZoom, shadowRx, shadowRy, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (e.type === 'player') {
+        const playerImg = sprites[player.sprite || player.class || 'hero_knight'];
+        if (playerImg && playerImg.complete && playerImg.naturalWidth > 0) {
+          const sx = e.colIndex * 64;
+          const sy = e.dir * 64;
+          ctx.drawImage(playerImg, sx, sy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - 52 * cameraZoom, sw, sh);
+        }
+      } else if (e.type === 'npc') {
+        const npc = e.npc;
+        const npcImg = sprites[npc.sprite];
+
+        // Turn towards player if player is nearby (< 3.0 tiles)
+        const distToPlayer = Math.hypot(player.wx - npc.wx, player.wy - npc.wy);
+        if (distToPlayer < 3.0) {
+          const dwx = player.wx - npc.wx;
+          const dwy = player.wy - npc.wy;
+          let drx = dwx, dry = dwy;
+          if (cameraAngle === 1) { drx = -dwy; dry = dwx; }
+          else if (cameraAngle === 2) { drx = -dwx; dry = -dwy; }
+          else if (cameraAngle === 3) { drx = dwy; dry = -dwx; }
+
+          if (dry > 0 && Math.abs(dry) >= Math.abs(drx)) npc.dir = 0;
+          else if (drx < 0 && Math.abs(drx) >= Math.abs(dry)) npc.dir = 1;
+          else if (drx > 0 && Math.abs(drx) >= Math.abs(dry)) npc.dir = 2;
+          else if (dry < 0 && Math.abs(dry) >= Math.abs(drx)) npc.dir = 3;
+        }
+
+        if (npcImg && npcImg.complete && npcImg.naturalWidth > 0) {
+          const animFrame = (Math.floor(frameCount / 24) % 2 === 0) ? 0 : 1;
+          const nsx = animFrame * 64;
+          const nsy = npc.dir * 64;
+          ctx.drawImage(npcImg, nsx, nsy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - 52 * cameraZoom, sw, sh);
+        }
+
+        // Gold Floating Name Tag above NPC
+        ctx.fillStyle = '#ffd54f';
+        ctx.font = `bold ${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#000000';
+        ctx.shadowBlur = 3;
+        ctx.fillText(npc.name, e.isoX, e.isoY - 58 * cameraZoom);
+        ctx.shadowBlur = 0;
+      } else if (e.type === 'monster') {
+        const m = e.monster;
+        const mImg = sprites[m.sprite];
+        if (mImg && mImg.complete && mImg.naturalWidth > 0) {
+          let bounceY = 0;
+          if (m.sprite === 'slime_green_ff') {
+            bounceY = Math.abs(Math.sin(frameCount * 0.15)) * 4 * cameraZoom;
+          }
+
+          const msx = m.frame * 64;
+          const msy = m.dir * 64;
+          ctx.drawImage(mImg, msx, msy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - (52 * cameraZoom + bounceY), sw, sh);
+        }
+
+        // HP bar & Name above monster
+        const barW = 40 * cameraZoom;
+        const barH = 5 * cameraZoom;
+        const barY = e.isoY - 58 * cameraZoom;
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(e.isoX - barW / 2, barY, barW, barH);
+        ctx.fillStyle = (m.sprite === 'boss_baphomet_ff' ? '#ff1744' : '#ff5252');
+        ctx.fillRect(e.isoX - barW / 2, barY, (m.hp / m.maxHp) * barW, barH);
+
+        ctx.fillStyle = (m.sprite === 'boss_baphomet_ff' ? '#ff8a80' : '#fff');
+        ctx.font = `${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+        ctx.textAlign = 'center';
+        ctx.fillText(m.name, e.isoX, barY - 4);
+      } else if (e.type === 'env') {
+        const env = e.env;
+        const envImg = sprites[env.type];
+        if (envImg && envImg.complete && envImg.naturalWidth > 0) {
+          const esw = env.width * cameraZoom;
+          const esh = env.height * cameraZoom;
+          const renderX = e.isoX - (env.anchorX * cameraZoom);
+          const renderY = e.isoY - (env.anchorY * cameraZoom);
+          
+          if (env.animated && env.type === 'env_torch_brazier') {
+            const animFrame = Math.floor(frameCount / 8) % 4;
+            const sx = animFrame * 64;
+            ctx.drawImage(envImg, sx, 0, 64, 64, renderX, renderY, esw, esh);
+          } else {
+            ctx.drawImage(envImg, 0, 0, env.width, env.height, renderX, renderY, esw, esh);
+          }
+
+          if (env.name && cameraZoom > 0.8) {
+            ctx.fillStyle = 'rgba(255, 235, 150, 0.9)';
+            ctx.font = `bold ${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+            ctx.textAlign = 'center';
+            ctx.fillText(env.name, e.isoX, renderY - 4);
+          }
+        }
+      }
+    });
+
+    // 6. Draw Floating Damage Text
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+      const ft = floatingTexts[i];
+      ft.offsetY += 0.6;
+      ft.life--;
+      const ftIso = worldToIso(ft.wx, ft.wy);
+      ctx.fillStyle = ft.color;
+      ctx.font = `bold ${Math.max(10, Math.floor(13 * cameraZoom))}px Segoe UI`;
+      ctx.textAlign = 'center';
+      ctx.fillText(ft.text, ftIso.x, ftIso.y - ft.offsetY * cameraZoom);
+      if (ft.life <= 0) floatingTexts.splice(i, 1);
+    }
+
+    // 7. Render Mini-Map Overlay
+    renderMinimap();
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+</script>
+</body>
+</html>

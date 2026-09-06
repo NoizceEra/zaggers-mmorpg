@@ -1,0 +1,157 @@
+{
+  "classes": {
+    "vanguard": {
+      "id": "vanguard",
+      "name": "Vanguard",
+      "role": "Tank / Melee DPS",
+      "sprite": "hero_knight.png",
+      "baseStats": { "str": 14, "agi": 10, "vit": 16, "int": 6, "dex": 12, "luk": 8 },
+      "hpGrowth": 18,
+      "spGrowth": 4,
+      "primaryWeapon": "Sword / Shield",
+      "description": "Stalwart frontline titan with heavy armor and high health growth."
+    },
+    "spellweaver": {
+      "id": "spellweaver",
+      "name": "Spellweaver",
+      "role": "Elemental Ranged DPS",
+      "sprite": "hero_blackmage.png",
+      "baseStats": { "str": 5, "agi": 8, "vit": 8, "int": 18, "dex": 14, "luk": 10 },
+      "hpGrowth": 10,
+      "spGrowth": 12,
+      "primaryWeapon": "Archmage Staff",
+      "description": "Master of arcane storm and flame, dealing devastating area damage."
+    },
+    "shadowblade": {
+      "id": "shadowblade",
+      "name": "Shadowblade",
+      "role": "Agile Assassin",
+      "sprite": "hero_thief.png",
+      "baseStats": { "str": 12, "agi": 18, "vit": 8, "int": 6, "dex": 14, "luk": 12 },
+      "hpGrowth": 12,
+      "spGrowth": 5,
+      "primaryWeapon": "Dual Daggers",
+      "description": "Lethal rogue specializing in rapid critical hits and high evasion."
+    },
+    "cleric": {
+      "id": "cleric",
+      "name": "Cleric",
+      "role": "Support / Healer",
+      "sprite": "hero_whitemage.png",
+      "baseStats": { "str": 8, "agi": 6, "vit": 12, "int": 15, "dex": 10, "luk": 12 },
+      "hpGrowth": 13,
+      "spGrowth": 10,
+      "primaryWeapon": "Holy Mace",
+      "description": "Devout guardian granting holy protection, healing, and resurrection."
+    },
+    "ranger": {
+      "id": "ranger",
+      "name": "Ranger",
+      "role": "Marksman / Trapper",
+      "sprite": "hero_redmage.png",
+      "baseStats": { "str": 10, "agi": 14, "vit": 10, "int": 8, "dex": 18, "luk": 10 },
+      "hpGrowth": 14,
+      "spGrowth": 6,
+      "primaryWeapon": "Composite Bow",
+      "description": "Precision sniper firing deadly arrows from afar."
+    }
+  },
+  "skills": {
+    "bash": {
+      "id": "bash",
+      "name": "Bash",
+      "classId": "vanguard",
+      "spCost": 8,
+      "cooldownMs": 1200,
+      "multiplier": 2.2,
+      "targetType": "single_enemy",
+      "description": "Strike an enemy with powerful physical force."
+    },
+    "fireball": {
+      "id": "fireball",
+      "name": "Fireball",
+      "classId": "spellweaver",
+      "spCost": 15,
+      "cooldownMs": 2000,
+      "multiplier": 3.0,
+      "targetType": "aoe_enemy",
+      "description": "Hurl an exploding ball of fire dealing high elemental damage."
+    },
+    "heal": {
+      "id": "heal",
+      "name": "Heal",
+      "classId": "cleric",
+      "spCost": 12,
+      "cooldownMs": 1500,
+      "multiplier": 2.5,
+      "targetType": "ally_heal",
+      "description": "Restore target ally's HP based on INT stat."
+    }
+  },
+  "items": {
+    "red_potion": {
+      "id": "red_potion",
+      "name": "Red Potion",
+      "type": "consumable",
+      "price": 50,
+      "healHp": 100,
+      "atk": 0, "matk": 0, "def": 0,
+      "icon": "potion_health_ff.png"
+    },
+    "mythril_armor": {
+      "id": "mythril_armor",
+      "name": "Mythril Armor",
+      "type": "armor",
+      "price": 300,
+      "healHp": 0,
+      "atk": 0, "matk": 0, "def": 15,
+      "icon": "prop_crystal_save.png"
+    },
+    "dragon_lance": {
+      "id": "dragon_lance",
+      "name": "Dragon Lance",
+      "type": "weapon",
+      "price": 600,
+      "healHp": 0,
+      "atk": 35, "matk": 0, "def": 0,
+      "icon": "excalibur_ff.png"
+    }
+  },
+  "monsters": {
+    "slime_green": {
+      "id": "slime_green",
+      "name": "Green Slime",
+      "sprite": "slime_green_ff.png",
+      "aggro": "passive",
+      "hp": 45, "atk": 8, "def": 2, "exp": 12, "zeny": 15
+    },
+    "goblin_raider": {
+      "id": "goblin_raider",
+      "name": "Goblin Raider",
+      "sprite": "goblin_ff.png",
+      "aggro": "aggressive",
+      "hp": 120, "atk": 22, "def": 6, "exp": 45, "zeny": 50
+    },
+    "skeleton_warrior": {
+      "id": "skeleton_warrior",
+      "name": "Skeleton Warrior",
+      "sprite": "skeleton_ff.png",
+      "aggro": "aggressive",
+      "hp": 280, "atk": 45, "def": 12, "exp": 120, "zeny": 110
+    },
+    "lord_baphomet": {
+      "id": "lord_baphomet",
+      "name": "Lord Baphomet",
+      "sprite": "boss_baphomet_ff.png",
+      "aggro": "boss",
+      "hp": 5000, "atk": 240, "def": 45, "exp": 5000, "zeny": 10000
+    }
+  },
+  "zones": [
+    { "id": "aethelgard", "name": "Aethelgard Master Town", "minLv": 1, "maxLv": 99, "light": "#ffffff", "monsters": "None (Peaceful Town)" },
+    { "id": "meadows", "name": "Whispering Meadows", "minLv": 1, "maxLv": 15, "light": "#fff8e7", "monsters": "Green Slime, Horn Hornet" },
+    { "id": "sanctum", "name": "Sunken Sanctum", "minLv": 15, "maxLv": 30, "light": "#e0f7fa", "monsters": "Skeleton Warrior, Cactuar" },
+    { "id": "spire", "name": "Obsidian Spire", "minLv": 30, "maxLv": 50, "light": "#ffebee", "monsters": "Fire Bomb, Lava Golem" },
+    { "id": "chasm", "name": "Glacial Chasm", "minLv": 50, "maxLv": 70, "light": "#e8eaf6", "monsters": "Frost Lich, Snow Specter" }
+  ]
+}

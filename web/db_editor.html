@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zaggers MMORPG - Database & Class Engine Editor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #0c0f17; color: #e1e7f0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+    
+    /* Top Nav Bar */
+    header { background: #141b29; border-bottom: 2px solid #3d4b6c; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+    .logo { font-size: 18px; font-weight: bold; color: #ffd54f; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+    .nav-links { display: flex; gap: 10px; }
+    .nav-btn { background: #222c3d; border: 1px solid #4a5c84; color: #fff; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .nav-btn:hover { background: #344460; border-color: #ffd54f; }
+    
+    /* Main Layout */
+    .container { flex: 1; display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; width: 100%; padding: 20px; gap: 20px; }
+    
+    /* Tabs Navigation */
+    .tabs-bar { display: flex; gap: 6px; border-bottom: 2px solid #2d384e; padding-bottom: 2px; }
+    .tab-btn { background: #161e2e; border: 1px solid #2d384e; border-bottom: none; color: #94a3b8; padding: 10px 20px; border-radius: 6px 6px 0 0; font-weight: bold; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .tab-btn:hover { background: #202b3d; color: #fff; }
+    .tab-btn.active { background: #202c42; border-color: #ffd54f; color: #ffd54f; border-bottom: 2px solid #202c42; margin-bottom: -2px; }
+    
+    /* Editor Panel Card */
+    .panel { background: #151d2c; border: 1px solid #2b374e; border-radius: 8px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: none; }
+    .panel.active { display: block; }
+    
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #2a354a; padding-bottom: 10px; }
+    .panel-title { font-size: 16px; font-weight: bold; color: #ffe082; }
+    
+    /* Form Grid Layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    
+    /* Form Elements */
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    label { font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select, textarea { background: #0d121c; border: 1px solid #33415c; color: #fff; padding: 8px 12px; border-radius: 4px; font-size: 13px; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: #ffd54f; box-shadow: 0 0 6px rgba(255, 213, 79, 0.3); }
+    
+    /* Data List & Sidebar Item Selector */
+    .selector-container { display: flex; gap: 16px; min-height: 480px; }
+    .item-list { width: 260px; background: #0f1624; border: 1px solid #273449; border-radius: 6px; overflow-y: auto; max-height: 520px; }
+    .list-item { padding: 10px 14px; border-bottom: 1px solid #1c2638; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .list-item:hover { background: #1c273a; }
+    .list-item.selected { background: #24334c; border-left: 4px solid #ffd54f; color: #ffd54f; font-weight: bold; }
+    
+    .editor-form { flex: 1; background: #111826; border: 1px solid #273449; border-radius: 6px; padding: 20px; }
+    
+    /* Buttons */
+    .btn { background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; font-size: 13px; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #1d4ed8; }
+    .btn-success { background: #16a34a; } .btn-success:hover { background: #15803d; }
+    .btn-danger { background: #dc2626; } .btn-danger:hover { background: #b91c1c; }
+    .btn-gold { background: #d97706; color: #fff; } .btn-gold:hover { background: #b45309; }
+    .btn-sm { padding: 4px 8px; font-size: 11px; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th { background: #1a2334; text-align: left; padding: 8px 12px; color: #94a3b8; border-bottom: 2px solid #2e3c54; }
+    td { padding: 8px 12px; border-bottom: 1px solid #1f2a3e; }
+    tr:hover { background: #162030; }
+
+    /* Notification Toast */
+    #toast { position: fixed; bottom: 20px; right: 20px; background: #16a34a; color: #fff; padding: 12px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span>🛡️</span> Zaggers Engine DB & Class Editor
+  </div>
+  <div class="nav-links">
+    <a href="index.html" class="nav-btn">🎮 Game Client</a>
+    <a href="editor.html" class="nav-btn">🛠️ Level Editor</a>
+    <button class="nav-btn" onclick="saveToLocalStorage()">💾 Save DB</button>
+    <button class="nav-btn" onclick="exportJSON()">📥 Export JSON</button>
+    <button class="nav-btn" onclick="triggerImport()">📤 Import JSON</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
+  </div>
+</header>
+
+<div class="container">
+  <!-- Tabs Header -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="switchTab('classes')">⚔️ Hero Classes</button>
+    <button class="tab-btn" onclick="switchTab('skills')">✨ Skill Trees</button>
+    <button class="tab-btn" onclick="switchTab('items')">📦 Items & Equipment</button>
+    <button class="tab-btn" onclick="switchTab('monsters')">👾 Monsters & Drops</button>
+    <button class="tab-btn" onclick="switchTab('zones')">🗺️ World & Zones</button>
+    <button class="tab-btn" onclick="switchTab('json')">📄 Raw JSON Schema</button>
+  </div>
+
+  <!-- 1. Hero Classes Editor -->
+  <div id="tab-classes" class="panel active">
+    <div class="panel-header">
+      <div class="panel-title">Character Class Specifications</div>
+      <button class="btn btn-sm btn-success" onclick="createNewClass()">+ New Class</button>
+    </div>
+    <div class="selector-container">
+      <div class="item-list" id="class-list"></div>
+      <div class="editor-form" id="class-form">
+        <div class="grid-2">
+          <div class="form-group"><label>Class ID</label><input type="text" id="cls-id" readonly /></div>
+          <div class="form-group"><label>Class Name</label><input type="text" id="cls-name" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Primary Role</label><input type="text" id="cls-role" /></div>
+          <div class="form-group"><label>Primary Weapon</label><input type="text" id="cls-weapon" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Sprite Sheet Asset</label><input type="text" id="cls-sprite" /></div>
+          <div class="form-group"><label>HP Growth Rate</label><input type="number" id="cls-hp-growth" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>SP Growth Rate</label><input type="number" id="cls-sp-growth" /></div>
+        </div>
+        <label style="margin-top: 10px; display: block;">Base Stats Allocation</label>
+        <div class="grid-6 grid-4" style="margin-top: 6px;">
+          <div class="form-group"><label>STR</label><input type="number" id="cls-str" /></div>
+          <div class="form-group"><label>AGI</label><input type="number" id="cls-agi" /></div>
+          <div class="form-group"><label>VIT</label><input type="number" id="cls-vit" /></div>
+          <div class="form-group"><label>INT</label><input type="number" id="cls-int" /></div>
+          <div class="form-group"><label>DEX</label><input type="number" id="cls-dex" /></div>
+          <div class="form-group"><label>LUK</label><input type="number" id="cls-luk" /></div>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Lore & Description</label>
+          <textarea id="cls-desc" rows="3"></textarea>
+        </div>
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+          <button class="btn btn-success" onclick="updateCurrentClass()">Save Class</button>
+          <button class="btn btn-danger" onclick="deleteCurrentClass()">Delete Class</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Skills Editor -->
+  <div id="tab-skills" class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Skill & Ability Registry</div>
+      <button class="btn btn-sm btn-success" onclick="createNewSkill()">+ Add Skill</button>
+    </div>
+    <div class="selector-container">
+      <div class="item-list" id="skill-list"></div>
+      <div class="editor-form" id="skill-form">
+        <div class="grid-2">
+          <div class="form-group"><label>Skill ID</label><input type="text" id="skl-id" readonly /></div>
+          <div class="form-group"><label>Skill Name</label><input type="text" id="skl-name" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Class Requirement</label><select id="skl-class"></select></div>
+          <div class="form-group"><label>Target Type</label>
+            <select id="skl-target">
+              <option value="single_enemy">Single Enemy</option>
+              <option value="aoe_enemy">AoE Area Damage</option>
+              <option value="self_buff">Self Buff</option>
+              <option value="ally_heal">Ally Healing</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group"><label>SP Cost</label><input type="number" id="skl-sp" /></div>
+          <div class="form-group"><label>Cooldown (ms)</label><input type="number" id="skl-cd" /></div>
+          <div class="form-group"><label>Damage Multiplier (x)</label><input type="number" step="0.1" id="skl-mult" /></div>
+        </div>
+        <div class="form-group">
+          <label>Skill Effect Description</label>
+          <textarea id="skl-desc" rows="3"></textarea>
+        </div>
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+          <button class="btn btn-success" onclick="updateCurrentSkill()">Save Skill</button>
+          <button class="btn btn-danger" onclick="deleteCurrentSkill()">Delete Skill</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Items & Equipment Editor -->
+  <div id="tab-items" class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Items, Consumables & Gear Registry</div>
+      <button class="btn btn-sm btn-success" onclick="createNewItem()">+ Add Item</button>
+    </div>
+    <div class="selector-container">
+      <div class="item-list" id="item-list"></div>
+      <div class="editor-form" id="item-form">
+        <div class="grid-2">
+          <div class="form-group"><label>Item ID</label><input type="text" id="itm-id" readonly /></div>
+          <div class="form-group"><label>Item Name</label><input type="text" id="itm-name" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Category</label>
+            <select id="itm-type">
+              <option value="consumable">Consumable</option>
+              <option value="weapon">Weapon</option>
+              <option value="armor">Armor</option>
+              <option value="accessory">Accessory</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Price (Zeny)</label><input type="number" id="itm-price" /></div>
+        </div>
+        <div class="grid-4">
+          <div class="form-group"><label>ATK Bonus</label><input type="number" id="itm-atk" /></div>
+          <div class="form-group"><label>MATK Bonus</label><input type="number" id="itm-matk" /></div>
+          <div class="form-group"><label>DEF Bonus</label><input type="number" id="itm-def" /></div>
+          <div class="form-group"><label>Heal HP</label><input type="number" id="itm-heal" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Icon Asset</label><input type="text" id="itm-icon" /></div>
+        </div>
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+          <button class="btn btn-success" onclick="updateCurrentItem()">Save Item</button>
+          <button class="btn btn-danger" onclick="deleteCurrentItem()">Delete Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Monsters & Drop Tables -->
+  <div id="tab-monsters" class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Monster Bestiary & Loot Tables</div>
+      <button class="btn btn-sm btn-success" onclick="createNewMonster()">+ Add Monster</button>
+    </div>
+    <div class="selector-container">
+      <div class="item-list" id="monster-list"></div>
+      <div class="editor-form" id="monster-form">
+        <div class="grid-2">
+          <div class="form-group"><label>Monster ID</label><input type="text" id="mon-id" readonly /></div>
+          <div class="form-group"><label>Monster Name</label><input type="text" id="mon-name" /></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Sprite Sheet Asset</label><input type="text" id="mon-sprite" /></div>
+          <div class="form-group"><label>AI Aggression</label>
+            <select id="mon-aggro">
+              <option value="passive">Passive (Attacks when hit)</option>
+              <option value="aggressive">Aggressive (Attacks on sight)</option>
+              <option value="boss">Boss (High Aggro / Skills)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="form-group"><label>Max HP</label><input type="number" id="mon-hp" /></div>
+          <div class="form-group"><label>ATK</label><input type="number" id="mon-atk" /></div>
+          <div class="form-group"><label>DEF</label><input type="number" id="mon-def" /></div>
+          <div class="form-group"><label>EXP Yield</label><input type="number" id="mon-exp" /></div>
+        </div>
+        <div class="form-group">
+          <label>Zeny Reward</label><input type="number" id="mon-zeny" />
+        </div>
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+          <button class="btn btn-success" onclick="updateCurrentMonster()">Save Monster</button>
+          <button class="btn btn-danger" onclick="deleteCurrentMonster()">Delete Monster</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. World & Zones -->
+  <div id="tab-zones" class="panel">
+    <div class="panel-header">
+      <div class="panel-title">World Zones & Regions</div>
+    </div>
+    <table id="zones-table">
+      <thead>
+        <tr>
+          <th>Zone ID</th>
+          <th>Zone Name</th>
+          <th>Level Range</th>
+          <th>Atmosphere Light</th>
+          <th>Primary Monsters</th>
+        </tr>
+      </thead>
+      <tbody id="zones-body"></tbody>
+    </table>
+  </div>
+
+  <!-- 6. Raw JSON Schema Manager -->
+  <div id="tab-json" class="panel">
+    <div class="panel-header">
+      <div class="panel-title">zaggers_database.json Live View & Editor</div>
+      <button class="btn btn-sm btn-gold" onclick="copyJSONToClipboard()">📋 Copy JSON</button>
+    </div>
+    <textarea id="json-editor" style="width: 100%; height: 420px; font-family: monospace; font-size: 12px; line-height: 1.4;"></textarea>
+    <div style="margin-top: 12px; display: flex; gap: 10px;">
+      <button class="btn btn-success" onclick="applyJSONEditorChanges()">Apply JSON Changes</button>
+      <button class="btn btn-danger" onclick="resetToDefaultDB()">Reset Default Database</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">Changes Saved Successfully!</div>
+
+<script>
+// Master Default Database Schema for Zaggers MMORPG
+const DEFAULT_DATABASE = {
+  classes: {
+    vanguard: {
+      id: "vanguard",
+      name: "Vanguard",
+      role: "Tank / Melee DPS",
+      sprite: "hero_knight.png",
+      baseStats: { str: 14, agi: 10, vit: 16, int: 6, dex: 12, luk: 8 },
+      hpGrowth: 18,
+      spGrowth: 4,
+      primaryWeapon: "Sword / Shield",
+      description: "Stalwart frontline titan with heavy armor and high health growth."
+    },
+    spellweaver: {
+      id: "spellweaver",
+      name: "Spellweaver",
+      role: "Elemental Ranged DPS",
+      sprite: "hero_blackmage.png",
+      baseStats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 },
+      hpGrowth: 10,
+      spGrowth: 12,
+      primaryWeapon: "Archmage Staff",
+      description: "Master of arcane storm and flame, dealing devastating area damage."
+    },
+    shadowblade: {
+      id: "shadowblade",
+      name: "Shadowblade",
+      role: "Agile Assassin",
+      sprite: "hero_thief.png",
+      baseStats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 },
+      hpGrowth: 12,
+      spGrowth: 5,
+      primaryWeapon: "Dual Daggers",
+      description: "Lethal rogue specializing in rapid critical hits and high evasion."
+    },
+    cleric: {
+      id: "cleric",
+      name: "Cleric",
+      role: "Support / Healer",
+      sprite: "hero_whitemage.png",
+      baseStats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 },
+      hpGrowth: 13,
+      spGrowth: 10,
+      primaryWeapon: "Holy Mace",
+      description: "Devout guardian granting holy protection, healing, and resurrection."
+    },
+    ranger: {
+      id: "ranger",
+      name: "Ranger",
+      role: "Marksman / Trapper",
+      sprite: "hero_redmage.png",
+      baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 },
+      hpGrowth: 14,
+      spGrowth: 6,
+      primaryWeapon: "Composite Bow",
+      description: "Precision sniper firing deadly arrows from afar."
+    }
+  },
+  skills: {
+    bash: {
+      id: "bash",
+      name: "Bash",
+      classId: "vanguard",
+      spCost: 8,
+      cooldownMs: 1200,
+      multiplier: 2.2,
+      targetType: "single_enemy",
+      description: "Strike an enemy with powerful physical force."
+    },
+    fireball: {
+      id: "fireball",
+      name: "Fireball",
+      classId: "spellweaver",
+      spCost: 15,
+      cooldownMs: 2000,
+      multiplier: 3.0,
+      targetType: "aoe_enemy",
+      description: "Hurl an exploding ball of fire dealing high elemental damage."
+    },
+    heal: {
+      id: "heal",
+      name: "Heal",
+      classId: "cleric",
+      spCost: 12,
+      cooldownMs: 1500,
+      multiplier: 2.5,
+      targetType: "ally_heal",
+      description: "Restore target ally's HP based on INT stat."
+    }
+  },
+  items: {
+    red_potion: {
+      id: "red_potion",
+      name: "Red Potion",
+      type: "consumable",
+      price: 50,
+      healHp: 100,
+      atk: 0, matk: 0, def: 0,
+      icon: "potion_health_ff.png"
+    },
+    mythril_armor: {
+      id: "mythril_armor",
+      name: "Mythril Armor",
+      type: "armor",
+      price: 300,
+      healHp: 0,
+      atk: 0, matk: 0, def: 15,
+      icon: "prop_crystal_save.png"
+    },
+    dragon_lance: {
+      id: "dragon_lance",
+      name: "Dragon Lance",
+      type: "weapon",
+      price: 600,
+      healHp: 0,
+      atk: 35, matk: 0, def: 0,
+      icon: "excalibur_ff.png"
+    }
+  },
+  monsters: {
+    slime_green: {
+      id: "slime_green",
+      name: "Green Slime",
+      sprite: "slime_green_ff.png",
+      aggro: "passive",
+      hp: 45, atk: 8, def: 2, exp: 12, zeny: 15
+    },
+    goblin_raider: {
+      id: "goblin_raider",
+      name: "Goblin Raider",
+      sprite: "goblin_ff.png",
+      aggro: "aggressive",
+      hp: 120, atk: 22, def: 6, exp: 45, zeny: 50
+    },
+    skeleton_warrior: {
+      id: "skeleton_warrior",
+      name: "Skeleton Warrior",
+      sprite: "skeleton_ff.png",
+      aggro: "aggressive",
+      hp: 280, atk: 45, def: 12, exp: 120, zeny: 110
+    },
+    lord_baphomet: {
+      id: "lord_baphomet",
+      name: "Lord Baphomet",
+      sprite: "boss_baphomet_ff.png",
+      aggro: "boss",
+      hp: 5000, atk: 240, def: 45, exp: 5000, zeny: 10000
+    }
+  },
+  zones: [
+    { id: "aethelgard", name: "Aethelgard Master Town", minLv: 1, maxLv: 99, light: "#ffffff", monsters: "None (Peaceful Town)" },
+    { id: "meadows", name: "Whispering Meadows", minLv: 1, maxLv: 15, light: "#fff8e7", monsters: "Green Slime, Horn Hornet" },
+    { id: "sanctum", name: "Sunken Sanctum", minLv: 15, maxLv: 30, light: "#e0f7fa", monsters: "Skeleton Warrior, Cactuar" },
+    { id: "spire", name: "Obsidian Spire", minLv: 30, maxLv: 50, light: "#ffebee", monsters: "Fire Bomb, Lava Golem" },
+    { id: "chasm", name: "Glacial Chasm", minLv: 50, maxLv: 70, light: "#e8eaf6", monsters: "Frost Lich, Snow Specter" }
+  ]
+};
+
+let db = JSON.parse(localStorage.getItem('zaggers_db') || JSON.stringify(DEFAULT_DATABASE));
+let selectedClassId = Object.keys(db.classes)[0];
+let selectedSkillId = Object.keys(db.skills)[0];
+let selectedItemId = Object.keys(db.items)[0];
+let selectedMonsterId = Object.keys(db.monsters)[0];
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tabName).classList.add('active');
+  if (tabName === 'json') syncJSONTextarea();
+}
+
+// 1. Classes render & handlers
+function renderClasses() {
+  const list = document.getElementById('class-list');
+  list.innerHTML = '';
+  Object.values(db.classes).forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'list-item' + (c.id === selectedClassId ? ' selected' : '');
+    div.innerText = c.name;
+    div.onclick = () => { selectedClassId = c.id; renderClasses(); loadClassForm(); };
+    list.appendChild(div);
+  });
+  loadClassForm();
+}
+
+function loadClassForm() {
+  const c = db.classes[selectedClassId];
+  if (!c) return;
+  document.getElementById('cls-id').value = c.id;
+  document.getElementById('cls-name').value = c.name;
+  document.getElementById('cls-role').value = c.role;
+  document.getElementById('cls-weapon').value = c.primaryWeapon;
+  document.getElementById('cls-sprite').value = c.sprite;
+  document.getElementById('cls-hp-growth').value = c.hpGrowth;
+  document.getElementById('cls-sp-growth').value = c.spGrowth;
+  document.getElementById('cls-str').value = c.baseStats.str;
+  document.getElementById('cls-agi').value = c.baseStats.agi;
+  document.getElementById('cls-vit').value = c.baseStats.vit;
+  document.getElementById('cls-int').value = c.baseStats.int;
+  document.getElementById('cls-dex').value = c.baseStats.dex;
+  document.getElementById('cls-luk').value = c.baseStats.luk;
+  document.getElementById('cls-desc').value = c.description;
+}
+
+function updateCurrentClass() {
+  const id = document.getElementById('cls-id').value;
+  db.classes[id] = {
+    id: id,
+    name: document.getElementById('cls-name').value,
+    role: document.getElementById('cls-role').value,
+    primaryWeapon: document.getElementById('cls-weapon').value,
+    sprite: document.getElementById('cls-sprite').value,
+    hpGrowth: parseInt(document.getElementById('cls-hp-growth').value) || 10,
+    spGrowth: parseInt(document.getElementById('cls-sp-growth').value) || 5,
+    baseStats: {
+      str: parseInt(document.getElementById('cls-str').value) || 10,
+      agi: parseInt(document.getElementById('cls-agi').value) || 10,
+      vit: parseInt(document.getElementById('cls-vit').value) || 10,
+      int: parseInt(document.getElementById('cls-int').value) || 10,
+      dex: parseInt(document.getElementById('cls-dex').value) || 10,
+      luk: parseInt(document.getElementById('cls-luk').value) || 10
+    },
+    description: document.getElementById('cls-desc').value
+  };
+  saveToLocalStorage();
+  showToast("Class '" + db.classes[id].name + "' Saved!");
+}
+
+function createNewClass() {
+  const id = 'new_class_' + Date.now().toString().slice(-4);
+  db.classes[id] = {
+    id: id, name: "New Hero Class", role: "Custom Role", sprite: "hero_knight.png",
+    hpGrowth: 12, spGrowth: 6, baseStats: { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 },
+    primaryWeapon: "Sword", description: "Custom class description."
+  };
+  selectedClassId = id;
+  renderClasses();
+}
+
+function deleteCurrentClass() {
+  if (Object.keys(db.classes).length <= 1) return alert("Cannot delete the last class!");
+  delete db.classes[selectedClassId];
+  selectedClassId = Object.keys(db.classes)[0];
+  renderClasses();
+  saveToLocalStorage();
+}
+
+// 2. Skills render
+function renderSkills() {
+  const list = document.getElementById('skill-list');
+  list.innerHTML = '';
+  Object.values(db.skills).forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'list-item' + (s.id === selectedSkillId ? ' selected' : '');
+    div.innerText = s.name;
+    div.onclick = () => { selectedSkillId = s.id; renderSkills(); loadSkillForm(); };
+    list.appendChild(div);
+  });
+  
+  const select = document.getElementById('skl-class');
+  select.innerHTML = '';
+  Object.values(db.classes).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id; opt.innerText = c.name;
+    select.appendChild(opt);
+  });
+  loadSkillForm();
+}
+
+function loadSkillForm() {
+  const s = db.skills[selectedSkillId];
+  if (!s) return;
+  document.getElementById('skl-id').value = s.id;
+  document.getElementById('skl-name').value = s.name;
+  document.getElementById('skl-class').value = s.classId;
+  document.getElementById('skl-target').value = s.targetType;
+  document.getElementById('skl-sp').value = s.spCost;
+  document.getElementById('skl-cd').value = s.cooldownMs;
+  document.getElementById('skl-mult').value = s.multiplier;
+  document.getElementById('skl-desc').value = s.description;
+}
+
+function updateCurrentSkill() {
+  const id = document.getElementById('skl-id').value;
+  db.skills[id] = {
+    id: id,
+    name: document.getElementById('skl-name').value,
+    classId: document.getElementById('skl-class').value,
+    targetType: document.getElementById('skl-target').value,
+    spCost: parseInt(document.getElementById('skl-sp').value) || 5,
+    cooldownMs: parseInt(document.getElementById('skl-cd').value) || 1000,
+    multiplier: parseFloat(document.getElementById('skl-mult').value) || 1.0,
+    description: document.getElementById('skl-desc').value
+  };
+  saveToLocalStorage();
+  showToast("Skill Saved!");
+}
+
+function createNewSkill() {
+  const id = 'skill_' + Date.now().toString().slice(-4);
+  db.skills[id] = {
+    id: id, name: "New Skill", classId: Object.keys(db.classes)[0], spCost: 10,
+    cooldownMs: 1500, multiplier: 2.0, targetType: "single_enemy", description: "Skill description."
+  };
+  selectedSkillId = id;
+  renderSkills();
+}
+
+function deleteCurrentSkill() {
+  delete db.skills[selectedSkillId];
+  selectedSkillId = Object.keys(db.skills)[0] || '';
+  renderSkills();
+  saveToLocalStorage();
+}
+
+// 3. Items render
+function renderItems() {
+  const list = document.getElementById('item-list');
+  list.innerHTML = '';
+  Object.values(db.items).forEach(i => {
+    const div = document.createElement('div');
+    div.className = 'list-item' + (i.id === selectedItemId ? ' selected' : '');
+    div.innerText = i.name;
+    div.onclick = () => { selectedItemId = i.id; renderItems(); loadItemForm(); };
+    list.appendChild(div);
+  });
+  loadItemForm();
+}
+
+function loadItemForm() {
+  const i = db.items[selectedItemId];
+  if (!i) return;
+  document.getElementById('itm-id').value = i.id;
+  document.getElementById('itm-name').value = i.name;
+  document.getElementById('itm-type').value = i.type;
+  document.getElementById('itm-price').value = i.price;
+  document.getElementById('itm-atk').value = i.atk || 0;
+  document.getElementById('itm-matk').value = i.matk || 0;
+  document.getElementById('itm-def').value = i.def || 0;
+  document.getElementById('itm-heal').value = i.healHp || 0;
+  document.getElementById('itm-icon').value = i.icon || '';
+}
+
+function updateCurrentItem() {
+  const id = document.getElementById('itm-id').value;
+  db.items[id] = {
+    id: id,
+    name: document.getElementById('itm-name').value,
+    type: document.getElementById('itm-type').value,
+    price: parseInt(document.getElementById('itm-price').value) || 0,
+    atk: parseInt(document.getElementById('itm-atk').value) || 0,
+    matk: parseInt(document.getElementById('itm-matk').value) || 0,
+    def: parseInt(document.getElementById('itm-def').value) || 0,
+    healHp: parseInt(document.getElementById('itm-heal').value) || 0,
+    icon: document.getElementById('itm-icon').value
+  };
+  saveToLocalStorage();
+  showToast("Item Saved!");
+}
+
+function createNewItem() {
+  const id = 'item_' + Date.now().toString().slice(-4);
+  db.items[id] = { id: id, name: "New Gear", type: "weapon", price: 100, atk: 10, matk: 0, def: 0, healHp: 0, icon: "excalibur_ff.png" };
+  selectedItemId = id;
+  renderItems();
+}
+
+function deleteCurrentItem() {
+  delete db.items[selectedItemId];
+  selectedItemId = Object.keys(db.items)[0] || '';
+  renderItems();
+  saveToLocalStorage();
+}
+
+// 4. Monsters render
+function renderMonsters() {
+  const list = document.getElementById('monster-list');
+  list.innerHTML = '';
+  Object.values(db.monsters).forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'list-item' + (m.id === selectedMonsterId ? ' selected' : '');
+    div.innerText = m.name;
+    div.onclick = () => { selectedMonsterId = m.id; renderMonsters(); loadMonsterForm(); };
+    list.appendChild(div);
+  });
+  loadMonsterForm();
+}
+
+function loadMonsterForm() {
+  const m = db.monsters[selectedMonsterId];
+  if (!m) return;
+  document.getElementById('mon-id').value = m.id;
+  document.getElementById('mon-name').value = m.name;
+  document.getElementById('mon-sprite').value = m.sprite;
+  document.getElementById('mon-aggro').value = m.aggro || 'passive';
+  document.getElementById('mon-hp').value = m.hp;
+  document.getElementById('mon-atk').value = m.atk;
+  document.getElementById('mon-def').value = m.def;
+  document.getElementById('mon-exp').value = m.exp;
+  document.getElementById('mon-zeny').value = m.zeny;
+}
+
+function updateCurrentMonster() {
+  const id = document.getElementById('mon-id').value;
+  db.monsters[id] = {
+    id: id,
+    name: document.getElementById('mon-name').value,
+    sprite: document.getElementById('mon-sprite').value,
+    aggro: document.getElementById('mon-aggro').value,
+    hp: parseInt(document.getElementById('mon-hp').value) || 50,
+    atk: parseInt(document.getElementById('mon-atk').value) || 10,
+    def: parseInt(document.getElementById('mon-def').value) || 2,
+    exp: parseInt(document.getElementById('mon-exp').value) || 15,
+    zeny: parseInt(document.getElementById('mon-zeny').value) || 10
+  };
+  saveToLocalStorage();
+  showToast("Monster Saved!");
+}
+
+function createNewMonster() {
+  const id = 'mon_' + Date.now().toString().slice(-4);
+  db.monsters[id] = { id: id, name: "New Monster", sprite: "slime_green_ff.png", aggro: "passive", hp: 100, atk: 15, def: 5, exp: 30, zeny: 25 };
+  selectedMonsterId = id;
+  renderMonsters();
+}
+
+function deleteCurrentMonster() {
+  delete db.monsters[selectedMonsterId];
+  selectedMonsterId = Object.keys(db.monsters)[0] || '';
+  renderMonsters();
+  saveToLocalStorage();
+}
+
+// 5. Zones render
+function renderZones() {
+  const tbody = document.getElementById('zones-body');
+  tbody.innerHTML = '';
+  db.zones.forEach(z => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${z.id}</strong></td><td>${z.name}</td><td>Lv. ${z.minLv} - ${z.maxLv}</td><td><span style="display:inline-block;width:12px;height:12px;background:${z.light};border-radius:2px;margin-right:6px;"></span>${z.light}</td><td>${z.monsters}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// JSON Sync
+function syncJSONTextarea() {
+  document.getElementById('json-editor').value = JSON.stringify(db, null, 2);
+}
+
+function applyJSONEditorChanges() {
+  try {
+    const parsed = JSON.parse(document.getElementById('json-editor').value);
+    db = parsed;
+    saveToLocalStorage();
+    renderClasses(); renderSkills(); renderItems(); renderMonsters(); renderZones();
+    showToast("JSON Applied Successfully!");
+  } catch(e) {
+    alert("Invalid JSON Syntax: " + e.message);
+  }
+}
+
+function copyJSONToClipboard() {
+  syncJSONTextarea();
+  const el = document.getElementById('json-editor');
+  el.select();
+  document.execCommand('copy');
+  showToast("JSON copied to clipboard!");
+}
+
+function saveToLocalStorage() {
+  localStorage.setItem('zaggers_db', JSON.stringify(db));
+  showToast("Database saved locally!");
+}
+
+function resetToDefaultDB() {
+  if (confirm("Reset database to factory defaults? Any custom edits will be erased.")) {
+    db = JSON.parse(JSON.stringify(DEFAULT_DATABASE));
+    saveToLocalStorage();
+    renderClasses(); renderSkills(); renderItems(); renderMonsters(); renderZones(); syncJSONTextarea();
+  }
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'zaggers_database.json';
+  a.click();
+}
+
+function triggerImport() { document.getElementById('import-file').click(); }
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      db = JSON.parse(evt.target.result);
+      saveToLocalStorage();
+      renderClasses(); renderSkills(); renderItems(); renderMonsters(); renderZones(); syncJSONTextarea();
+      showToast("Database imported successfully!");
+    } catch(err) {
+      alert("Error parsing JSON file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Init
+renderClasses();
+renderSkills();
+renderItems();
+renderMonsters();
+renderZones();
+</script>
+</body>
+</html>

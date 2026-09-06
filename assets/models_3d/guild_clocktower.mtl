@@ -1,0 +1,74 @@
+# Material file for guild_clocktower
+
+newmtl stone_gray
+Ka 0.2000 0.2000 0.2000
+Kd 0.5000 0.5000 0.5200
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl brick_main
+Ka 0.2000 0.2000 0.2000
+Kd 0.5800 0.4600 0.3800
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl brick_dark
+Ka 0.2000 0.2000 0.2000
+Kd 0.3500 0.3000 0.2800
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl wood_beam
+Ka 0.2000 0.2000 0.2000
+Kd 0.3800 0.2400 0.1200
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl clock_face
+Ka 0.2000 0.2000 0.2000
+Kd 0.9200 0.9000 0.7500
+Ks 0.3000 0.3000 0.3000
+Ns 15.0
+d 1.00
+illum 2
+
+newmtl brass_trim
+Ka 0.2000 0.2000 0.2000
+Kd 0.8200 0.6500 0.2200
+Ks 0.7000 0.6000 0.2000
+Ns 25.0
+d 1.00
+illum 2
+
+newmtl roof_slate
+Ka 0.2000 0.2000 0.2000
+Kd 0.2200 0.3200 0.4500
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl roof_spire
+Ka 0.2000 0.2000 0.2000
+Kd 0.1500 0.2200 0.3500
+Ks 0.0000 0.0000 0.0000
+Ns 10.0
+d 1.00
+illum 2
+
+newmtl gold_accent
+Ka 0.2000 0.2000 0.2000
+Kd 0.9500 0.8000 0.2000
+Ks 0.9000 0.9000 0.5000
+Ns 30.0
+d 1.00
+illum 2
+
