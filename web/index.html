@@ -68,6 +68,20 @@
 
 <div id="game-container">
 
+  <!-- Player Death & Respawn Modal Overlay -->
+  <div id="player-death-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 5, 5, 0.92); backdrop-filter: blur(6px); z-index: 600; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; pointer-events: auto;">
+    <div style="background: #181015; border: 2px solid #ff5252; border-radius: 8px; padding: 24px; max-width: 440px; text-align: center; box-shadow: 0 10px 30px rgba(255,82,82,0.3);">
+      <h2 style="font-size: 22px; color: #ff5252; letter-spacing: 2px; text-shadow: 0 2px 8px #ff5252; margin-bottom: 8px;">YOU HAVE FALLEN IN BATTLE</h2>
+      <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 18px; line-height: 1.4;">Your physical form was overcome by the wild forces of Midgard. Select your resurrection path to continue your adventure.</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button onclick="respawnAtKafra()" style="background: linear-gradient(180deg, #1e88e5 0%, #1565c0 100%); border: 1px solid #90caf9; color: #fff; padding: 10px 18px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; box-shadow: 0 4px 10px rgba(30,136,229,0.4);">💾 Respawn at Aethelgard Kafra Save Crystal (Free)</button>
+        <button onclick="reviveOnSpot()" style="background: linear-gradient(180deg, #d97706 0%, #b45309 100%); border: 1px solid #ffe082; color: #fff; padding: 10px 18px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 13px; box-shadow: 0 4px 10px rgba(217,119,6,0.4);">✨ Revive On The Spot (100 z)</button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Floating District Banner Overlay -->
   <div id="district-banner">Entering Aethelgard Grand Plaza</div>
 
@@ -933,80 +947,26 @@
   }
 
   
+
   // ==========================================
-  // Character Creation & Class Selection System
+  // Single Source of Truth DB Class Integration
   // ==========================================
-  const HERO_CLASSES = {
-    vanguard: {
-      id: 'vanguard',
-      name: 'Vanguard Titan',
-      sprite: 'hero_knight',
-      stats: { str: 14, agi: 10, vit: 16, int: 6, dex: 12, luk: 8 },
-      hp: 180, sp: 50,
-      weapon: 'Sword & Shield',
-      lore: 'Stalwart frontline defender. High VIT & STR allows Vanguard tanks to absorb heavy enemy assaults while protecting allies.'
-    },
-    spellweaver: {
-      id: 'spellweaver',
-      name: 'Spellweaver',
-      sprite: 'hero_blackmage',
-      stats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 },
-      hp: 110, sp: 140,
-      weapon: 'Archmage Staff',
-      lore: 'Wielder of elemental tempests. High INT enables destructive AoE spells and massive magic damage.'
-    },
-    shadowblade: {
-      id: 'shadowblade',
-      name: 'Shadowblade',
-      sprite: 'hero_thief',
-      stats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 },
-      hp: 130, sp: 60,
-      weapon: 'Dual Daggers',
-      lore: 'Agile killer in the night. High AGI & LUK delivers blindingly fast attack speeds and critical strikes.'
-    },
-    cleric: {
-      id: 'cleric',
-      name: 'Cleric Priest',
-      sprite: 'hero_whitemage',
-      stats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 },
-      hp: 140, sp: 120,
-      weapon: 'Holy Mace',
-      lore: 'Divine sanctuary healer. High INT & VIT provides party restoration, protective barriers, and holy holy light.'
-    },
-    ranger: {
-      id: 'ranger',
-      name: 'Ranger Marksman',
-      sprite: 'hero_redmage',
-      stats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 },
-      hp: 140, sp: 70,
-      weapon: 'Composite Bow',
-      lore: 'Precision long-range sniper. High DEX & AGI ensures pinpoint accuracy and lethal physical shots.'
+  function getDbClasses() {
+    let dbData = null;
+    try {
+      const stored = localStorage.getItem('zaggers_db');
+      if (stored) dbData = JSON.parse(stored);
+    } catch(e) {}
+    if (!dbData || !dbData.classes) {
+      return {
+        vanguard: { id: 'vanguard', name: 'Vanguard Titan', sprite: 'hero_knight', baseStats: { str: 14, agi: 10, vit: 16, int: 6, dex: 12, luk: 8 }, hpGrowth: 18, spGrowth: 4, primaryWeapon: 'Sword & Shield', description: 'Stalwart frontline defender with heavy armor.' },
+        spellweaver: { id: 'spellweaver', name: 'Spellweaver', sprite: 'hero_blackmage', baseStats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 }, hpGrowth: 10, spGrowth: 12, primaryWeapon: 'Archmage Staff', description: 'Master of arcane storm and flame.' },
+        shadowblade: { id: 'shadowblade', name: 'Shadowblade', sprite: 'hero_thief', baseStats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 }, hpGrowth: 12, spGrowth: 5, primaryWeapon: 'Dual Daggers', description: 'Lethal rogue specializing in rapid critical hits.' },
+        cleric: { id: 'cleric', name: 'Cleric Priest', sprite: 'hero_whitemage', baseStats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 }, hpGrowth: 13, spGrowth: 10, primaryWeapon: 'Holy Mace', description: 'Devout guardian granting holy protection and healing.' },
+        ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_redmage', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' }
+      };
     }
-  };
-
-
-  // 2.5D Isometric Structure & Boundary Collision Engine
-  function checkCollision(wx, wy) {
-    // 1. World Map Perimeter Bounds - dynamic per loaded zone (see currentMapBounds,
-    // set by loadZoneMap()/loadCustomMapData() from web/maps/*.json)
-    const b = currentMapBounds;
-    if (wx < b.minWx || wx > b.maxWx || wy < b.minWy || wy > b.maxWy) return true;
-
-    // 2. Environment Structures Collision Bounding Boxes
-    for (let i = 0; i < envStructures.length; i++) {
-      const s = envStructures[i];
-      let radius = 0.8; // Default collision radius
-      if (s.type === 'env_house_shop' || s.type === 'env_house_terrace' || s.type === 'env_obelisk_aetherite' || s.type === 'env_cargo_crane' || s.type === 'env_windmill') radius = 2.2;
-      else if (s.type === 'env_fountain' || s.type === 'env_stained_arch' || s.type === 'env_palisade_wall' || s.type === 'env_waterfall_curtain') radius = 1.8;
-      else if (s.type === 'env_market_stall' || s.type === 'env_awning_stall' || s.type === 'env_hollow_tree') radius = 1.4;
-      else if (s.type === 'env_crystal' || s.type === 'env_dungeon_pillar' || s.type === 'env_temple_pillar') radius = 1.0;
-      else if (s.type === 'env_tree_meadow') radius = 0.9;
-      else if (s.type === 'env_torch_brazier' || s.type === 'env_barrel_crate') radius = 0.7;
-
-      const dist = Math.hypot(wx - s.wx, wy - s.wy);
-      if (dist < radius) return true;
-    }
-    return false;
+    return dbData.classes;
   }
 
   let selectedCreatorClassId = 'vanguard';
@@ -1014,16 +974,18 @@
   let creatorPreviewFrame = 0;
   let creatorPreviewAnimTimer = 0;
   let currentDistrictName = 'Aethelgard Grand Plaza';
+  let isPlayerDead = false;
 
   function renderCreatorClassCards() {
     const container = document.getElementById('creator-class-cards');
     if (!container) return;
     container.innerHTML = '';
-    Object.values(HERO_CLASSES).forEach(c => {
+    const classesMap = getDbClasses();
+    Object.values(classesMap).forEach(c => {
       const card = document.createElement('div');
       card.className = 'creator-class-card' + (c.id === selectedCreatorClassId ? ' active' : '');
       card.onclick = () => selectCreatorClass(c.id);
-      card.innerHTML = `<div><strong>${c.name}</strong><br><small style="color: #94a3b8;">${c.weapon}</small></div><span style="color: #ffd54f;">★</span>`;
+      card.innerHTML = `<div><strong>${c.name}</strong><br><small style="color: #94a3b8;">${c.primaryWeapon || c.weapon || 'Weapon'}</small></div><span style="color: #ffd54f;">★</span>`;
       container.appendChild(card);
     });
     updateCreatorClassDetails();
@@ -1039,29 +1001,31 @@
   }
 
   function updateCreatorClassDetails() {
-    const c = HERO_CLASSES[selectedCreatorClassId];
+    const classesMap = getDbClasses();
+    const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
     if (!c) return;
     const titleEl = document.getElementById('creator-class-title');
     if (titleEl) titleEl.innerText = c.name;
 
+    const stats = c.baseStats || c.stats || { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 };
     const statsEl = document.getElementById('creator-stats-list');
     if (statsEl) {
       statsEl.innerHTML = `
-        <div style="display:flex; justify-content:space-between;"><span>STR (Attack)</span><strong style="color:#ff8a80;">${c.stats.str}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span>AGI (Speed/Flee)</span><strong style="color:#b9f6ca;">${c.stats.agi}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span>VIT (Max HP)</span><strong style="color:#ffd180;">${c.stats.vit}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span>INT (MATK/SP)</span><strong style="color:#80d8ff;">${c.stats.int}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span>DEX (Hit Speed)</span><strong style="color:#ea80fc;">${c.stats.dex}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span>LUK (Critical)</span><strong style="color:#ffff8d;">${c.stats.luk}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>STR (Attack)</span><strong style="color:#ff8a80;">${stats.str}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>AGI (Speed/Flee)</span><strong style="color:#b9f6ca;">${stats.agi}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>VIT (Max HP)</span><strong style="color:#ffd180;">${stats.vit}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>INT (MATK/SP)</span><strong style="color:#80d8ff;">${stats.int}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>DEX (Hit Speed)</span><strong style="color:#ea80fc;">${stats.dex}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span>LUK (Critical)</span><strong style="color:#ffff8d;">${stats.luk}</strong></div>
         <div style="border-top:1px solid #2e3d58; margin-top:4px; padding-top:4px; display:flex; justify-space-between;">
-          <span>Base HP: <strong style="color:#ff5252;">${c.hp}</strong></span>
-          <span>Base SP: <strong style="color:#42a5f5;">${c.sp}</strong></span>
+          <span>HP Growth: <strong style="color:#ff5252;">${c.hpGrowth || 14}</strong></span>
+          <span>SP Growth: <strong style="color:#42a5f5;">${c.spGrowth || 6}</strong></span>
         </div>
       `;
     }
 
     const loreEl = document.getElementById('creator-lore-text');
-    if (loreEl) loreEl.innerText = c.lore;
+    if (loreEl) loreEl.innerText = c.description || c.lore || 'Hero class in Midgard.';
   }
 
   function updateCreatorPreviewCanvas() {
@@ -1071,9 +1035,11 @@
     pCtx.imageSmoothingEnabled = false;
     pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
 
-    const c = HERO_CLASSES[selectedCreatorClassId];
+    const classesMap = getDbClasses();
+    const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
     if (!c) return;
-    const img = sprites[c.sprite];
+    const spriteKey = c.sprite || 'hero_knight';
+    const img = sprites[spriteKey];
 
     creatorPreviewAnimTimer++;
     if (creatorPreviewAnimTimer >= 10) {
@@ -1089,20 +1055,25 @@
   function confirmCharacterCreation() {
     const input = document.getElementById('creator-name-input');
     const heroName = input ? (input.value.trim() || 'Hero') : 'Hero';
-    const c = HERO_CLASSES[selectedCreatorClassId];
+    const classesMap = getDbClasses();
+    const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
 
-    player.class = c.sprite;
-    player.sprite = c.sprite;
-    player.str = c.stats.str;
-    player.agi = c.stats.agi;
-    player.vit = c.stats.vit;
-    player.int = c.stats.int;
-    player.dex = c.stats.dex;
-    player.luk = c.stats.luk;
-    player.maxHp = c.hp;
-    player.hp = c.hp;
-    player.maxSp = c.sp;
-    player.sp = c.sp;
+    const stats = c.baseStats || c.stats || { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 };
+    const baseHp = 100 + stats.vit * 15;
+    const baseSp = 30 + stats.int * 8;
+
+    player.class = c.sprite || 'hero_knight';
+    player.sprite = c.sprite || 'hero_knight';
+    player.str = stats.str;
+    player.agi = stats.agi;
+    player.vit = stats.vit;
+    player.int = stats.int;
+    player.dex = stats.dex;
+    player.luk = stats.luk;
+    player.maxHp = baseHp;
+    player.hp = baseHp;
+    player.maxSp = baseSp;
+    player.sp = baseSp;
 
     const pNameEl = document.getElementById('player-name');
     if (pNameEl) pNameEl.innerText = `${heroName} [${c.name}]`;
@@ -1118,6 +1089,58 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
     showDistrictBanner("Entering Aethelgard Grand Plaza");
+  }
+
+  // Death & Respawn System
+  function triggerPlayerDeath() {
+    if (isPlayerDead) return;
+    isPlayerDead = true;
+    player.hp = 0;
+    updateHUD();
+
+    const modal = document.getElementById('player-death-modal');
+    if (modal) modal.style.display = 'flex';
+
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #ff5252;">[System]:</span> You have fallen in battle! Choose a resurrection option.</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  function respawnAtKafra() {
+    isPlayerDead = false;
+    player.hp = player.maxHp;
+    player.sp = player.maxSp;
+    updateHUD();
+
+    const modal = document.getElementById('player-death-modal');
+    if (modal) modal.style.display = 'none';
+
+    // Teleport back to Aethelgard Town Center (0, 0)
+    loadZoneMap('aethelgard', { wx: 0, wy: 0 });
+  }
+
+  function reviveOnSpot() {
+    if (player.zeny >= 100) {
+      player.zeny -= 100;
+      isPlayerDead = false;
+      player.hp = player.maxHp;
+      player.sp = player.maxSp;
+      updateHUD();
+
+      const modal = document.getElementById('player-death-modal');
+      if (modal) modal.style.display = 'none';
+
+      const chatBox = document.getElementById('chat-messages');
+      if (chatBox) {
+        chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Revived on the spot for 100 zeny!</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else {
+      alert("Insufficient Zeny! Respawning at Kafra Save Crystal.");
+      respawnAtKafra();
+    }
   }
 
   function showDistrictBanner(name) {
@@ -1355,6 +1378,11 @@
     let drx = 0, dry = 0;
     let screenDir = -1;
 
+    if (isPlayerDead) {
+      player.targetWx = player.wx;
+      player.targetWy = player.wy;
+    } else {
+
     if (keys['KeyA'] || keys['ArrowLeft']) { drx -= 1; dry += 1; screenDir = 1; }
     if (keys['KeyD'] || keys['ArrowRight']) { drx += 1; dry -= 1; screenDir = 2; }
     if (keys['KeyW'] || keys['ArrowUp']) { drx -= 1; dry -= 1; screenDir = 3; }
@@ -1414,6 +1442,7 @@
         pendingNpcTarget = null;
       }
     }
+    }
 
     let colIndex = player.frame;
     // 0..1 elapsed fraction of the attack window, used below to draw a
@@ -1456,6 +1485,9 @@
           player.hitFlashTimer = HIT_FLASH_DURATION; // white damage-flash, see render()
           floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: `-${dmg}`, color: '#ff5252', life: 40 });
           updateHUD();
+          if (player.hp <= 0) {
+            triggerPlayerDeath();
+          }
         }
       } else {
         // Wandering logic: pick random target every ~120 frames, clamped to

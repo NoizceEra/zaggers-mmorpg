@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__Claude_Browser__computer",
+  "tool_input_preview": "{\"action\":\"left_click\",\"coordinate\":[221,265],\"tabId\":\"tab-45\"}",
+  "error": "left_click with `coordinate` requires a prior computer{action:\"screenshot\"} (no screenshot dimensions cached)",
+  "timestamp": "2026-09-06T19:10:57.690Z",
+  "retry_count": 1
+}
