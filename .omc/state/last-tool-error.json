@@ -1,7 +1,7 @@
 {
-  "tool_name": "mcp__Claude_Browser__computer",
-  "tool_input_preview": "{\"action\":\"left_click\",\"coordinate\":[221,265],\"tabId\":\"tab-45\"}",
-  "error": "left_click with `coordinate` requires a prior computer{action:\"screenshot\"} (no screenshot dimensions cached)",
-  "timestamp": "2026-09-06T19:10:57.690Z",
+  "tool_name": "mcp__Claude_Browser__preview_start",
+  "tool_input_preview": "{\"url\":\"http://localhost:8792/index.html\"}",
+  "error": "Tab cap reached. Close a tab (tabs_close) before opening another, or call tabs_context to find an existing tab to reuse.",
+  "timestamp": "2026-09-06T23:29:19.388Z",
   "retry_count": 1
 }

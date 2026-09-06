@@ -615,7 +615,9 @@
     'env_guide_rope', 'env_vault_door', 'env_root_hair', 'env_weeping_branch', 'env_briar_wall',
     // Kingdom-town buildings & walls (Aethelgard) — scripts/generate_town_buildings.py
     'env_wall_curtain', 'env_wall_corner', 'env_gatehouse', 'env_house_smithy',
-    'env_house_temple', 'env_house_guild', 'env_house_inn', 'env_house_row'
+    'env_house_temple', 'env_house_guild', 'env_house_inn', 'env_house_row',
+    // Collision/Walls/Doors pass (vault/COLLISION_WALLS_DOORS_REPORT.md)
+    'env_door'
   ];
 
   const terrainSpriteNames = [
@@ -1160,6 +1162,173 @@
   }
 
   // ==========================================
+  // Collision Engine (vault/COLLISION_WALLS_DOORS_REPORT.md)
+  //
+  // Additive on top of the existing dynamic currentMapBounds clamp (see
+  // "World Boundaries" below) and the customTileMap border-tile / zone-exit
+  // gap logic in checkZoneExits() - neither of those is touched here.
+  //
+  // NOTE: a parallel "town-buildings" pass landed a first checkCollision(wx,wy)
+  // (bounds + tile_town_border w/ exit-gap tolerance + a type->radius env
+  // table) on integration/master concurrently with this one - merged here
+  // rather than kept as two competing collision functions. Their radius
+  // table is the base; this pass adds the entity (NPC/monster/player) layer
+  // and env_door's open/closed state on top.
+  // ==========================================
+  const ENV_COLLISION_RADII = {
+    env_house_shop: 2.2, env_house_terrace: 2.2, env_house_smithy: 2.2,
+    env_house_temple: 2.2, env_house_guild: 2.2, env_house_inn: 2.2, env_house_row: 2.2,
+    env_wall_corner: 2.0,
+    env_wall_curtain: 1.35, env_palisade_wall: 1.35, env_briar_wall: 1.35,
+    env_fountain: 1.8,
+    env_market_stall: 1.3, env_awning_stall: 1.3,
+    env_obelisk_aetherite: 1.5, env_cargo_crane: 1.5,
+    env_stained_arch: 1.0, env_temple_pillar: 1.0, env_chimney_stack: 1.0,
+    env_vault_door: 1.4
+  };
+  // Types that never block regardless of the 0.75 default below (overhead/
+  // thin-overlay props, plus gatehouses whose art depicts an open archway
+  // through the middle - the passage itself must stay walkable).
+  const ENV_COLLISION_EXEMPT = new Set([
+    'env_lantern_string', 'env_washing_line', 'env_guide_rope', 'env_fishing_net',
+    'env_gatehouse'
+  ]);
+  const ENV_COLLISION_DEFAULT_RADIUS = 0.75;
+  const ENV_DOOR_CLOSED_RADIUS = 0.9;
+
+  // Per-entity (NPC/monster/player) "can't stand on top of" radius. Kept
+  // small and below monster attack range (1.2 tiles, see triggerAttack-
+  // adjacent aggro logic in render()) so combat proximity still works -
+  // monsters get blocked from walking fully onto the player but can still
+  // close to attack range.
+  const ENTITY_COLLISION_RADIUS = 0.55;
+  const MOVER_SELF_RADIUS = 0.35;
+
+  // Interactive door state (open/close-on-proximity, see updateDoors()).
+  // Additive fields stamped onto env_door instances the moment a map loads,
+  // mirroring the initMonsterState() convention above.
+  function initEnvState(env) {
+    if (env.type === 'env_door') {
+      if (env.open === undefined) env.open = false;
+      if (env.doorCloseTimer === undefined) env.doorCloseTimer = 0;
+    }
+  }
+
+  // Returns true if world position (wx,wy) is blocked: map bounds, border
+  // tiles (with the zone-exit gap tolerance), solid env structures, and -
+  // additively - live entities (NPC/monster/player), each per `opts`.
+  // opts: { selfRadius, ignorePlayer, ignoreNpcs, ignoreMonsters, excludeMonster }
+  function isPositionBlocked(wx, wy, opts) {
+    opts = opts || {};
+    const selfRadius = opts.selfRadius != null ? opts.selfRadius : MOVER_SELF_RADIUS;
+
+    // 1. Map perimeter
+    const b = currentMapBounds;
+    if (wx < b.minWx || wx > b.maxWx || wy < b.minWy || wy > b.maxWy) return true;
+
+    // 2. customTileMap border tiles, tolerant of the zone-exit gap radius
+    // (ENGINE_INFRA_AUDIT.md "customTileMap tile_town_border + 2.5 exit gaps")
+    const tx = Math.round(wx), ty = Math.round(wy);
+    const tileKey = customTileMap[`${tx},${ty}`];
+    if (tileKey === 'tile_town_border') {
+      let nearExit = false;
+      for (let i = 0; i < currentMapExits.length; i++) {
+        const ex = currentMapExits[i];
+        if (Math.hypot(wx - ex.wx, wy - ex.wy) <= 2.5) { nearExit = true; break; }
+      }
+      if (!nearExit) return true;
+    }
+
+    // 3. Solid environment structures (walls, buildings, doors)
+    for (let i = 0; i < envStructures.length; i++) {
+      const s = envStructures[i];
+      const t = s.type;
+      if (t === 'env_door') {
+        if (s.open) continue; // open doors are passable
+        if (Math.hypot(wx - s.wx, wy - s.wy) < ENV_DOOR_CLOSED_RADIUS) return true;
+        continue;
+      }
+      if (ENV_COLLISION_EXEMPT.has(t)) continue;
+      const radius = ENV_COLLISION_RADII[t] != null ? ENV_COLLISION_RADII[t] : ENV_COLLISION_DEFAULT_RADIUS;
+      if (Math.hypot(wx - s.wx, wy - s.wy) < radius) return true;
+    }
+
+    // 4. Live entities - so the player can't stand on top of an NPC or a
+    // live monster (projectiles/floating text never call this, they aren't
+    // movers). Stationary NPCs and alive monsters only.
+    if (!opts.ignoreNpcs) {
+      for (let i = 0; i < npcs.length; i++) {
+        const n = npcs[i];
+        if (Math.hypot(wx - n.wx, wy - n.wy) < ENTITY_COLLISION_RADIUS + selfRadius) return true;
+      }
+    }
+    if (!opts.ignoreMonsters) {
+      for (let i = 0; i < monsters.length; i++) {
+        const m = monsters[i];
+        if (m.hp <= 0) continue; // dead/fading monsters don't block
+        if (opts.excludeMonster === m) continue;
+        if (Math.hypot(wx - m.wx, wy - m.wy) < ENTITY_COLLISION_RADIUS + selfRadius) return true;
+      }
+    }
+    if (!opts.ignorePlayer && typeof player !== 'undefined' && !isPlayerDead) {
+      if (Math.hypot(wx - player.wx, wy - player.wy) < ENTITY_COLLISION_RADIUS + selfRadius) return true;
+    }
+    return false;
+  }
+
+  // Back-compat alias: the parallel town-buildings pass's original
+  // checkCollision(wx, wy) signature (env/bounds/border only, no entities) -
+  // kept callable under its original name in case anything still expects it.
+  function checkCollision(wx, wy) {
+    return isPositionBlocked(wx, wy, { ignoreNpcs: true, ignoreMonsters: true, ignorePlayer: true });
+  }
+
+  // Axis-slide step helper shared by player WASD/click-follow movement and
+  // monster wander/pursuit movement: try the full diagonal step first, then
+  // fall back to sliding along whichever single axis is clear - the same
+  // "slide along the wall" feel as the existing tile/bounds clamping instead
+  // of a hard stop.
+  function moveWithCollision(mover, stepX, stepY, opts) {
+    if (!isPositionBlocked(mover.wx + stepX, mover.wy + stepY, opts)) {
+      mover.wx += stepX;
+      mover.wy += stepY;
+      return true;
+    }
+    let moved = false;
+    if (!isPositionBlocked(mover.wx + stepX, mover.wy, opts)) {
+      mover.wx += stepX;
+      moved = true;
+    }
+    if (!isPositionBlocked(mover.wx, mover.wy + stepY, opts)) {
+      mover.wy += stepY;
+      moved = true;
+    }
+    return moved;
+  }
+
+  // Interactive doors: open on player proximity, auto-close a short delay
+  // after the player moves away (documented choice - no click-to-open wiring
+  // here since click handling is owned by the movement-target/travel-UI
+  // pass; proximity keeps this self-contained to envStructures/collision).
+  const DOOR_OPEN_RADIUS = 2.0;
+  const DOOR_CLOSE_DELAY_FRAMES = 90; // ~1.5s at 60fps
+
+  function updateDoors() {
+    for (let i = 0; i < envStructures.length; i++) {
+      const s = envStructures[i];
+      if (s.type !== 'env_door') continue;
+      const near = Math.hypot(player.wx - s.wx, player.wy - s.wy) <= DOOR_OPEN_RADIUS;
+      if (near) {
+        s.open = true;
+        s.doorCloseTimer = DOOR_CLOSE_DELAY_FRAMES;
+      } else if (s.open) {
+        s.doorCloseTimer--;
+        if (s.doorCloseTimer <= 0) s.open = false;
+      }
+    }
+  }
+
+  // ==========================================
   // Zone / Map Loading (WORLD_MAP_EXPANSION.md)
   // ==========================================
   // Registry of playable maps -> their JSON file under web/maps/.
@@ -1252,6 +1421,7 @@
     if (mapData.tiles) customTileMap = mapData.tiles;
     envStructures.length = 0;
     if (Array.isArray(mapData.envStructures)) envStructures.push(...mapData.envStructures);
+    envStructures.forEach(initEnvState);
     npcs.length = 0;
     if (Array.isArray(mapData.npcs)) npcs.push(...mapData.npcs);
     monsters.length = 0;
@@ -1462,50 +1632,11 @@
     playerPathQueue = findPath(player.wx, player.wy, player.targetWx, player.targetWy);
   }
 
-  // Returns true if (wx, wy) is blocked by map bounds, border tiles, or props.
-  // Gate gaps near currentMapExits stay walkable through tile_town_border.
-  // (Collision-detection ownership - consumed as an optional hook by
-  // isWalkableCell()/findPath() above; not modified by the navigation pass.)
-  function checkCollision(wx, wy) {
-    const b = currentMapBounds;
-    if (wx < b.minWx || wx > b.maxWx || wy < b.minWy || wy > b.maxWy) return true;
-
-    const tx = Math.round(wx);
-    const ty = Math.round(wy);
-    const tileKey = customTileMap[`${tx},${ty}`];
-    if (tileKey === 'tile_town_border') {
-      let nearExit = false;
-      for (let i = 0; i < currentMapExits.length; i++) {
-        const ex = currentMapExits[i];
-        if (Math.hypot(wx - ex.wx, wy - ex.wy) <= 2.5) { nearExit = true; break; }
-      }
-      if (!nearExit) return true;
-    }
-
-    for (let i = 0; i < envStructures.length; i++) {
-      const s = envStructures[i];
-      const t = s.type;
-      if (t === 'env_lantern_string' || t === 'env_washing_line' ||
-          t === 'env_guide_rope' || t === 'env_fishing_net') continue;
-
-      // Gatehouses are open arches on exit tiles — never solid-block the portal path.
-      if (t === 'env_gatehouse') continue;
-
-      let radius = 0.75;
-      if (t === 'env_house_shop' || t === 'env_house_terrace' || t === 'env_house_smithy' ||
-          t === 'env_house_temple' || t === 'env_house_guild' || t === 'env_house_inn' ||
-          t === 'env_house_row') radius = 2.2;
-      else if (t === 'env_wall_corner') radius = 2.0;
-      else if (t === 'env_wall_curtain' || t === 'env_palisade_wall' || t === 'env_briar_wall') radius = 1.35;
-      else if (t === 'env_fountain') radius = 1.8;
-      else if (t === 'env_market_stall' || t === 'env_awning_stall') radius = 1.3;
-      else if (t === 'env_obelisk_aetherite' || t === 'env_cargo_crane') radius = 1.5;
-      else if (t === 'env_stained_arch' || t === 'env_temple_pillar' || t === 'env_chimney_stack') radius = 1.0;
-
-      if (Math.hypot(wx - s.wx, wy - s.wy) < radius) return true;
-    }
-    return false;
-  }
+  // NOTE: checkCollision(wx, wy) (bounds/border/env-only, no entities) and its
+  // fuller isPositionBlocked(wx, wy, opts) sibling (bounds/border/env/doors/
+  // entities) are defined once, earlier in this file (collision-detection
+  // ownership) — isWalkableCell()/findPath() above consult checkCollision()
+  // as an optional hook and are not affected by which version is live.
 
   const floatingTexts = [];
   const clickRipples = [];
@@ -2323,6 +2454,7 @@
     if (Array.isArray(mapData.envStructures)) {
       envStructures.length = 0;
       envStructures.push(...mapData.envStructures);
+      envStructures.forEach(initEnvState);
     }
     if (Array.isArray(mapData.npcs)) {
       npcs.length = 0;
@@ -3745,14 +3877,10 @@
       const len = Math.hypot(dwx, dwy);
       const stepX = (dwx / len) * player.speed;
       const stepY = (dwy / len) * player.speed;
-      if (!checkCollision(player.wx + stepX, player.wy + stepY)) {
-        player.wx += stepX;
-        player.wy += stepY;
-      } else if (!checkCollision(player.wx + stepX, player.wy)) {
-        player.wx += stepX;
-      } else if (!checkCollision(player.wx, player.wy + stepY)) {
-        player.wy += stepY;
-      }
+      // Collision-aware axis-slide (walls/doors/NPCs/monsters) - see
+      // COLLISION_WALLS_DOORS_REPORT.md. Same slide-not-stop feel as the
+      // pre-existing tile-bounds clamp below.
+      moveWithCollision(player, stepX, stepY, { ignorePlayer: true });
       player.targetWx = player.wx;
       player.targetWy = player.wy;
       playerPathQueue.length = 0; // manual WASD movement cancels any in-flight click-to-move route
@@ -3801,27 +3929,23 @@
 
       if (dist > 0.1) {
         const angle = Math.atan2(dwy_t, dwx_t);
-        // Collision-aware step + slide-along-wall fallback (collision-detection
-        // ownership - unchanged from that pass). Steering toward stepTx/stepTy
-        // (the next A*-lite waypoint, or the raw target when none is queued)
-        // instead of always the final target is this pass's only change here.
-        const stepX = Math.cos(angle) * player.speed;
-        const stepY = Math.sin(angle) * player.speed;
-        if (!checkCollision(player.wx + stepX, player.wy + stepY)) {
-          player.wx += stepX;
-          player.wy += stepY;
-        } else if (!checkCollision(player.wx + stepX, player.wy)) {
-          player.wx += stepX;
-        } else if (!checkCollision(player.wx, player.wy + stepY)) {
-          player.wy += stepY;
-        } else if (nextWaypoint) {
-          // Blocked while following a queued waypoint - drop it and let the
-          // stall watchdog above recompute a fresh route next tick, rather
-          // than collapsing the player's final click target to here.
-          playerPathQueue.shift();
-        } else {
-          player.targetWx = player.wx;
-          player.targetWy = player.wy;
+        // Collision-aware step (walls/doors/NPCs/monsters - see
+        // COLLISION_WALLS_DOORS_REPORT.md) steering toward stepTx/stepTy
+        // (the next A*-lite waypoint, or the raw target when none is queued).
+        const stepX_t = Math.cos(angle) * player.speed;
+        const stepY_t = Math.sin(angle) * player.speed;
+        if (!moveWithCollision(player, stepX_t, stepY_t, { ignorePlayer: true })) {
+          if (nextWaypoint) {
+            // Blocked while following a queued waypoint - drop it and let the
+            // stall watchdog above recompute a fresh route next tick, rather
+            // than collapsing the player's final click target to here.
+            playerPathQueue.shift();
+          } else {
+            // Fully blocked on both axes - stop chasing this click-to-move
+            // target instead of grinding against the obstacle forever.
+            player.targetWx = player.wx;
+            player.targetWy = player.wy;
+          }
         }
 
         let drx_t = dwx_t, dry_t = dwy_t;
@@ -3846,6 +3970,10 @@
     // Zone/district banner + portal transitions (WORLD_MAP_EXPANSION.md)
     checkDistrictTransition();
     checkZoneExits();
+
+    // Interactive doors: open on proximity, auto-close after a short delay
+    // (COLLISION_WALLS_DOORS_REPORT.md).
+    updateDoors();
 
     // Check pending NPC interaction proximity
     if (pendingNpcTarget) {
@@ -3943,8 +4071,14 @@
 
       if (distToTarget > 0.15) {
         const angle = Math.atan2(dwy_m, dwx_m);
-        m.wx += Math.cos(angle) * m.speed;
-        m.wy += Math.sin(angle) * m.speed;
+        const stepX_m = Math.cos(angle) * m.speed;
+        const stepY_m = Math.sin(angle) * m.speed;
+        // Env-structure collision (walls/gatehouses/doors) + player, so
+        // monsters slide along walls instead of clipping through them and
+        // can't stack fully on top of the player either. Other monsters/
+        // NPCs are intentionally not checked here to keep wander/pursuit AI
+        // simple (COLLISION_WALLS_DOORS_REPORT.md).
+        moveWithCollision(m, stepX_m, stepY_m, { ignoreNpcs: true, ignoreMonsters: true });
 
         // Facing direction relative to camera angle
         let drx_m = dwx_m, dry_m = dwy_m;
@@ -4250,6 +4384,11 @@
             const animFrame = Math.floor(frameCount / 8) % 4;
             const sx = animFrame * 64;
             ctx.drawImage(envImg, sx, 0, 64, 64, renderX, renderY, esw, esh);
+          } else if (env.type === 'env_door') {
+            // 2-frame sheet: frame 0 = closed (solid), frame 1 = open
+            // (passable) - state flipped by updateDoors() on proximity.
+            const sx = env.open ? env.width : 0;
+            ctx.drawImage(envImg, sx, 0, env.width, env.height, renderX, renderY, esw, esh);
           } else {
             ctx.drawImage(envImg, 0, 0, env.width, env.height, renderX, renderY, esw, esh);
           }
