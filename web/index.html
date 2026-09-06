@@ -109,6 +109,99 @@
     .shop-item.locked { opacity: 0.55; }
 
     /* ==========================================================
+       UX/UI Improvements Pass (additive - see vault/UX_UI_IMPROVEMENTS_REPORT.md)
+       Tooltips, low-HP warning state, onboarding hints, chat message
+       polish, shop affordability state, focus-visible accessibility.
+       Layout of existing panels is untouched; this only adds new small
+       elements/classes and styling hooks.
+       ========================================================== */
+
+    /* --- Tooltip system: hover (desktop) / long-press (touch) on any
+       element carrying data-tip. Single shared floating box, positioned
+       in JS, so no per-element markup overhead. --- */
+    [data-tip] { cursor: help; }
+    body.touch-mode [data-tip] { cursor: default; }
+    #ui-tooltip {
+      position: fixed; z-index: 1000; max-width: 240px; pointer-events: none;
+      background: rgba(10, 13, 20, 0.97); color: #e3eaf5; border: 1px solid #5c6b94;
+      border-radius: 5px; padding: 6px 9px; font-size: 11px; line-height: 1.4;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6); opacity: 0; transform: translateY(4px);
+      transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+    }
+    #ui-tooltip.visible { opacity: 1; transform: translateY(0); }
+
+    /* Dotted underline hint on stat labels so players notice they're
+       hoverable/tappable for an explanation, without adding new icons. */
+    .stat-row > span:first-child[data-tip] { border-bottom: 1px dotted #607d8b; }
+
+    /* --- Low-HP warning: a pulsing red vignette ring + status-window
+       border pulse, layered above the game canvas but below modals.
+       Complements (does not duplicate) the existing GFX vignette from
+       GRAPHICS_UPGRADE_REPORT.md, which is a static darkening effect. --- */
+    #low-hp-vignette {
+      position: absolute; inset: 0; pointer-events: none; z-index: 60;
+      box-shadow: inset 0 0 0 0 rgba(255,0,0,0); opacity: 0;
+      transition: opacity 0.3s ease-out;
+    }
+    #low-hp-vignette.active {
+      opacity: 1;
+      animation: low-hp-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes low-hp-pulse {
+      0%, 100% { box-shadow: inset 0 0 90px 10px rgba(255,20,20,0.28); }
+      50% { box-shadow: inset 0 0 140px 25px rgba(255,20,20,0.5); }
+    }
+    #status-window.hp-critical { border-color: #ff5252; animation: status-border-pulse 1.6s ease-in-out infinite; }
+    @keyframes status-border-pulse {
+      0%, 100% { box-shadow: 0 0 6px rgba(255,82,82,0.35); }
+      50% { box-shadow: 0 0 16px rgba(255,82,82,0.85); }
+    }
+
+    /* --- Onboarding hint: brief, dismissible, shown once (localStorage). --- */
+    #onboarding-hint {
+      position: absolute; left: 50%; bottom: 84px; transform: translateX(-50%);
+      width: min(92%, 460px); background: rgba(16, 22, 34, 0.96); border: 2px solid #ffd54f;
+      border-radius: 8px; padding: 12px 14px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.75);
+      display: none; pointer-events: auto;
+    }
+    #onboarding-hint.visible { display: block; }
+    #onboarding-hint h3 { font-size: 12px; color: #ffe082; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+    #onboarding-hint ul { list-style: none; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+    #onboarding-hint li { font-size: 12px; color: #dfe6f0; line-height: 1.4; }
+    #onboarding-hint li strong { color: #81d4fa; }
+    #onboarding-hint .ob-actions { display: flex; justify-content: flex-end; }
+    #onboarding-hint .ob-dismiss { background: linear-gradient(180deg, #2e7d32, #1b5e20); border: 1px solid #81c784; color: #fff; padding: 5px 14px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    #onboarding-hint .ob-dismiss:hover { background: #388e3c; }
+
+    /* --- Chat log polish: distinguish system events from chat/combat spam. --- */
+    #chat-messages > div { padding: 1px 0; word-break: break-word; }
+    #chat-messages > div[data-kind="levelup"] { color: #ffe082; background: rgba(255, 213, 79, 0.1); border-left: 2px solid #ffd54f; padding-left: 5px; font-weight: bold; }
+    #chat-messages > div[data-kind="death"] { color: #ff8a80; background: rgba(255, 82, 82, 0.12); border-left: 2px solid #ff5252; padding-left: 5px; font-weight: bold; }
+    #chat-messages > div[data-kind="zone"] { color: #b3e5fc; border-left: 2px solid #4fc3f7; padding-left: 5px; }
+    #chat-messages > div[data-kind="drop"] { color: #c5e1a5; border-left: 2px solid #aed581; padding-left: 5px; }
+
+    /* --- Shop affordability state --- */
+    .shop-item.cant-afford { opacity: 0.6; }
+    .shop-item.cant-afford .buy-btn { background: #4a3030; cursor: not-allowed; }
+    .shop-item.cant-afford .buy-btn:hover { background: #4a3030; }
+    .buy-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .shop-item.just-purchased { animation: shop-purchase-flash 0.6s ease-out; }
+    @keyframes shop-purchase-flash { 0% { background: rgba(129, 199, 132, 0.45); } 100% { background: transparent; } }
+
+    /* --- Keyboard focus states for non-mouse users (buttons + custom
+       clickable divs that already exist: hotbar slots, skill nodes). --- */
+    .btn-icon:focus-visible, .buy-btn:focus-visible, .stat-btn:focus-visible,
+    .close-btn:focus-visible, .slot-btn:focus-visible, .hotbar-slot:focus-visible,
+    .skill-node:focus-visible, .creator-class-card:focus-visible,
+    #chat-input:focus-visible, .ob-dismiss:focus-visible {
+      outline: 2px solid #ffd54f; outline-offset: 2px;
+    }
+    .hotbar-slot, .skill-node, .creator-class-card { outline: none; }
+
+    /* --- Bar transitions: smoother than a hard snap on HP/SP change. --- */
+    .bar-fill { transition: width 0.25s ease-out, filter 0.2s ease-out; }
+
+    /* ==========================================================
        Mobile / Touch Support (additive - desktop mouse+keyboard
        layout above is untouched; see vault/MOBILE_COMPATIBILITY_REPORT.md)
        ========================================================== */
@@ -195,6 +288,29 @@
 <div id="game-container">
 
   <div id="db-fail-banner">Failed to load zaggers_database.json — serve the game from the web/ folder so the database can be fetched.</div>
+
+  <!-- Shared tooltip box (see UX_UI_IMPROVEMENTS_REPORT.md) - positioned by JS
+       above whatever element carries data-tip; hover on desktop, long-press
+       on touch. -->
+  <div id="ui-tooltip" role="tooltip"></div>
+
+  <!-- Low-HP warning vignette (pulses when HP drops below ~25%); purely
+       visual, layered above the canvas but below all modals. -->
+  <div id="low-hp-vignette"></div>
+
+  <!-- First-time onboarding hint - shown once (localStorage flag), dismissible,
+       non-blocking (doesn't cover the canvas or intercept clicks outside itself). -->
+  <div id="onboarding-hint">
+    <h3>Welcome, Adventurer</h3>
+    <ul>
+      <li><strong>Click</strong> anywhere on the ground to walk there, or <strong>click an NPC</strong> to talk.</li>
+      <li><strong>F1–F9</strong> cast your hotbar skills · <strong>Space</strong> or click a monster to attack.</li>
+      <li>Open <strong>Skills [K]</strong>, <strong>Equip [I]</strong>, <strong>Stats [C]</strong> and the <strong>Shop [S]</strong> from the buttons above.</li>
+      <li>Hover (or long-press on mobile) over stats, items, and skills for an explanation.</li>
+      <li>Visit the <strong>Kestrel Consignment House</strong> (Kafra) in town to save your progress and travel.</li>
+    </ul>
+    <div class="ob-actions"><button class="ob-dismiss" onclick="dismissOnboarding()">Got it!</button></div>
+  </div>
 
   <!-- Player Death & Respawn Modal Overlay -->
   <div id="player-death-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 5, 5, 0.92); backdrop-filter: blur(6px); z-index: 600; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; pointer-events: auto;">
@@ -321,12 +437,12 @@
       <span class="close-btn" onclick="toggleWindow('stat-window')">✕</span>
     </div>
     <div class="window-body">
-      <div class="stat-row"><span>STR (Attack)</span><span id="stat-str">10</span><button class="stat-btn" onclick="addStat('str')">+</button></div>
-      <div class="stat-row"><span>AGI (ASPD/Flee)</span><span id="stat-agi">10</span><button class="stat-btn" onclick="addStat('agi')">+</button></div>
-      <div class="stat-row"><span>VIT (Max HP)</span><span id="stat-vit">10</span><button class="stat-btn" onclick="addStat('vit')">+</button></div>
-      <div class="stat-row"><span>INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
-      <div class="stat-row"><span>DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
-      <div class="stat-row"><span>LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button>
+      <div class="stat-row"><span data-tip="STR raises physical attack power — the harder your hits land with weapons and melee skills.">STR (Attack)</span><span id="stat-str">10</span><button class="stat-btn" onclick="addStat('str')">+</button></div>
+      <div class="stat-row"><span data-tip="AGI speeds up your attacks and raises FLEE — your chance to dodge an incoming hit entirely.">AGI (ASPD/Flee)</span><span id="stat-agi">10</span><button class="stat-btn" onclick="addStat('agi')">+</button></div>
+      <div class="stat-row"><span data-tip="VIT raises your Max HP and physical defense, so you can take more punishment before falling.">VIT (Max HP)</span><span id="stat-vit">10</span><button class="stat-btn" onclick="addStat('vit')">+</button></div>
+      <div class="stat-row"><span data-tip="INT increases magic attack power (MATK) and your Max SP, fueling stronger and more frequent skills.">INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
+      <div class="stat-row"><span data-tip="DEX improves your accuracy (HIT) and skill reliability, so fewer of your attacks miss.">DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
+      <div class="stat-row"><span data-tip="LUK raises your critical hit chance and nudges random effects (drop luck, minor evasion) in your favor.">LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button>
       <div style="border-top: 1px solid #3d4a68; margin-top: 10px; padding-top: 8px;">
         <div style="font-size: 11px; font-weight: bold; color: #ffd54f; margin-bottom: 4px;">Class Advancement & Branching</div>
         <div id="job-branch-list" style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;"></div>
@@ -735,6 +851,7 @@
       player.maxSp += 4;
       player.sp = Math.min(player.maxSp, player.sp + 4);
       floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 30, text: `LEVEL UP! ${player.level}`, color: '#ffd54f', life: 70 });
+      if (typeof chatSystem === 'function') chatSystem(`Reached Base Lv. ${player.level}! Skill point gained.`, '#81c784', 'levelup');
     }
     updateHUD();
     if (typeof refreshSkillTree === 'function') refreshSkillTree();
@@ -1059,8 +1176,9 @@
     showDistrictBanner(`Entering ${currentMapName}`);
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) {
-      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Arrived at ${currentMapName}.</div>`;
+      chatBox.innerHTML += `<div data-kind="zone"><span style="color: #ffd54f;">[System]:</span> Arrived at ${currentMapName}.</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
+      trimChatLog(chatBox);
     }
   }
 
@@ -1469,8 +1587,13 @@
       const text = input.value.trim();
       if (text) {
         const chatBox = document.getElementById('chat-messages');
-        chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Hero]:</span> ${text}</div>`;
+        // Escape user-typed text before inserting as HTML (existing chat
+        // lines are all trusted static/template strings; this is the one
+        // spot with free-text input).
+        const safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Hero]:</span> ${safeText}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
+        trimChatLog(chatBox);
         input.value = '';
       }
       input.blur();
@@ -1727,6 +1850,14 @@
     spBarEl.style.width = `${(player.sp / maxSp) * 100}%`;
     document.getElementById('sp-text').innerText = `SP: ${Math.floor(player.sp)} / ${maxSp}`;
     document.getElementById('zeny-val').innerText = `${player.zeny} z`;
+
+    // Low-HP warning state: pulsing vignette + status-window border once HP
+    // drops below 25% (and player is still alive) - see UX_UI_IMPROVEMENTS_REPORT.md.
+    const lowHp = (player.hp / maxHp) < 0.25 && player.hp > 0;
+    const vignetteEl = document.getElementById('low-hp-vignette');
+    const statusWin = document.getElementById('status-window');
+    if (vignetteEl) vignetteEl.classList.toggle('active', lowHp);
+    if (statusWin) statusWin.classList.toggle('hp-critical', lowHp);
     const lvEl = document.getElementById('base-level-val');
     if (lvEl) lvEl.innerText = String(player.level || 1);
     const xpEl = document.getElementById('xp-val');
@@ -1892,11 +2023,119 @@
   function getSkill(id) { return getDbSkills()[id] || null; }
   function getItem(id) { return getDbItems()[id] || null; }
 
-  function chatSystem(msg, color) {
+  // Caps how many messages the chat log keeps in the DOM so a long play
+  // session's scrollback stays a reasonable size instead of growing forever
+  // (see UX_UI_IMPROVEMENTS_REPORT.md §5).
+  const CHAT_LOG_MAX_MESSAGES = 120;
+  function trimChatLog(chatBox) {
+    while (chatBox.children.length > CHAT_LOG_MAX_MESSAGES) {
+      chatBox.removeChild(chatBox.firstChild);
+    }
+  }
+
+  // `kind` drives the data-kind CSS hook (see #chat-messages[data-kind=...]
+  // rules) so important events (level up, death, zone arrival, item drops)
+  // visually pop out of ordinary chat/combat-log spam instead of scrolling
+  // by identically styled. Passing no kind keeps the plain [System] look.
+  function chatSystem(msg, color, kind) {
     const chatBox = document.getElementById('chat-messages');
     if (!chatBox) return;
-    chatBox.innerHTML += `<div><span style="color: ${color || '#ffd54f'};">[System]:</span> ${msg}</div>`;
+    const kindAttr = kind ? ` data-kind="${kind}"` : '';
+    chatBox.innerHTML += `<div${kindAttr}><span style="color: ${color || '#ffd54f'};">[System]:</span> ${msg}</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
+    trimChatLog(chatBox);
+  }
+
+  // ==========================================================
+  // Shared tooltip engine (hover on desktop, long-press on touch) for any
+  // element carrying data-tip. Delegated at the document level so newly
+  // rendered shop/inventory/skill/hotbar markup picks it up automatically
+  // without re-binding listeners each render. See UX_UI_IMPROVEMENTS_REPORT.md.
+  // ==========================================================
+  (function initTooltipEngine() {
+    const tipEl = document.getElementById('ui-tooltip');
+    if (!tipEl) return;
+    let longPressTimer = null;
+
+    function positionTip(x, y) {
+      const pad = 12;
+      const rect = tipEl.getBoundingClientRect();
+      let left = x + pad;
+      let top = y + pad;
+      if (left + rect.width > window.innerWidth - 6) left = x - rect.width - pad;
+      if (top + rect.height > window.innerHeight - 6) top = y - rect.height - pad;
+      tipEl.style.left = `${Math.max(4, left)}px`;
+      tipEl.style.top = `${Math.max(4, top)}px`;
+    }
+
+    function showTip(target, x, y) {
+      const text = target.getAttribute('data-tip');
+      if (!text) return;
+      tipEl.textContent = text;
+      tipEl.classList.add('visible');
+      positionTip(x, y);
+    }
+
+    function hideTip() {
+      tipEl.classList.remove('visible');
+    }
+
+    document.addEventListener('mouseover', e => {
+      const target = e.target.closest('[data-tip]');
+      if (target) showTip(target, e.clientX, e.clientY);
+    });
+    document.addEventListener('mousemove', e => {
+      if (tipEl.classList.contains('visible')) positionTip(e.clientX, e.clientY);
+    });
+    document.addEventListener('mouseout', e => {
+      const target = e.target.closest('[data-tip]');
+      if (target) hideTip();
+    });
+    // Keyboard users: show the tooltip on focus (e.g. tabbing to a hotbar
+    // slot or skill node), matching the :focus-visible outline added
+    // alongside this pass.
+    document.addEventListener('focusin', e => {
+      const target = e.target.closest && e.target.closest('[data-tip]');
+      if (target) {
+        const r = target.getBoundingClientRect();
+        showTip(target, r.left + r.width / 2, r.bottom);
+      }
+    });
+    document.addEventListener('focusout', hideTip);
+
+    // Touch: long-press (450ms) shows the tooltip without triggering the
+    // element's own click/tap handler early, and without fighting the
+    // canvas's own tap-to-move touch listeners (this only ever attaches to
+    // DOM widgets - buttons, rows, panels - never the <canvas> itself).
+    document.addEventListener('touchstart', e => {
+      const target = e.target.closest && e.target.closest('[data-tip]');
+      if (!target) return;
+      const t = e.touches[0];
+      clearTimeout(longPressTimer);
+      longPressTimer = setTimeout(() => showTip(target, t.clientX, t.clientY), 450);
+    }, { passive: true });
+    document.addEventListener('touchend', () => { clearTimeout(longPressTimer); hideTip(); });
+    document.addEventListener('touchmove', () => { clearTimeout(longPressTimer); }, { passive: true });
+    document.addEventListener('touchcancel', () => { clearTimeout(longPressTimer); hideTip(); });
+  })();
+
+  // ==========================================================
+  // First-time onboarding hint (shown once via localStorage flag).
+  // Non-blocking: doesn't cover the canvas, has no backdrop, and can be
+  // dismissed at any time. See UX_UI_IMPROVEMENTS_REPORT.md §4.
+  // ==========================================================
+  const ONBOARDING_STORAGE_KEY = 'zaggers_onboarding_seen_v1';
+  function showOnboardingHint() {
+    try {
+      if (localStorage.getItem(ONBOARDING_STORAGE_KEY)) return;
+    } catch (e) {}
+    const el = document.getElementById('onboarding-hint');
+    if (el) el.classList.add('visible');
+  }
+  function dismissOnboarding() {
+    const el = document.getElementById('onboarding-hint');
+    if (el) el.classList.remove('visible');
+    try { localStorage.setItem(ONBOARDING_STORAGE_KEY, '1'); } catch (e) {}
   }
 
   function savePlayerState() {
@@ -2032,7 +2271,7 @@
       floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 30, text: `LEVEL UP ${player.level}!`, color: '#ffd54f', life: 70 });
     }
     if (leveled) {
-      chatSystem(`Reached Base Lv. ${player.level}! Skill point gained.`, '#81c784');
+      chatSystem(`Reached Base Lv. ${player.level}! Skill point gained.`, '#81c784', 'levelup');
       refreshSkillTree();
     }
     updateHUD();
@@ -2078,7 +2317,18 @@
   function itemIconHtml(it) {
     if (!it || !it.icon) return '';
     const src = `assets/sprites_ff/${it.icon}`;
-    return `<img src="${src}" alt="" width="20" height="20" style="image-rendering:pixelated;vertical-align:middle;margin-right:4px;" onerror="this.style.display='none'" />`;
+    const alt = (it.name || 'item').replace(/"/g, '&quot;');
+    return `<img src="${src}" alt="${alt}" width="20" height="20" style="image-rendering:pixelated;vertical-align:middle;margin-right:4px;" onerror="this.style.display='none'" />`;
+  }
+
+  // Short plain-language tooltip for an item: prefer the DB's own
+  // `description` field, fall back to the stat-line summary so every item
+  // still has *something* useful on hover/long-press.
+  function itemTooltipText(it) {
+    if (!it) return '';
+    const desc = it.description ? it.description : itemShortDesc(it);
+    const req = it.reqLevel ? ` (Requires Lv. ${it.reqLevel})` : '';
+    return `${it.name}: ${desc}${req}`.replace(/"/g, '&quot;');
   }
 
   function populateShop() { populateShopFromDB(); }
@@ -2094,12 +2344,17 @@
       return it.source === 'shop' || (it.tier != null && it.tier <= 2 && it.price > 0);
     }).sort((a, b) => (a.reqLevel || 1) - (b.reqLevel || 1) || a.price - b.price);
     if (!items.length) {
-      list.innerHTML = `<div class="shop-item"><div><strong>Red Potion</strong><br><small style="color:#b0bec5;">Restores 100 HP</small></div><button class="buy-btn" onclick="buyItemById('red_potion')">50 z</button></div>`;
+      const canAfford = player.zeny >= 50;
+      list.innerHTML = `<div class="shop-item ${canAfford ? '' : 'cant-afford'}" data-tip="Red Potion: Restores 100 HP.${canAfford ? '' : ' Not enough Zeny.'}"><div><strong>Red Potion</strong><br><small style="color:#b0bec5;">Restores 100 HP</small></div><button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyItemById('red_potion')">50 z</button></div>`;
       return;
     }
     list.innerHTML = items.map(it => {
       const req = it.reqLevel ? ` · Lv ${it.reqLevel}` : '';
-      return `<div class="shop-item"><div>${itemIconHtml(it)}<strong>${it.name}</strong><br><small style="color:#b0bec5;">${itemShortDesc(it)}${req}</small></div><button class="buy-btn" onclick="buyItemById('${it.id}')">${it.price} z</button></div>`;
+      const cost = it.price || 0;
+      const levelOk = (it.reqLevel || 1) <= player.level;
+      const canAfford = player.zeny >= cost && levelOk;
+      const reason = !levelOk ? ` Requires Lv. ${it.reqLevel}.` : (player.zeny < cost ? ' Not enough Zeny.' : '');
+      return `<div class="shop-item ${canAfford ? '' : 'cant-afford'}" id="shop-row-${it.id}" data-tip="${itemTooltipText(it)}${reason}"><div>${itemIconHtml(it)}<strong>${it.name}</strong><br><small style="color:#b0bec5;">${itemShortDesc(it)}${req}</small></div><button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyItemById('${it.id}')">${it.price} z</button></div>`;
     }).join('');
   }
 
@@ -2114,6 +2369,14 @@
     updateHUD();
     chatSystem(`Purchased ${it.name}! Open Equip [I] to use or equip.`, '#81c784');
     savePlayerState();
+    populateShopFromDB();
+    // Brief confirmation flash on the row the player just bought from, if
+    // the shop list is still open and was rebuilt in the same position.
+    const row = document.getElementById(`shop-row-${itemId}`);
+    if (row) {
+      row.classList.add('just-purchased');
+      setTimeout(() => row.classList.remove('just-purchased'), 650);
+    }
   }
 
   function toggleSkillWindow(force) {
@@ -2219,6 +2482,16 @@
     grid.innerHTML = html;
   }
 
+  // Shared plain-language tooltip text for a skill (DB description first,
+  // falling back to a generated summary of its numbers) - used by both the
+  // skill tree nodes and hotbar slots so the same skill reads consistently
+  // wherever it's shown.
+  function itemTooltipTextForSkill(sk) {
+    if (!sk) return '';
+    const desc = sk.description || `${sk.targetType || 'Skill'} · ${sk.element || 'Neutral'} element.`;
+    return `${sk.name}: ${desc} (SP ${sk.spCost || 0}, CD ${((sk.cooldownMs || 0) / 1000).toFixed(1)}s)`.replace(/"/g, '&quot;');
+  }
+
   function skillNodeHtml(sk) {
     if (!sk) return `<div class="skill-node locked"><div class="sk-name">—</div></div>`;
     const learned = !!player.learnedSkills[sk.id];
@@ -2239,7 +2512,7 @@
         actions += `<button onclick="event.stopPropagation();bindSkillToHotbar('${sk.id}',${i})" title="F${i + 1}">F${i + 1}</button>`;
       }
     }
-    return `<div class="${cls}" title="${(sk.description || '').replace(/"/g, '&quot;')}">
+    return `<div class="${cls}" tabindex="0" role="group" aria-label="${sk.name}" data-tip="${itemTooltipTextForSkill(sk)}" title="${(sk.description || '').replace(/"/g, '&quot;')}">
       <div class="sk-name">${sk.name}</div>
       <div class="sk-meta">Lv ${sk.reqLevel || 1} · SP ${sk.spCost || 0} · CD ${((sk.cooldownMs || 0) / 1000).toFixed(1)}s<br>${sk.targetType || ''} · ${sk.element || 'Neutral'} · req: ${prereq}</div>
       <div class="sk-actions">${actions}</div>
@@ -2382,7 +2655,8 @@
         const sid = player.skillHotbar[i];
         const sk = sid ? getSkill(sid) : null;
         const name = sk ? sk.name : '';
-        html += `<div class="hotbar-slot ${sk ? '' : 'empty'}" data-slot="${i}" onclick="castHotbarSlot(${i})" title="${name || 'Empty'}">
+        const tip = sk ? itemTooltipTextForSkill(sk) : `F${i + 1}: empty slot — learn a skill in Skills [K] and bind it here.`;
+        html += `<div class="hotbar-slot ${sk ? '' : 'empty'}" data-slot="${i}" tabindex="0" role="button" aria-label="${name || 'Empty hotbar slot'} (F${i + 1})" data-tip="${tip}" onclick="castHotbarSlot(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();castHotbarSlot(${i});}" title="${name || 'Empty'}">
           <div class="hb-key">F${i + 1}</div>
           <div class="hb-name">${name ? name.split(' ').slice(0, 2).join(' ') : '—'}</div>
           <div class="hb-cd" style="height:0%"></div>
@@ -2412,11 +2686,19 @@
     const stats = document.getElementById('equip-combat-stats');
     if (!doll || !inv) return;
     const shieldLocked = isShieldLocked();
+    const SLOT_TIPS = {
+      weapon: 'Weapon: your main hand — drives ATK/MATK. Two-handed weapons lock the Shield slot.',
+      shield: 'Shield: off-hand defense (DEF/MDEF). Locked out while a two-handed weapon is equipped.',
+      armor: 'Armor: body defense — the biggest single contributor to DEF for most classes.',
+      headgear: 'Headgear: helms/hats — usually small DEF plus a stat or resistance bonus.',
+      accessory: 'Accessory: rings/talismans — typically stat bonuses (CRIT, FLEE, elemental) rather than raw DEF.'
+    };
     doll.innerHTML = EQUIP_SLOT_ORDER.map(slot => {
       const id = player.equipment[slot];
       const it = id ? getItem(id) : null;
       const locked = slot === 'shield' && shieldLocked;
-      return `<div class="equip-slot ${locked ? 'locked-slot' : ''}">
+      const tip = it ? itemTooltipText(it) : SLOT_TIPS[slot];
+      return `<div class="equip-slot ${locked ? 'locked-slot' : ''}" data-tip="${tip}">
         <div class="slot-label">${slot}${locked ? ' (2H lock)' : ''}</div>
         <div class="slot-item">${it ? itemIconHtml(it) + it.name : '<span style="color:#607d8b;">Empty</span>'}</div>
         <div class="slot-stats">${it ? itemShortDesc(it) : (locked ? 'Unequip two-handed weapon first' : '')}</div>
@@ -2435,7 +2717,7 @@
         let actions = '';
         if (isEquip) actions += `<button onclick="equipItem('${stack.id}')">Equip</button>`;
         if (isCons) actions += `<button onclick="useConsumable('${stack.id}')">Use</button>`;
-        return `<div class="inv-row"><div>${itemIconHtml(it)}<strong>${name}</strong> ×${stack.qty}<br><small style="color:#90a4ae;">${itemShortDesc(it)}</small></div><div class="inv-actions">${actions}</div></div>`;
+        return `<div class="inv-row" data-tip="${itemTooltipText(it)}"><div>${itemIconHtml(it)}<strong>${name}</strong> ×${stack.qty}<br><small style="color:#90a4ae;">${itemShortDesc(it)}</small></div><div class="inv-actions">${actions}</div></div>`;
       }).join('');
     }
 
@@ -2690,8 +2972,10 @@
     if (chatBox) {
       chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Welcome to Aethelgard Master Town, ${heroName}! Class set to <strong>${c.name}</strong>. Open Skills [K] and Equip [I].</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
+      trimChatLog(chatBox);
     }
     showDistrictBanner("Entering Aethelgard Grand Plaza");
+    showOnboardingHint();
   }
 
   // Death & Respawn System
@@ -2706,8 +2990,9 @@
 
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) {
-      chatBox.innerHTML += `<div><span style="color: #ff5252;">[System]:</span> You have fallen in battle! Choose a resurrection option.</div>`;
+      chatBox.innerHTML += `<div data-kind="death"><span style="color: #ff5252;">[System]:</span> You have fallen in battle! Choose a resurrection option.</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
+      trimChatLog(chatBox);
     }
   }
 
