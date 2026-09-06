@@ -242,7 +242,12 @@
       <div class="stat-row"><span>VIT (Max HP)</span><span id="stat-vit">10</span><button class="stat-btn" onclick="addStat('vit')">+</button></div>
       <div class="stat-row"><span>INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
       <div class="stat-row"><span>DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
-      <div class="stat-row"><span>LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button></div>
+      <div class="stat-row"><span>LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button>
+      <div style="border-top: 1px solid #3d4a68; margin-top: 10px; padding-top: 8px;">
+        <div style="font-size: 11px; font-weight: bold; color: #ffd54f; margin-bottom: 4px;">Class Advancement & Branching</div>
+        <div id="job-branch-list" style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;"></div>
+      </div>
+</div>
     </div>
   </div>
 
@@ -362,7 +367,10 @@
     'env_palisade_wall', 'env_campfire', 'env_reed_clump', 'env_hollow_tree',
     'env_waterfall_curtain', 'env_pew_floating', 'env_reliquary_casket', 'env_lava_channel',
     'env_bellows_great', 'env_ice_statue', 'env_ice_colossus_shell', 'env_cairn_waypoint',
-    'env_guide_rope', 'env_vault_door', 'env_root_hair', 'env_weeping_branch', 'env_briar_wall'
+    'env_guide_rope', 'env_vault_door', 'env_root_hair', 'env_weeping_branch', 'env_briar_wall',
+    // Kingdom-town buildings & walls (Aethelgard) — scripts/generate_town_buildings.py
+    'env_wall_curtain', 'env_wall_corner', 'env_gatehouse', 'env_house_smithy',
+    'env_house_temple', 'env_house_guild', 'env_house_inn', 'env_house_row'
   ];
 
   const terrainSpriteNames = [
@@ -818,6 +826,49 @@
     }
   }
 
+  // Returns true if (wx, wy) is blocked by map bounds, border tiles, or props.
+  // Gate gaps near currentMapExits stay walkable through tile_town_border.
+  function checkCollision(wx, wy) {
+    const b = currentMapBounds;
+    if (wx < b.minWx || wx > b.maxWx || wy < b.minWy || wy > b.maxWy) return true;
+
+    const tx = Math.round(wx);
+    const ty = Math.round(wy);
+    const tileKey = customTileMap[`${tx},${ty}`];
+    if (tileKey === 'tile_town_border') {
+      let nearExit = false;
+      for (let i = 0; i < currentMapExits.length; i++) {
+        const ex = currentMapExits[i];
+        if (Math.hypot(wx - ex.wx, wy - ex.wy) <= 2.5) { nearExit = true; break; }
+      }
+      if (!nearExit) return true;
+    }
+
+    for (let i = 0; i < envStructures.length; i++) {
+      const s = envStructures[i];
+      const t = s.type;
+      if (t === 'env_lantern_string' || t === 'env_washing_line' ||
+          t === 'env_guide_rope' || t === 'env_fishing_net') continue;
+
+      // Gatehouses are open arches on exit tiles — never solid-block the portal path.
+      if (t === 'env_gatehouse') continue;
+
+      let radius = 0.75;
+      if (t === 'env_house_shop' || t === 'env_house_terrace' || t === 'env_house_smithy' ||
+          t === 'env_house_temple' || t === 'env_house_guild' || t === 'env_house_inn' ||
+          t === 'env_house_row') radius = 2.2;
+      else if (t === 'env_wall_corner') radius = 2.0;
+      else if (t === 'env_wall_curtain' || t === 'env_palisade_wall' || t === 'env_briar_wall') radius = 1.35;
+      else if (t === 'env_fountain') radius = 1.8;
+      else if (t === 'env_market_stall' || t === 'env_awning_stall') radius = 1.3;
+      else if (t === 'env_obelisk_aetherite' || t === 'env_cargo_crane') radius = 1.5;
+      else if (t === 'env_stained_arch' || t === 'env_temple_pillar' || t === 'env_chimney_stack') radius = 1.0;
+
+      if (Math.hypot(wx - s.wx, wy - s.wy) < radius) return true;
+    }
+    return false;
+  }
+
   const floatingTexts = [];
   const clickRipples = [];
   const keys = {};
@@ -1174,6 +1225,66 @@
       updateHUD();
       const chatBox = document.getElementById('chat-messages');
       chatBox.innerHTML += `<div><span style="color: #81c784;">[Shop]:</span> Purchased ${name}!</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  
+  function updateJobAdvancementUI() {
+    const container = document.getElementById('job-branch-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const classesMap = getDbClasses();
+    const currentClassId = selectedCreatorClassId;
+
+    Object.values(classesMap).forEach(c => {
+      if (c.id === currentClassId) return;
+      const req = c.advancementRequirements;
+      if (!req) return;
+
+      let meetsAll = true;
+      let reqText = [];
+      for (const [statKey, reqVal] of Object.entries(req)) {
+        const curVal = player[statKey] || 10;
+        reqText.push(`${statKey.toUpperCase()}: ${curVal}/${reqVal}`);
+        if (curVal < reqVal) meetsAll = false;
+      }
+
+      const div = document.createElement('div');
+      div.style.cssText = 'background: #111824; border: 1px solid #2e3d58; border-radius: 4px; padding: 6px; display: flex; justify-content: space-between; align-items: center;';
+      div.innerHTML = `
+        <div>
+          <strong style="color: ${meetsAll ? '#81c784' : '#b0bec5'};">${c.name}</strong><br>
+          <small style="color: #94a3b8;">${reqText.join(' | ')}</small>
+        </div>
+        <button class="btn-icon" style="background: ${meetsAll ? '#2e7d32' : '#33415c'}; opacity: ${meetsAll ? '1' : '0.5'};" ${meetsAll ? '' : 'disabled'} onclick="promoteJobClass('${c.id}')">Promote</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function promoteJobClass(targetClassId) {
+    const classesMap = getDbClasses();
+    const c = classesMap[targetClassId];
+    if (!c) return;
+
+    player.class = c.sprite || 'hero_knight';
+    player.sprite = c.sprite || 'hero_knight';
+    selectedCreatorClassId = c.id;
+
+    const pNameEl = document.getElementById('player-name');
+    if (pNameEl) {
+      const heroName = pNameEl.innerText.split(' [')[0] || 'Hero';
+      pNameEl.innerText = `${heroName} [${c.name}]`;
+    }
+
+    updateHUD();
+    updateJobAdvancementUI();
+
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> 🌟 <strong>JOB ADVANCEMENT!</strong> You have promoted to <strong>${c.name}</strong>!</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
     }
   }
@@ -2466,8 +2577,16 @@
       else if (cameraAngle === 3) { dwx = -dry; dwy = drx; }
 
       const len = Math.hypot(dwx, dwy);
-      player.wx += (dwx / len) * player.speed;
-      player.wy += (dwy / len) * player.speed;
+      const stepX = (dwx / len) * player.speed;
+      const stepY = (dwy / len) * player.speed;
+      if (!checkCollision(player.wx + stepX, player.wy + stepY)) {
+        player.wx += stepX;
+        player.wy += stepY;
+      } else if (!checkCollision(player.wx + stepX, player.wy)) {
+        player.wx += stepX;
+      } else if (!checkCollision(player.wx, player.wy + stepY)) {
+        player.wy += stepY;
+      }
       player.targetWx = player.wx;
       player.targetWy = player.wy;
       
@@ -2479,8 +2598,19 @@
       const dist = Math.hypot(dwx_t, dwy_t);
       if (dist > 0.1) {
         const angle = Math.atan2(dwy_t, dwx_t);
-        player.wx += Math.cos(angle) * player.speed;
-        player.wy += Math.sin(angle) * player.speed;
+        const stepX = Math.cos(angle) * player.speed;
+        const stepY = Math.sin(angle) * player.speed;
+        if (!checkCollision(player.wx + stepX, player.wy + stepY)) {
+          player.wx += stepX;
+          player.wy += stepY;
+        } else if (!checkCollision(player.wx + stepX, player.wy)) {
+          player.wx += stepX;
+        } else if (!checkCollision(player.wx, player.wy + stepY)) {
+          player.wy += stepY;
+        } else {
+          player.targetWx = player.wx;
+          player.targetWy = player.wy;
+        }
         
         let drx_t = dwx_t, dry_t = dwy_t;
         if (cameraAngle === 1) { drx_t = -dwy_t; dry_t = dwx_t; }
