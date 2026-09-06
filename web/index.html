@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Zaggers MMORPG - Ragnarok Online Style 2.5D</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -105,6 +105,86 @@
     #db-fail-banner { position: absolute; top: 0; left: 0; right: 0; z-index: 900; display: none; background: #b71c1c; color: #fff; padding: 8px 14px; font-size: 12px; font-weight: bold; text-align: center; border-bottom: 2px solid #ff8a80; }
     .shop-item.locked { opacity: 0.55; }
 
+    /* ==========================================================
+       Mobile / Touch Support (additive - desktop mouse+keyboard
+       layout above is untouched; see vault/MOBILE_COMPATIBILITY_REPORT.md)
+       ========================================================== */
+    canvas { touch-action: none; } /* prevents native pinch/scroll from fighting our own gesture handling */
+    .inventory-list, .shop-items, #chat-messages, .window-scroll-body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+
+    /* On-screen touch controls: hidden by default, shown only when JS detects
+       a touch-capable device (body.touch-mode), so mouse/keyboard users see
+       the existing UI completely unchanged. */
+    .touch-only { display: none; }
+    body.touch-mode .touch-only { display: inline-flex; }
+    /* Dev-only tools (map/DB editors) are desktop workflows - keep them out
+       of the way of the on-screen action bar on touch devices. */
+    body.touch-mode .dev-only { display: none; }
+
+    #touch-joystick-hint { position: absolute; z-index: 70; pointer-events: none; opacity: 0.9; }
+
+    @media (max-width: 900px) {
+      body { padding: 0; }
+      #game-container {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        max-width: 100vw;
+        max-height: 100dvh;
+        aspect-ratio: auto;
+        border-radius: 0;
+        border-width: 0;
+        box-shadow: none;
+      }
+
+      #status-window { width: 148px; font-size: 11px; padding: 6px; top: max(8px, env(safe-area-inset-top)); left: 8px; }
+      #minimap-container { width: 88px; top: max(8px, env(safe-area-inset-top)); right: 8px; }
+      #minimap-canvas { width: 72px; height: 72px; }
+      #minimap-zone-title { font-size: 9px; }
+
+      #chat-window { width: 44vw; height: 84px; left: 8px; bottom: 8px; }
+      #chat-messages { font-size: 10px; }
+
+      /* Controls bar: drop the desktop top-right anchor, wrap centered near
+         the bottom (above the hotbar) so it never collides with the
+         status/minimap HUD panels on a narrow screen. */
+      #controls-hint { top: auto; right: auto; left: 4px; bottom: 70px; width: calc(100% - 8px); justify-content: center; flex-wrap: wrap; gap: 5px; }
+      .btn-icon { padding: 8px 10px; font-size: 11px; min-height: 36px; }
+      body.touch-mode .btn-icon { min-height: 44px; padding: 10px 12px; font-size: 12px; }
+
+      #skill-hotbar { bottom: max(8px, env(safe-area-inset-bottom)); flex-wrap: wrap; justify-content: center; max-width: 264px; row-gap: 5px; }
+      .hotbar-slot { width: 42px; height: 42px; }
+      .hotbar-slot .hb-name { font-size: 8px; }
+      .hotbar-slot .hb-key { font-size: 8px; }
+
+      /* Modals: cap width to the viewport and let tall ones scroll instead
+         of overflowing off-screen. */
+      .window-modal { max-width: 94vw; }
+      #stat-window { width: 200px; }
+      #shop-window { width: 90vw; max-width: 380px; }
+      #skill-window, #equip-window { width: 94vw; max-width: 560px; max-height: 82vh; }
+      #skill-window .skill-tree-grid { grid-template-columns: 1fr 26px 1fr; }
+      .equip-layout { flex-direction: column; }
+      .paperdoll { width: 100%; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+      .paperdoll .equip-slot { flex: 1 1 45%; min-height: 46px; }
+      #npc-dialog-window { width: 92vw; max-width: 420px; }
+
+      #character-creator-modal { padding: 10px; overflow-y: auto; }
+      #character-creator-modal > div[style*="flex: 1"] { flex-direction: column; overflow-y: auto; }
+      #character-creator-modal > div[style*="flex: 1"] > div { width: 100% !important; }
+      #creator-preview-canvas { width: 120px; height: 120px; }
+
+      #player-death-modal > div { max-width: 90vw; padding: 16px; }
+      #player-death-modal h2 { font-size: 17px; }
+      #player-death-modal p { font-size: 12px; }
+    }
+
+    @media (max-width: 420px) {
+      #skill-hotbar { max-width: 234px; }
+      .hotbar-slot { width: 37px; height: 37px; }
+      #status-window { width: 132px; }
+      #chat-window { width: 40vw; }
+    }
   </style>
 </head>
 <body>
@@ -224,9 +304,10 @@
     <button class="btn-icon" onclick="toggleSkillWindow()">Skills [K]</button>
     <button class="btn-icon" onclick="toggleEquipWindow()">Equip [I]</button>
     <button class="btn-icon" onclick="toggleWindow('shop-window')">Shop [S]</button>
-    <button class="btn-icon" onclick="openMapEditor()" title="Open Map Editor in new tab">🛠️ Map Editor</button>
-    <button class="btn-icon" onclick="openDBEditor()" title="Open Engine DB Editor in new tab">⚙️ DB Editor</button>
-    <button class="btn-icon" onclick="triggerMapFileInput()" title="Load Custom Map JSON">📁 Load Map</button>
+    <button class="btn-icon touch-only" onclick="triggerAttack()" title="Attack">⚔️ Attack</button>
+    <button class="btn-icon dev-only" onclick="openMapEditor()" title="Open Map Editor in new tab">🛠️ Map Editor</button>
+    <button class="btn-icon dev-only" onclick="openDBEditor()" title="Open Engine DB Editor in new tab">⚙️ DB Editor</button>
+    <button class="btn-icon dev-only" onclick="triggerMapFileInput()" title="Load Custom Map JSON">📁 Load Map</button>
     <input type="file" id="map-file-input" accept=".json" style="display:none" onchange="handleMapFileUpload(event)" />
   </div>
 
@@ -958,6 +1039,169 @@
     e.preventDefault();
     const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
     cameraZoom = Math.max(0.6, Math.min(1.8, cameraZoom * zoomFactor));
+  }, { passive: false });
+
+  // ==========================================================
+  // Mobile / Touch Support (additive layer)
+  // Adds: responsive canvas sizing, tap-to-move, two-finger
+  // rotate/pinch-zoom camera control, touch device detection.
+  // Existing mouse/keyboard listeners above are untouched.
+  // See vault/MOBILE_COMPATIBILITY_REPORT.md.
+  // ==========================================================
+  function isTouchDevice() {
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  }
+  if (isTouchDevice()) {
+    document.documentElement.classList.add('touch-mode');
+    document.body.classList.add('touch-mode');
+  }
+
+  // --- Responsive canvas: internal raster resolution now tracks the actual
+  // #game-container box (which itself goes full-viewport on phones via the
+  // @media rule above) instead of staying locked to the 640x360 attribute.
+  // worldToIso/isoToWorld and the mousedown hit-testing above all read
+  // canvas.width/canvas.height live each frame, so resizing here is safe
+  // and requires no change to that existing projection math.
+  let hasSetInitialMobileZoom = false;
+  function resizeGameCanvas() {
+    if (!canvas || !canvas.parentElement) return;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width));
+    const h = Math.max(1, Math.round(rect.height));
+    if (canvas.width !== w) canvas.width = w;
+    if (canvas.height !== h) canvas.height = h;
+    ctx.imageSmoothingEnabled = false;
+
+    // One-time zoom-out for narrow portrait viewports so the isometric view
+    // shows a sensible amount of play area instead of a desktop-shaped
+    // camera squeezed into a tall, narrow screen. Only applied once at boot
+    // (or first real resize) so it never fights the user's own pinch-zoom.
+    if (!hasSetInitialMobileZoom && w > 0 && h > w) {
+      cameraZoom = Math.max(0.65, Math.min(1.0, w / 480));
+      hasSetInitialMobileZoom = true;
+    } else if (!hasSetInitialMobileZoom) {
+      hasSetInitialMobileZoom = true;
+    }
+  }
+  window.addEventListener('resize', resizeGameCanvas);
+  window.addEventListener('orientationchange', () => setTimeout(resizeGameCanvas, 250));
+  resizeGameCanvas();
+
+  // --- Tap-to-move / tap-to-interact (touch equivalent of the mousedown
+  // left-click handler above). Mirrors its NPC hit-test + move-to logic
+  // exactly, kept as its own function rather than refactoring the mouse
+  // handler, to avoid touching existing input code.
+  function handleTouchTap(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clickSx = (clientX - rect.left) * scaleX;
+    const clickSy = (clientY - rect.top) * scaleY;
+    const worldPos = isoToWorld(clickSx, clickSy);
+
+    let clickedNpc = null;
+    npcs.forEach(npc => {
+      const nIso = worldToIso(npc.wx, npc.wy);
+      const npcMinX = nIso.x - 24 * cameraZoom;
+      const npcMaxX = nIso.x + 24 * cameraZoom;
+      const npcMinY = nIso.y - 56 * cameraZoom;
+      const npcMaxY = nIso.y + 8 * cameraZoom;
+      if (clickSx >= npcMinX && clickSx <= npcMaxX && clickSy >= npcMinY && clickSy <= npcMaxY) {
+        clickedNpc = npc;
+      }
+    });
+
+    if (clickedNpc) {
+      const dist = Math.hypot(player.wx - clickedNpc.wx, player.wy - clickedNpc.wy);
+      if (dist <= 2.2) {
+        openNpcDialog(clickedNpc);
+      } else {
+        pendingNpcTarget = clickedNpc;
+        player.targetWx = clickedNpc.wx;
+        player.targetWy = clickedNpc.wy;
+        clickRipples.push({ wx: clickedNpc.wx, wy: clickedNpc.wy, radius: 4, alpha: 1.0 });
+      }
+      return;
+    }
+
+    player.targetWx = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, worldPos.wx));
+    player.targetWy = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, worldPos.wy));
+    pendingNpcTarget = null;
+    clickRipples.push({ wx: player.targetWx, wy: player.targetWy, radius: 4, alpha: 1.0 });
+  }
+
+  // --- Touch gesture state ---
+  let touchTapInfo = null;   // { x, y, moved } - single-finger tap tracking
+  let touchCamGesture = null; // { startDist, startZoom, lastMidX, rotateAccum } - two-finger rotate/zoom
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      touchTapInfo = { x: t.clientX, y: t.clientY, moved: false };
+      touchCamGesture = null;
+    } else if (e.touches.length >= 2) {
+      touchTapInfo = null; // a second finger landed - this is a camera gesture, not a tap
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY;
+      touchCamGesture = {
+        startDist: Math.hypot(dx, dy) || 1,
+        startZoom: cameraZoom,
+        lastMidX: (t1.clientX + t2.clientX) / 2,
+        rotateAccum: 0
+      };
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1 && touchTapInfo) {
+      const t = e.touches[0];
+      const dx = t.clientX - touchTapInfo.x, dy = t.clientY - touchTapInfo.y;
+      if (Math.hypot(dx, dy) > 12) touchTapInfo.moved = true;
+    } else if (e.touches.length >= 2 && touchCamGesture) {
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY;
+      const dist = Math.hypot(dx, dy) || 1;
+
+      // Pinch to zoom (touch-equivalent of the mouse wheel handler above)
+      const zoomFactor = dist / touchCamGesture.startDist;
+      cameraZoom = Math.max(0.5, Math.min(2.0, touchCamGesture.startZoom * zoomFactor));
+
+      // Two-finger horizontal drag to rotate camera in 90-degree steps
+      // (touch-equivalent of the right-drag handler above)
+      const midX = (t1.clientX + t2.clientX) / 2;
+      touchCamGesture.rotateAccum += (midX - touchCamGesture.lastMidX);
+      if (touchCamGesture.rotateAccum > 55) {
+        rotateCamera(1);
+        touchCamGesture.rotateAccum = 0;
+      } else if (touchCamGesture.rotateAccum < -55) {
+        rotateCamera(-1);
+        touchCamGesture.rotateAccum = 0;
+      }
+      touchCamGesture.lastMidX = midX;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    e.preventDefault();
+    if (e.touches.length === 0) {
+      if (touchTapInfo && !touchTapInfo.moved) {
+        handleTouchTap(touchTapInfo.x, touchTapInfo.y);
+      }
+      touchTapInfo = null;
+      touchCamGesture = null;
+    } else if (e.touches.length === 1) {
+      // Dropped from 2 fingers to 1: end the camera gesture, don't treat
+      // the remaining finger's prior position as a fresh tap.
+      touchCamGesture = null;
+      touchTapInfo = null;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchcancel', () => {
+    touchTapInfo = null;
+    touchCamGesture = null;
   }, { passive: false });
 
   function triggerAttack() {
@@ -2235,6 +2479,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    if (typeof resizeGameCanvas === 'function') resizeGameCanvas();
     setInterval(updateCreatorPreviewCanvas, 50);
     setInterval(() => { if (typeof updateHotbarUI === 'function') updateHotbarUI(); }, 200);
 
