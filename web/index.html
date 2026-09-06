@@ -45,6 +45,7 @@
     .stat-btn:hover { background: #3d4d70; }
     
     #shop-window { top: 50px; left: 50%; transform: translateX(-50%); width: 340px; }
+    #travel-window { top: 50px; left: 50%; transform: translateX(-50%); width: 340px; }
     .shop-items { max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
     .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #283246; cursor: pointer; }
     .shop-item:hover { background: #222a3a; }
@@ -165,6 +166,7 @@
       .window-modal { max-width: 94vw; }
       #stat-window { width: 200px; }
       #shop-window { width: 90vw; max-width: 380px; }
+      #travel-window { width: 90vw; max-width: 380px; }
       #skill-window, #equip-window { width: 94vw; max-width: 560px; max-height: 82vh; }
       #skill-window .skill-tree-grid { grid-template-columns: 1fr 26px 1fr; }
       .equip-layout { flex-direction: column; }
@@ -341,6 +343,20 @@
     </div>
   </div>
 
+  <!-- Fast-Travel Window (Kestrel Consignment / Kafra teleport service -
+       vault/NAVIGATION_TELEPORT_REPORT.md). Reuses the shop-window's own
+       markup/classes for visual consistency. -->
+  <div id="travel-window" class="window-modal">
+    <div class="window-header">
+      <span>Kestrel Consignment — Travel Map</span>
+      <span class="close-btn" onclick="toggleWindow('travel-window')">✕</span>
+    </div>
+    <div class="window-body">
+      <div style="font-size:11px;color:#90a4ae;margin-bottom:8px;">Warp directly to any realm you have already discovered.</div>
+      <div class="shop-items" id="travel-zone-list"></div>
+    </div>
+  </div>
+
   <!-- Skill Tree Window -->
   <div id="skill-window" class="window-modal">
     <div class="window-header">
@@ -406,6 +422,35 @@
 
   const minimapCanvas = document.getElementById('minimap-canvas');
   const minimapCtx = minimapCanvas ? minimapCanvas.getContext('2d') : null;
+
+  // Minimap click-to-travel: converts a click on the minimap into the same
+  // movement target as clicking the main world view, via the minimap's own
+  // padding/scale (mirrors worldToMinimap() inside renderMinimap() below).
+  // See vault/NAVIGATION_TELEPORT_REPORT.md.
+  if (minimapCanvas) {
+    minimapCanvas.style.cursor = 'pointer';
+    minimapCanvas.addEventListener('click', e => {
+      const rect = minimapCanvas.getBoundingClientRect();
+      const scaleX = minimapCanvas.width / rect.width;
+      const scaleY = minimapCanvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top) * scaleY;
+
+      const mapPaddingX = 14, mapPaddingY = 10;
+      const mapW = minimapCanvas.width - mapPaddingX * 2;
+      const mapH = minimapCanvas.height - mapPaddingY * 2;
+      const b = currentMapBounds;
+      const bW = Math.max(1, b.maxWx - b.minWx);
+      const bH = Math.max(1, b.maxWy - b.minWy);
+      const wx = b.minWx + ((mx - mapPaddingX) / mapW) * bW;
+      const wy = b.minWy + ((my - mapPaddingY) / mapH) * bH;
+
+      const dest = setMovementTarget(wx, wy);
+      pendingNpcTarget = null;
+      pendingCrystalTarget = null;
+      clickRipples.push({ wx: dest.wx, wy: dest.wy, radius: 4, alpha: 1.0 });
+    });
+  }
 
   // Sprites Container
   const sprites = {};
@@ -487,6 +532,7 @@
 
   let activeNpc = null;
   let pendingNpcTarget = null;
+  let pendingCrystalTarget = null; // env_crystal the player walked toward - see openCrystalDialog()
   let hasQuest = false;
   let questCompleted = false;
   const defeatedBosses = new Set();
@@ -1008,6 +1054,54 @@
   let currentMapSubRegions = [];
   let exitCooldownFrames = 0;
 
+  // ==========================================================
+  // Fast-Travel, Save-Crystal Binding & Visited-Zone Tracking
+  // (vault/NAVIGATION_TELEPORT_REPORT.md) — additive to the zone/exit
+  // system above; does not alter loadZoneMap/checkZoneExits behavior.
+  // ==========================================================
+  const VISITED_ZONES_KEY = 'zaggers_visited_zones';
+  const RESPAWN_BIND_KEY = 'zaggers_respawn_bind';
+  const ZONE_DISPLAY_NAMES = {
+    aethelgard: 'Aethelgard (Master Town)',
+    gatewatch: 'Gatewatch Commons',
+    meadows: 'Whispering Meadows',
+    sanctum: 'Sunken Sanctum',
+    spire: 'Obsidian Spire',
+    chasm: 'Glacial Chasm',
+    rootways: 'Umbral Rootways'
+  };
+
+  let visitedZones = new Set();
+  function loadVisitedZones() {
+    try {
+      const raw = localStorage.getItem(VISITED_ZONES_KEY);
+      if (raw) visitedZones = new Set(JSON.parse(raw));
+    } catch (e) { visitedZones = new Set(); }
+  }
+  function markZoneVisited(mapId) {
+    if (!mapId || visitedZones.has(mapId)) return;
+    visitedZones.add(mapId);
+    try { localStorage.setItem(VISITED_ZONES_KEY, JSON.stringify([...visitedZones])); } catch (e) {}
+  }
+
+  // The player's bound respawn/save point - { mapId, wx, wy, name } - set by
+  // interacting with any env_crystal prop or the Kafra "Save Position"
+  // option. Defaults to Aethelgard town center until bound. Persisted so it
+  // survives a page reload.
+  let respawnBinding = null;
+  function loadRespawnBinding() {
+    try {
+      const raw = localStorage.getItem(RESPAWN_BIND_KEY);
+      if (raw) respawnBinding = JSON.parse(raw);
+    } catch (e) { respawnBinding = null; }
+  }
+  function bindRespawnPoint(mapId, wx, wy, label) {
+    respawnBinding = { mapId, wx, wy, name: label || ZONE_DISPLAY_NAMES[mapId] || mapId };
+    try { localStorage.setItem(RESPAWN_BIND_KEY, JSON.stringify(respawnBinding)); } catch (e) {}
+  }
+  loadVisitedZones();
+  loadRespawnBinding();
+
   // Fetches a zone's map JSON (editor.html mapData schema) and swaps it in
   // as the live world. Mirrors loadCustomMapData() below but sources from
   // the maps/ registry instead of a user file upload, and also applies the
@@ -1040,6 +1134,8 @@
     currentMapBounds = mapData.bounds || { minWx: -28, maxWx: 28, minWy: -45, maxWy: 45 };
     currentMapExits = Array.isArray(mapData.exits) ? mapData.exits : [];
     currentMapSubRegions = Array.isArray(mapData.subRegions) ? mapData.subRegions : [];
+    markZoneVisited(currentMapId); // fast-travel list only offers realms actually reached (NAVIGATION_TELEPORT_REPORT.md)
+    playerPathQueue.length = 0; // a zone swap invalidates any in-flight A* route from the previous map
 
     const spawn = spawnOverride || mapData.spawn || { wx: 0, wy: 0 };
     player.wx = spawn.wx; player.wy = spawn.wy;
@@ -1067,6 +1163,172 @@
         return;
       }
     }
+  }
+
+  // ==========================================================
+  // Light Pathfinding — coarse grid A* + waypoint following
+  // (vault/NAVIGATION_TELEPORT_REPORT.md, MOVEMENT-TARGETING scope)
+  //
+  // The walkability grid is derived from currentMapBounds. If a
+  // `checkCollision(wx, wy)` function exists elsewhere in the engine
+  // (collision-detection is a sibling pass's ownership - not touched here),
+  // it is consulted as an additional "blocked" signal; this file defines no
+  // wall/door solidity rules of its own. Until such a hook exists, this
+  // degrades gracefully to the previous straight-line click-to-move via the
+  // hasLineOfSight() fast path below, while the stall-watchdog in the main
+  // render loop still guards against a route silently getting stuck.
+  // ==========================================================
+  const PATH_CELL = 1; // world units per grid cell - coarse is plenty for a 2.5D iso zone
+  const PATH_MAX_CELLS = 6000; // safety cap - a full zone is a few thousand cells at most
+
+  let playerPathQueue = []; // [{wx, wy}, ...] waypoints toward player.targetWx/Wy
+  let pathStallFrames = 0;
+  let pathStallLastDist = null;
+
+  function isWalkableCell(wx, wy) {
+    if (wx < currentMapBounds.minWx || wx > currentMapBounds.maxWx) return false;
+    if (wy < currentMapBounds.minWy || wy > currentMapBounds.maxWy) return false;
+    if (typeof checkCollision === 'function') {
+      try { if (checkCollision(wx, wy)) return false; } catch (e) { /* not our system - ignore */ }
+    }
+    return true;
+  }
+
+  function hasLineOfSight(x0, y0, x1, y1) {
+    const steps = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) / (PATH_CELL * 0.5)) || 1;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      if (!isWalkableCell(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)) return false;
+    }
+    return true;
+  }
+
+  // Cheap grid-based A* over currentMapBounds. Returns an ordered list of
+  // {wx, wy} waypoints (goal included) for the per-frame movement code to
+  // steer through. Whenever the direct line is already clear (the common
+  // case today, with no collision grid registered) it short-circuits to a
+  // single-waypoint "path" - i.e. today's straight-line behavior, unchanged.
+  function findPath(startWx, startWy, goalWx, goalWy) {
+    const goal = { wx: goalWx, wy: goalWy };
+    if (!isWalkableCell(goalWx, goalWy) || hasLineOfSight(startWx, startWy, goalWx, goalWy)) {
+      return [goal];
+    }
+
+    const minWx = Math.floor(currentMapBounds.minWx), maxWx = Math.ceil(currentMapBounds.maxWx);
+    const minWy = Math.floor(currentMapBounds.minWy), maxWy = Math.ceil(currentMapBounds.maxWy);
+    const w = maxWx - minWx + 1, h = maxWy - minWy + 1;
+    if (w <= 0 || h <= 0 || w * h > PATH_MAX_CELLS) return [goal];
+
+    const toIdx = (gx, gy) => gy * w + gx;
+    const startG = { x: Math.round(startWx) - minWx, y: Math.round(startWy) - minWy };
+    const goalG = { x: Math.round(goalWx) - minWx, y: Math.round(goalWy) - minWy };
+    if (startG.x < 0 || startG.x >= w || startG.y < 0 || startG.y >= h) return [goal];
+    if (goalG.x < 0 || goalG.x >= w || goalG.y < 0 || goalG.y >= h) return [goal];
+
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+    const gScore = new Float64Array(w * h).fill(Infinity);
+    const fScore = new Float64Array(w * h).fill(Infinity);
+    const cameFrom = new Int32Array(w * h).fill(-1);
+    const closed = new Uint8Array(w * h);
+    const heuristic = (x, y) => Math.hypot(goalG.x - x, goalG.y - y);
+
+    const startIdx = toIdx(startG.x, startG.y);
+    const goalIdx = toIdx(goalG.x, goalG.y);
+    gScore[startIdx] = 0;
+    fScore[startIdx] = heuristic(startG.x, startG.y);
+
+    // Plain array open-set (no binary heap) - zone grids here are small
+    // (a few thousand cells at most, computed once per click), so an O(n)
+    // per-pop scan is cheap and keeps this dependency-free.
+    const open = [startIdx];
+    let iterations = 0;
+
+    while (open.length > 0 && iterations++ < PATH_MAX_CELLS * 2) {
+      let bestI = 0;
+      for (let i = 1; i < open.length; i++) if (fScore[open[i]] < fScore[open[bestI]]) bestI = i;
+      const current = open[bestI];
+      if (current === goalIdx) break;
+      open.splice(bestI, 1);
+      closed[current] = 1;
+
+      const cx = current % w, cy = (current / w) | 0;
+      for (const [dx, dy] of dirs) {
+        const nx = cx + dx, ny = cy + dy;
+        if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+        const nIdx = toIdx(nx, ny);
+        if (closed[nIdx]) continue;
+        if (!isWalkableCell(nx + minWx, ny + minWy)) continue;
+        if (dx !== 0 && dy !== 0) {
+          // Disallow cutting a diagonal between two blocked orthogonal cells
+          if (!isWalkableCell(cx + dx + minWx, cy + minWy) || !isWalkableCell(cx + minWx, cy + dy + minWy)) continue;
+        }
+        const stepCost = (dx !== 0 && dy !== 0) ? Math.SQRT2 : 1;
+        const tentativeG = gScore[current] + stepCost;
+        if (tentativeG < gScore[nIdx]) {
+          cameFrom[nIdx] = current;
+          gScore[nIdx] = tentativeG;
+          fScore[nIdx] = tentativeG + heuristic(nx, ny);
+          if (!open.includes(nIdx)) open.push(nIdx);
+        }
+      }
+    }
+
+    if (cameFrom[goalIdx] === -1 && goalIdx !== startIdx) {
+      // Fully boxed in on the coarse grid - fall back to the direct target
+      // so the player still attempts to walk toward it instead of freezing.
+      return [goal];
+    }
+
+    // Reconstruct, then string-pull: collapse the raw per-cell path down to
+    // the minimal set of waypoints with clear line-of-sight between
+    // consecutive points, so movement stays smooth/diagonal instead of
+    // stair-stepping through every grid cell.
+    const rawCells = [];
+    let cur = goalIdx;
+    while (cur !== -1) {
+      rawCells.push(cur);
+      if (cur === startIdx) break;
+      cur = cameFrom[cur];
+    }
+    rawCells.reverse();
+    const rawPoints = rawCells.map(idx => ({ wx: (idx % w) + minWx, wy: ((idx / w) | 0) + minWy }));
+
+    const waypoints = [];
+    let anchor = { wx: startWx, wy: startWy };
+    let i = 1;
+    while (i < rawPoints.length) {
+      let farthest = i;
+      for (let j = i; j < rawPoints.length; j++) {
+        if (hasLineOfSight(anchor.wx, anchor.wy, rawPoints[j].wx, rawPoints[j].wy)) farthest = j;
+        else break;
+      }
+      waypoints.push(rawPoints[farthest]);
+      anchor = rawPoints[farthest];
+      i = farthest + 1;
+    }
+    if (waypoints.length === 0 || waypoints[waypoints.length - 1].wx !== goal.wx || waypoints[waypoints.length - 1].wy !== goal.wy) {
+      waypoints.push(goal);
+    }
+    return waypoints;
+  }
+
+  // Single entry point for "walk the player to (tx, ty)" - clamps to the
+  // loaded zone's bounds (preserves the ENGINE_INFRA_AUDIT.md §2.1 bounds
+  // fix), computes an A*-lite route, and resets the stall watchdog. Used by
+  // the mouse/touch click handlers, minimap clicks, and NPC/crystal walk-to.
+  function setMovementTarget(tx, ty) {
+    const clampedX = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, tx));
+    const clampedY = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, ty));
+    player.targetWx = clampedX;
+    player.targetWy = clampedY;
+    playerPathQueue = findPath(player.wx, player.wy, clampedX, clampedY);
+    pathStallFrames = 0;
+    pathStallLastDist = null;
+    return { wx: clampedX, wy: clampedY };
+  }
+
+  function recomputePlayerPath() {
+    playerPathQueue = findPath(player.wx, player.wy, player.targetWx, player.targetWy);
   }
 
   const floatingTexts = [];
@@ -1138,19 +1400,48 @@
           openNpcDialog(clickedNpc);
         } else {
           pendingNpcTarget = clickedNpc;
-          player.targetWx = clickedNpc.wx;
-          player.targetWy = clickedNpc.wy;
-          clickRipples.push({ wx: clickedNpc.wx, wy: clickedNpc.wy, radius: 4, alpha: 1.0 });
+          pendingCrystalTarget = null;
+          const dest = setMovementTarget(clickedNpc.wx, clickedNpc.wy);
+          clickRipples.push({ wx: dest.wx, wy: dest.wy, radius: 4, alpha: 1.0 });
+        }
+        return;
+      }
+
+      // Check if left-click hit a save/respawn crystal (env_crystal prop -
+      // see vault/NAVIGATION_TELEPORT_REPORT.md). Same hit-test shape as the
+      // NPC check above, sized to the prop's own sprite footprint.
+      let clickedCrystal = null;
+      envStructures.forEach(env => {
+        if (env.type !== 'env_crystal') return;
+        const eIso = worldToIso(env.wx, env.wy);
+        const halfW = ((env.width || 64) / 2) * cameraZoom;
+        const topH = (env.height || 96) * cameraZoom;
+        if (clickSx >= eIso.x - halfW && clickSx <= eIso.x + halfW &&
+            clickSy >= eIso.y - topH && clickSy <= eIso.y + 8 * cameraZoom) {
+          clickedCrystal = env;
+        }
+      });
+
+      if (clickedCrystal) {
+        const dist = Math.hypot(player.wx - clickedCrystal.wx, player.wy - clickedCrystal.wy);
+        if (dist <= 2.2) {
+          openCrystalDialog(clickedCrystal);
+        } else {
+          pendingCrystalTarget = clickedCrystal;
+          pendingNpcTarget = null;
+          const dest = setMovementTarget(clickedCrystal.wx, clickedCrystal.wy);
+          clickRipples.push({ wx: dest.wx, wy: dest.wy, radius: 4, alpha: 1.0 });
         }
         return;
       }
 
       // Clamp to the *loaded zone's* bounds, not a leftover hardcoded range
       // from the old single-map engine (bug fix - ENGINE_INFRA_AUDIT.md §2.1).
-      player.targetWx = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, worldPos.wx));
-      player.targetWy = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, worldPos.wy));
+      // setMovementTarget() also computes a light A*-lite route (see above).
+      const moveDest = setMovementTarget(worldPos.wx, worldPos.wy);
       pendingNpcTarget = null;
-      clickRipples.push({ wx: player.targetWx, wy: player.targetWy, radius: 4, alpha: 1.0 });
+      pendingCrystalTarget = null;
+      clickRipples.push({ wx: moveDest.wx, wy: moveDest.wy, radius: 4, alpha: 1.0 });
     } else if (e.button === 2) { // Right-click: Camera Rotation Drag
       isRightDragging = true;
       rightDragStartX = e.clientX;
@@ -1287,17 +1578,44 @@
         openNpcDialog(clickedNpc);
       } else {
         pendingNpcTarget = clickedNpc;
-        player.targetWx = clickedNpc.wx;
-        player.targetWy = clickedNpc.wy;
-        clickRipples.push({ wx: clickedNpc.wx, wy: clickedNpc.wy, radius: 4, alpha: 1.0 });
+        pendingCrystalTarget = null;
+        const dest = setMovementTarget(clickedNpc.wx, clickedNpc.wy);
+        clickRipples.push({ wx: dest.wx, wy: dest.wy, radius: 4, alpha: 1.0 });
       }
       return;
     }
 
-    player.targetWx = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, worldPos.wx));
-    player.targetWy = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, worldPos.wy));
+    // Save/respawn crystal tap - mirrors the mousedown handler's crystal
+    // hit-test (vault/NAVIGATION_TELEPORT_REPORT.md).
+    let clickedCrystal = null;
+    envStructures.forEach(env => {
+      if (env.type !== 'env_crystal') return;
+      const eIso = worldToIso(env.wx, env.wy);
+      const halfW = ((env.width || 64) / 2) * cameraZoom;
+      const topH = (env.height || 96) * cameraZoom;
+      if (clickSx >= eIso.x - halfW && clickSx <= eIso.x + halfW &&
+          clickSy >= eIso.y - topH && clickSy <= eIso.y + 8 * cameraZoom) {
+        clickedCrystal = env;
+      }
+    });
+
+    if (clickedCrystal) {
+      const dist = Math.hypot(player.wx - clickedCrystal.wx, player.wy - clickedCrystal.wy);
+      if (dist <= 2.2) {
+        openCrystalDialog(clickedCrystal);
+      } else {
+        pendingCrystalTarget = clickedCrystal;
+        pendingNpcTarget = null;
+        const dest = setMovementTarget(clickedCrystal.wx, clickedCrystal.wy);
+        clickRipples.push({ wx: dest.wx, wy: dest.wy, radius: 4, alpha: 1.0 });
+      }
+      return;
+    }
+
+    const moveDest = setMovementTarget(worldPos.wx, worldPos.wy);
     pendingNpcTarget = null;
-    clickRipples.push({ wx: player.targetWx, wy: player.targetWy, radius: 4, alpha: 1.0 });
+    pendingCrystalTarget = null;
+    clickRipples.push({ wx: moveDest.wx, wy: moveDest.wy, radius: 4, alpha: 1.0 });
   }
 
   // --- Touch gesture state ---
@@ -1474,6 +1792,120 @@
     activeNpc = null;
   }
 
+  // ==========================================================
+  // Save/Respawn Crystal interaction (env_crystal props - reuses the
+  // existing NPC dialog window/markup for visual consistency, per
+  // vault/NAVIGATION_TELEPORT_REPORT.md).
+  // ==========================================================
+  function openCrystalDialog(env) {
+    activeNpc = null;
+    const modal = document.getElementById('npc-dialog-window');
+    document.getElementById('npc-dialog-title').innerText = env.name || 'Aetherite Crystal';
+    document.getElementById('npc-dialog-speaker').innerText = 'Aetherite Save Crystal';
+    document.getElementById('npc-dialog-text').innerText = 'A pulsing shard of Aetherite. Bind it as your respawn point, or consult the Kestrel Consignment travel map to warp to a realm you have already discovered.';
+
+    const portraitCanvas = document.getElementById('npc-portrait-canvas');
+    if (portraitCanvas) {
+      const pctx = portraitCanvas.getContext('2d');
+      pctx.imageSmoothingEnabled = false;
+      pctx.clearRect(0, 0, 64, 64);
+      const img = sprites['env_crystal'];
+      if (img && img.complete && img.naturalWidth > 0) {
+        pctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, 64, 64);
+      }
+    }
+
+    const optionsContainer = document.getElementById('npc-dialog-options');
+    optionsContainer.innerHTML = '';
+    const isBound = !!(respawnBinding && respawnBinding.mapId === currentMapId &&
+      Math.hypot(respawnBinding.wx - env.wx, respawnBinding.wy - env.wy) < 0.5);
+    const opts = [
+      { text: isBound ? '💠 Respawn Point Already Bound Here' : '💠 Bind Respawn Point Here', action: 'crystal_bind', disabled: isBound },
+      { text: '🗺️ Open Travel Map', action: 'crystal_travel' },
+      { text: '❌ Cancel', action: 'close' }
+    ];
+    opts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'npc-option-btn';
+      btn.innerHTML = opt.text;
+      if (opt.disabled) btn.disabled = true;
+      btn.onclick = () => handleCrystalOption(opt.action, env);
+      optionsContainer.appendChild(btn);
+    });
+
+    modal.style.display = 'block';
+  }
+
+  function handleCrystalOption(action, env) {
+    const chatBox = document.getElementById('chat-messages');
+    if (action === 'close') {
+      closeNpcDialog();
+      return;
+    }
+    if (action === 'crystal_bind') {
+      bindRespawnPoint(currentMapId, env.wx, env.wy, env.name || currentMapName);
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '💠 RESPAWN BOUND!', color: '#4fc3f7', life: 50 });
+      if (chatBox) {
+        chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Crystal]:</span> Respawn point bound to ${env.name || currentMapName}.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+      closeNpcDialog();
+    } else if (action === 'crystal_travel') {
+      closeNpcDialog();
+      openTravelWindow();
+    }
+  }
+
+  // ==========================================================
+  // Fast-Travel Window (Kestrel Consignment / Kafra teleport service) -
+  // lists zones the player has actually visited (visitedZones, persisted to
+  // localStorage) and warps to each zone's bound save crystal if one exists
+  // there, otherwise its default spawn point.
+  // ==========================================================
+  function openTravelWindow() {
+    const list = document.getElementById('travel-zone-list');
+    if (list) {
+      list.innerHTML = '';
+      const zoneIds = Object.keys(MAP_REGISTRY).filter(id => visitedZones.has(id));
+      if (zoneIds.length === 0) {
+        list.innerHTML = '<div style="font-size:12px;color:#90a4ae;padding:8px;">No discovered realms yet — explore beyond Aethelgard\'s gates to unlock fast travel.</div>';
+      } else {
+        zoneIds.forEach(id => {
+          const row = document.createElement('div');
+          row.className = 'shop-item';
+          const isHere = id === currentMapId;
+          const displayName = ZONE_DISPLAY_NAMES[id] || id;
+          row.innerHTML = `<span>${displayName}${isHere ? ' <em style="color:#66bb6a;font-style:normal;">(here)</em>' : ''}</span>` +
+            (isHere ? '' : `<button class="buy-btn" data-zone="${id}">Warp</button>`);
+          list.appendChild(row);
+        });
+        list.querySelectorAll('button[data-zone]').forEach(btn => {
+          btn.onclick = () => travelToZone(btn.getAttribute('data-zone'));
+        });
+      }
+    }
+    const win = document.getElementById('travel-window');
+    if (win) win.style.display = 'block';
+  }
+
+  function travelToZone(mapId) {
+    if (!MAP_REGISTRY[mapId]) return;
+    const win = document.getElementById('travel-window');
+    if (win) win.style.display = 'none';
+    const chatBox = document.getElementById('chat-messages');
+    const displayName = ZONE_DISPLAY_NAMES[mapId] || mapId;
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Kestrel Consignment]:</span> Warping you to ${displayName}...</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🌀 WARP!', color: '#4fc3f7', life: 50 });
+    if (respawnBinding && respawnBinding.mapId === mapId) {
+      loadZoneMap(mapId, { wx: respawnBinding.wx, wy: respawnBinding.wy });
+    } else {
+      loadZoneMap(mapId);
+    }
+  }
+
   function handleNpcOption(action, npc) {
     const chatBox = document.getElementById('chat-messages');
     if (action === 'close') {
@@ -1485,16 +1917,14 @@
       player.hp = player.maxHp;
       player.sp = player.maxSp;
       updateHUD();
+      bindRespawnPoint(currentMapId, npc.wx, npc.wy, currentMapName);
       floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '★ SAVED & HEALED! ★', color: '#81c784', life: 50 });
-      chatBox.innerHTML += `<div><span style="color: #81c784;">[Kafra]:</span> Save point recorded at Prontera Town Center! HP & SP fully restored.</div>`;
+      chatBox.innerHTML += `<div><span style="color: #81c784;">[Kafra]:</span> Save point recorded at ${currentMapName}! HP & SP fully restored.</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
       document.getElementById('npc-dialog-text').innerText = 'Your save point has been recorded and your HP/SP fully restored! Have a safe journey, adventurer!';
     } else if (action === 'kafra_teleport') {
-      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🌀 TELEPORT!', color: '#4fc3f7', life: 50 });
-      chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Kafra]:</span> Teleported to Whispering Meadows!</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
       closeNpcDialog();
-      loadZoneMap('meadows');
+      openTravelWindow();
     } else if (action === 'open_shop') {
       closeNpcDialog();
       populateShop();
@@ -2610,8 +3040,14 @@
     const modal = document.getElementById('player-death-modal');
     if (modal) modal.style.display = 'none';
 
-    // Teleport back to Aethelgard Town Center (0, 0)
-    loadZoneMap('aethelgard', { wx: 0, wy: 0 });
+    // Respawn at the player's bound save crystal if one has been set
+    // (see bindRespawnPoint() / vault/NAVIGATION_TELEPORT_REPORT.md),
+    // otherwise fall back to Aethelgard Town Center (0, 0) as before.
+    if (respawnBinding && MAP_REGISTRY[respawnBinding.mapId]) {
+      loadZoneMap(respawnBinding.mapId, { wx: respawnBinding.wx, wy: respawnBinding.wy });
+    } else {
+      loadZoneMap('aethelgard', { wx: 0, wy: 0 });
+    }
   }
 
   function reviveOnSpot() {
@@ -2884,6 +3320,7 @@
     if (isPlayerDead) {
       player.targetWx = player.wx;
       player.targetWy = player.wy;
+      playerPathQueue.length = 0;
     } else {
 
     if (keys['KeyA'] || keys['ArrowLeft']) { drx -= 1; dry += 1; screenDir = 1; }
@@ -2902,18 +3339,55 @@
       player.wy += (dwy / len) * player.speed;
       player.targetWx = player.wx;
       player.targetWy = player.wy;
-      
+      playerPathQueue.length = 0; // manual WASD movement cancels any in-flight click-to-move route
+
       if (screenDir !== -1) player.dir = screenDir;
       player.frame = Math.floor(frameCount / 8) % 2 * 2;
     } else {
-      const dwx_t = player.targetWx - player.wx;
-      const dwy_t = player.targetWy - player.wy;
+      // Light pathfinding: steer toward the next queued A*-lite waypoint
+      // (if any) instead of always the raw click target directly, so a
+      // route can bend around anything findPath() marked unwalkable. When
+      // no path was queued (the common straight-line case) this behaves
+      // exactly as before. See vault/NAVIGATION_TELEPORT_REPORT.md.
+      const nextWaypoint = playerPathQueue.length > 0 ? playerPathQueue[0] : null;
+      const stepTx = nextWaypoint ? nextWaypoint.wx : player.targetWx;
+      const stepTy = nextWaypoint ? nextWaypoint.wy : player.targetWy;
+      const dwx_t = stepTx - player.wx;
+      const dwy_t = stepTy - player.wy;
       const dist = Math.hypot(dwx_t, dwy_t);
+
+      // Reached the queued waypoint - drop it so next frame steers toward
+      // the following one (or the final target once the queue is empty).
+      if (nextWaypoint && dist <= 0.18) {
+        playerPathQueue.shift();
+      }
+
+      // Stall watchdog: if overall progress toward the final target hasn't
+      // meaningfully changed for ~45 frames (stuck against something),
+      // recompute a fresh route from the current position rather than
+      // looping forever on a bad waypoint.
+      const overallDist = Math.hypot(player.targetWx - player.wx, player.targetWy - player.wy);
+      if (overallDist > 0.15) {
+        if (pathStallLastDist !== null && Math.abs(pathStallLastDist - overallDist) < 0.015) {
+          pathStallFrames++;
+          if (pathStallFrames > 45) {
+            recomputePlayerPath();
+            pathStallFrames = 0;
+          }
+        } else {
+          pathStallFrames = 0;
+        }
+        pathStallLastDist = overallDist;
+      } else {
+        pathStallFrames = 0;
+        pathStallLastDist = null;
+      }
+
       if (dist > 0.1) {
         const angle = Math.atan2(dwy_t, dwx_t);
         player.wx += Math.cos(angle) * player.speed;
         player.wy += Math.sin(angle) * player.speed;
-        
+
         let drx_t = dwx_t, dry_t = dwy_t;
         if (cameraAngle === 1) { drx_t = -dwy_t; dry_t = dwx_t; }
         else if (cameraAngle === 2) { drx_t = -dwx_t; dry_t = -dwy_t; }
@@ -2924,7 +3398,7 @@
         else if (drx_t > 0 && Math.abs(drx_t) >= Math.abs(dry_t)) player.dir = 2;
         else if (dry_t < 0 && Math.abs(dry_t) >= Math.abs(drx_t)) player.dir = 3;
         player.frame = walkFrame(frameCount); // 4-phase walk cycle (smoother than the old 2-frame snap)
-      } else {
+      } else if (!nextWaypoint) {
         player.frame = 1;
       }
     }
@@ -2943,6 +3417,16 @@
       if (dist <= 2.2) {
         openNpcDialog(pendingNpcTarget);
         pendingNpcTarget = null;
+      }
+    }
+
+    // Check pending save-crystal interaction proximity (mirrors the NPC
+    // check above - vault/NAVIGATION_TELEPORT_REPORT.md)
+    if (pendingCrystalTarget) {
+      const distC = Math.hypot(player.wx - pendingCrystalTarget.wx, player.wy - pendingCrystalTarget.wy);
+      if (distC <= 2.2) {
+        openCrystalDialog(pendingCrystalTarget);
+        pendingCrystalTarget = null;
       }
     }
     }
