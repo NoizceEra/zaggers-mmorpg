@@ -366,11 +366,66 @@
     wx: 0, wy: 0, targetWx: 0, targetWy: 0,
     speed: 0.08, dir: 0, frame: 1, isAttacking: false, attackTimer: 0,
     hp: 180, maxHp: 180, sp: 50, maxSp: 50, zeny: 500,
-    str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10, class: 'hero_knight'
+    str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10, class: 'hero_knight',
+    hitFlashTimer: 0 // frames remaining on the white damage-flash (see ENGINE_INFRA_AUDIT.md animation pass)
   };
+
+  // ==========================================
+  // Animation / Juice Tuning Constants
+  // ==========================================
+  // Walk cycle: 4-phase (walk0 -> idle -> walk1 -> idle) instead of the old
+  // 2-phase snap (walk0/walk1 only), for a smoother, more readable stride.
+  const WALK_FRAME_INTERVAL = 7;      // frames held per walk-cycle phase
+  const WALK_CYCLE = [0, 1, 2, 1];    // sprite-sheet column indices (Walk0/Idle/Walk1/Idle)
+  function walkFrame(counter) {
+    return WALK_CYCLE[Math.floor(counter / WALK_FRAME_INTERVAL) % WALK_CYCLE.length];
+  }
+
+  // Attack: short windup (weapon pulled back) then an impact frame with a
+  // brief scale-pop + swing-arc overlay. Damage is still resolved instantly
+  // on trigger (unchanged combat timing/balance) - this only changes what
+  // gets drawn during the existing attackTimer window.
+  const ATTACK_TOTAL_FRAMES = 20;
+  const ATTACK_WINDUP_FRAMES = 7;
+
+  // Hit-flash duration (frames) for both monsters and the player.
+  const HIT_FLASH_DURATION = 9;
+
+  // Monster death: fade + sink instead of an instant vanish.
+  const DEATH_FADE_DURATION = 34;
+
+  // Deterministic per-position phase (not real randomness) so that multiple
+  // ambient effects (fire glow, water shimmer) at different world positions
+  // don't pulse in perfect lockstep - used by the ambient-animation touches
+  // below (torch/campfire/lava glow, water shimmer) since none of that art
+  // ships as an animated sprite sheet (see ART_PIPELINE_REPORT.md / §2.3).
+  function pseudoPhase(wx, wy) {
+    const v = Math.sin(wx * 12.9898 + wy * 78.233) * 43758.5453;
+    return (v - Math.floor(v)) * Math.PI * 2;
+  }
 
   // Monsters for the CURRENTLY LOADED zone - populated by loadZoneMap()
   const monsters = [];
+
+  // Seeds the runtime-only fields every monster needs for AI/animation that
+  // are NOT part of the map-data schema (web/maps/*.json only carries
+  // id/name/sprite/hp/maxHp/speed/isAggro/wx/wy). Without this, m.targetWx
+  // stays undefined forever and passive monsters never wander - see
+  // ENGINE_INFRA_AUDIT.md §2.2. Called once per monster right after a zone's
+  // monster list is loaded, and again on respawn to reset death/flash state.
+  function initMonsterState(m) {
+    if (m.homeWx === undefined) m.homeWx = m.wx;
+    if (m.homeWy === undefined) m.homeWy = m.wy;
+    if (m.targetWx === undefined) m.targetWx = m.wx;
+    if (m.targetWy === undefined) m.targetWy = m.wy;
+    if (m.dir === undefined) m.dir = 0;
+    if (m.frame === undefined) m.frame = 1;
+    if (m.attackCooldown === undefined) m.attackCooldown = 0;
+    if (m.wanderPhaseOffset === undefined) m.wanderPhaseOffset = Math.floor(Math.random() * 100);
+    m.hitFlashTimer = 0;
+    m.dying = false;
+    m.deathTimer = 0;
+  }
 
   // ==========================================
   // Zone / Map Loading (WORLD_MAP_EXPANSION.md)
@@ -421,6 +476,7 @@
     if (Array.isArray(mapData.npcs)) npcs.push(...mapData.npcs);
     monsters.length = 0;
     if (Array.isArray(mapData.monsters)) monsters.push(...mapData.monsters);
+    monsters.forEach(initMonsterState); // seed AI/animation runtime fields - see ENGINE_INFRA_AUDIT.md §2.2
 
     currentMapId = mapId || mapData.id || null;
     currentMapName = mapData.name || currentMapId || 'Unknown Zone';
@@ -524,8 +580,10 @@
         return;
       }
 
-      player.targetWx = Math.max(-15, Math.min(15, worldPos.wx));
-      player.targetWy = Math.max(-45, Math.min(45, worldPos.wy));
+      // Clamp to the *loaded zone's* bounds, not a leftover hardcoded range
+      // from the old single-map engine (bug fix - ENGINE_INFRA_AUDIT.md §2.1).
+      player.targetWx = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, worldPos.wx));
+      player.targetWy = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, worldPos.wy));
       pendingNpcTarget = null;
       clickRipples.push({ wx: player.targetWx, wy: player.targetWy, radius: 4, alpha: 1.0 });
     } else if (e.button === 2) { // Right-click: Camera Rotation Drag
@@ -591,20 +649,29 @@
   function triggerAttack() {
     if (player.isAttacking) return;
     player.isAttacking = true;
-    player.attackTimer = 18;
+    player.attackTimer = ATTACK_TOTAL_FRAMES;
 
     monsters.forEach(m => {
       const dist = Math.hypot(m.wx - player.wx, m.wy - player.wy);
       if (dist < 2.5 && m.hp > 0) {
         const dmg = Math.floor(22 + player.str * 1.6 + Math.random() * 12);
         m.hp = Math.max(0, m.hp - dmg);
+        m.hitFlashTimer = HIT_FLASH_DURATION; // white damage-flash, see render()
         floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color: (dmg > 30 ? '#ffd54f' : '#ff5252'), life: 40 });
         if (m.hp === 0) {
           const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
           player.zeny += (isBoss ? 500 : 50);
           if (isBoss) defeatedBosses.add(m.id);
           updateHUD();
-          setTimeout(() => { m.hp = m.maxHp; }, 5000);
+          // Death: fade + sink instead of an instant vanish (ENGINE_INFRA_AUDIT.md §2.4).
+          m.dying = true;
+          m.deathTimer = DEATH_FADE_DURATION;
+          setTimeout(() => {
+            m.hp = m.maxHp;
+            m.dying = false;
+            m.deathTimer = 0;
+            m.hitFlashTimer = 0;
+          }, 5000);
         }
       }
     });
@@ -821,6 +888,7 @@
     if (Array.isArray(mapData.monsters)) {
       monsters.length = 0;
       monsters.push(...mapData.monsters);
+      monsters.forEach(initMonsterState); // see ENGINE_INFRA_AUDIT.md §2.2
     }
     // Additive Phase 3 fields (WORLD_MAP_EXPANSION.md) - safe no-ops for
     // older/plain custom maps that don't carry them.
@@ -1111,6 +1179,27 @@
     const tileImg = sprites[tileKey];
     if (tileImg && tileImg.complete && tileImg.naturalWidth > 0) {
       ctx.drawImage(tileImg, 0, 0, 128, 64, screenX - tw / 2, screenY - th / 2, tw, th);
+
+      // Cheap ambient shimmer for water-like tiles: no animated sprite sheet
+      // exists for these (single static 128x64 frame - ART_PIPELINE_REPORT.md),
+      // so instead of new frames this overlays a translucent diamond
+      // highlight whose alpha drifts per-tile (via pseudoPhase) so the
+      // shimmer looks like it travels across the water rather than pulsing
+      // in lockstep everywhere at once.
+      if (tileKey.includes('water') || tileKey.includes('flooded')) {
+        const shimmer = 0.08 + 0.07 * Math.sin(frameCount * 0.06 + pseudoPhase(wx, wy));
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, shimmer);
+        ctx.fillStyle = '#cfe9ff';
+        ctx.beginPath();
+        ctx.moveTo(screenX, screenY - th / 2);
+        ctx.lineTo(screenX + tw / 2, screenY);
+        ctx.lineTo(screenX, screenY + th / 2);
+        ctx.lineTo(screenX - tw / 2, screenY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
     } else {
       ctx.beginPath();
       ctx.moveTo(screenX, screenY - th / 2);
@@ -1303,7 +1392,7 @@
         else if (drx_t < 0 && Math.abs(drx_t) >= Math.abs(dry_t)) player.dir = 1;
         else if (drx_t > 0 && Math.abs(drx_t) >= Math.abs(dry_t)) player.dir = 2;
         else if (dry_t < 0 && Math.abs(dry_t) >= Math.abs(drx_t)) player.dir = 3;
-        player.frame = Math.floor(frameCount / 8) % 2 * 2;
+        player.frame = walkFrame(frameCount); // 4-phase walk cycle (smoother than the old 2-frame snap)
       } else {
         player.frame = 1;
       }
@@ -1327,15 +1416,27 @@
     }
 
     let colIndex = player.frame;
+    // 0..1 elapsed fraction of the attack window, used below to draw a
+    // windup squash + impact scale-pop + swing arc without touching the
+    // (unchanged) instant hit-resolution in triggerAttack(). -1 = not attacking.
+    let playerAttackProgress = -1;
     if (player.isAttacking) {
       player.attackTimer--;
       colIndex = 3;
+      playerAttackProgress = 1 - (player.attackTimer / ATTACK_TOTAL_FRAMES);
       if (player.attackTimer <= 0) player.isAttacking = false;
     }
+    if (player.hitFlashTimer > 0) player.hitFlashTimer--;
 
     // 3. Update Monster AI & Movement (Wandering & Aggro Pursuit)
     monsters.forEach(m => {
-      if (m.hp <= 0) return;
+      if (m.hitFlashTimer > 0) m.hitFlashTimer--;
+
+      if (m.hp <= 0) {
+        // Death fade/sink countdown (ENGINE_INFRA_AUDIT.md §2.4) - no AI/movement while dying.
+        if (m.dying && m.deathTimer > 0) m.deathTimer--;
+        return;
+      }
 
       if (m.attackCooldown > 0) m.attackCooldown--;
 
@@ -1352,6 +1453,7 @@
           m.frame = 3; // Attack frame
           const dmg = Math.floor(8 + Math.random() * 8);
           player.hp = Math.max(0, player.hp - dmg);
+          player.hitFlashTimer = HIT_FLASH_DURATION; // white damage-flash, see render()
           floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 20, text: `-${dmg}`, color: '#ff5252', life: 40 });
           updateHUD();
         }
@@ -1388,7 +1490,7 @@
         else if (drx_m > 0 && Math.abs(drx_m) >= Math.abs(dry_m)) m.dir = 2; // Right
         else if (dry_m < 0 && Math.abs(dry_m) >= Math.abs(drx_m)) m.dir = 3; // Up
 
-        m.frame = (Math.floor(frameCount / 8) % 2 === 0) ? 0 : 2; // Walk0 / Walk1
+        m.frame = walkFrame(frameCount + m.wanderPhaseOffset); // 4-phase walk cycle, phase-offset per monster so they don't step in lockstep
       } else if (m.attackCooldown <= 40) {
         m.frame = 1; // Idle frame
       }
@@ -1434,9 +1536,9 @@
       }
     });
 
-    // Add Monsters
+    // Add Monsters (alive, or still fading out from a recent death - §2.4)
     monsters.forEach(m => {
-      if (m.hp > 0) {
+      if (m.hp > 0 || (m.dying && m.deathTimer > 0)) {
         const mIso = worldToIso(m.wx, m.wy);
         if (mIso.x >= -60 && mIso.x <= canvas.width + 60 && mIso.y >= -60 && mIso.y <= canvas.height + 60) {
           drawList.push({
@@ -1491,7 +1593,44 @@
         if (playerImg && playerImg.complete && playerImg.naturalWidth > 0) {
           const sx = e.colIndex * 64;
           const sy = e.dir * 64;
-          ctx.drawImage(playerImg, sx, sy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - 52 * cameraZoom, sw, sh);
+
+          // Attack windup/impact: brief squash on windup, then a quick
+          // outward pop on impact - purely visual, hit-resolution timing in
+          // triggerAttack() is unchanged (ENGINE_INFRA_AUDIT.md animation pass).
+          let atkScale = 1;
+          if (playerAttackProgress >= 0) {
+            const windupFrac = ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES;
+            if (playerAttackProgress < windupFrac) {
+              atkScale = 1 - 0.08 * (playerAttackProgress / windupFrac); // pulled-back squash
+            } else {
+              const impactFrac = (playerAttackProgress - windupFrac) / (1 - windupFrac);
+              atkScale = 1 + 0.18 * Math.max(0, 1 - impactFrac * 3); // fast-decaying pop
+            }
+          }
+
+          const dw = sw * atkScale, dh = sh * atkScale;
+          const dx = e.isoX - dw / 2;
+          const dy = e.isoY - 52 * cameraZoom - (dh - sh);
+
+          if (player.hitFlashTimer > 0) ctx.filter = 'brightness(2.4) saturate(0.3)';
+          ctx.drawImage(playerImg, sx, sy, 64, 64, dx, dy, dw, dh);
+          if (player.hitFlashTimer > 0) ctx.filter = 'none';
+
+          // Weapon swing arc through the impact half of the attack window.
+          if (playerAttackProgress >= ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES) {
+            const windupFrac = ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES;
+            const impactFrac = (playerAttackProgress - windupFrac) / (1 - windupFrac);
+            if (impactFrac < 0.6) {
+              ctx.save();
+              ctx.globalAlpha = 0.55 * (1 - impactFrac / 0.6);
+              ctx.strokeStyle = '#e8f4ff';
+              ctx.lineWidth = 3 * cameraZoom;
+              ctx.beginPath();
+              ctx.arc(e.isoX, e.isoY - 28 * cameraZoom, 22 * cameraZoom, Math.PI * 0.15, Math.PI * 0.85);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
         }
       } else if (e.type === 'npc') {
         const npc = e.npc;
@@ -1531,31 +1670,42 @@
       } else if (e.type === 'monster') {
         const m = e.monster;
         const mImg = sprites[m.sprite];
+
+        // Death fade + sink instead of an instant vanish (ENGINE_INFRA_AUDIT.md §2.4).
+        const deathAlpha = (m.dying) ? Math.max(0, m.deathTimer / DEATH_FADE_DURATION) : 1;
+        const deathSinkY = (m.dying) ? (1 - deathAlpha) * 14 * cameraZoom : 0;
+
         if (mImg && mImg.complete && mImg.naturalWidth > 0) {
           let bounceY = 0;
-          if (m.sprite === 'slime_green_ff') {
+          if (m.sprite === 'slime_green_ff' && !m.dying) {
             bounceY = Math.abs(Math.sin(frameCount * 0.15)) * 4 * cameraZoom;
           }
 
           const msx = m.frame * 64;
           const msy = m.dir * 64;
-          ctx.drawImage(mImg, msx, msy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - (52 * cameraZoom + bounceY), sw, sh);
+          ctx.save();
+          ctx.globalAlpha = deathAlpha;
+          if (m.hitFlashTimer > 0) ctx.filter = 'brightness(2.4) saturate(0.3)';
+          ctx.drawImage(mImg, msx, msy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - (52 * cameraZoom + bounceY) + deathSinkY, sw, sh);
+          ctx.restore();
         }
 
-        // HP bar & Name above monster
-        const barW = 40 * cameraZoom;
-        const barH = 5 * cameraZoom;
-        const barY = e.isoY - 58 * cameraZoom;
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(e.isoX - barW / 2, barY, barW, barH);
-        const mIsBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
-        ctx.fillStyle = (mIsBoss ? '#ff1744' : '#ff5252');
-        ctx.fillRect(e.isoX - barW / 2, barY, (m.hp / m.maxHp) * barW, barH);
+        // HP bar & Name above monster - hidden once it's fading out (hp is already 0)
+        if (!m.dying) {
+          const barW = 40 * cameraZoom;
+          const barH = 5 * cameraZoom;
+          const barY = e.isoY - 58 * cameraZoom;
+          ctx.fillStyle = 'rgba(0,0,0,0.7)';
+          ctx.fillRect(e.isoX - barW / 2, barY, barW, barH);
+          const mIsBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
+          ctx.fillStyle = (mIsBoss ? '#ff1744' : '#ff5252');
+          ctx.fillRect(e.isoX - barW / 2, barY, (m.hp / m.maxHp) * barW, barH);
 
-        ctx.fillStyle = (mIsBoss ? '#ff8a80' : '#fff');
-        ctx.font = `${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
-        ctx.textAlign = 'center';
-        ctx.fillText(m.name, e.isoX, barY - 4);
+          ctx.fillStyle = (mIsBoss ? '#ff8a80' : '#fff');
+          ctx.font = `${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
+          ctx.textAlign = 'center';
+          ctx.fillText(m.name, e.isoX, barY - 4);
+        }
       } else if (e.type === 'env') {
         const env = e.env;
         const envImg = sprites[env.type];
@@ -1564,7 +1714,32 @@
           const esh = env.height * cameraZoom;
           const renderX = e.isoX - (env.anchorX * cameraZoom);
           const renderY = e.isoY - (env.anchorY * cameraZoom);
-          
+
+          // Ambient flicker glow for props marked animated:true whose art is
+          // a single static frame (campfire/lava - see ART_PIPELINE_REPORT.md
+          // §3, ENGINE_INFRA_AUDIT.md §2.3) rather than a 4-frame sheet like
+          // the torch brazier. Drawn additively behind the sprite so the
+          // "animated" flag does something visible without needing new art.
+          if (env.animated && (env.type === 'env_campfire' || env.type === 'env_lava_channel')) {
+            const phase = pseudoPhase(env.wx, env.wy);
+            const flicker = 0.55 + 0.35 * Math.sin(frameCount * 0.18 + phase) + 0.12 * Math.sin(frameCount * 0.5 + phase * 2.3);
+            const glowAlpha = Math.max(0.15, Math.min(0.85, flicker));
+            const isLava = env.type === 'env_lava_channel';
+            const glowRadius = (isLava ? 30 : 22) * cameraZoom;
+            const glowCx = e.isoX, glowCy = e.isoY - 6 * cameraZoom;
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            const grad = ctx.createRadialGradient(glowCx, glowCy, 0, glowCx, glowCy, glowRadius);
+            const rgb = isLava ? '255,110,40' : '255,170,60';
+            grad.addColorStop(0, `rgba(${rgb},${glowAlpha})`);
+            grad.addColorStop(1, `rgba(${rgb},0)`);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(glowCx, glowCy, glowRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
           if (env.animated && env.type === 'env_torch_brazier') {
             const animFrame = Math.floor(frameCount / 8) % 4;
             const sx = animFrame * 64;
