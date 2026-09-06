@@ -501,6 +501,21 @@
           </div>
         </div>
 
+        <!-- World Map Expansion (Phase 3) - loads the live maps/*.json zone
+             files this editor's schema exports, see vault/WORLD_BUILD_REPORT.md -->
+        <div class="control-group">
+          <div class="control-label">Load World Zone (maps/*.json)</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button class="btn" onclick="loadWorldZone('aethelgard')">🏛 Aethelgard</button>
+            <button class="btn" onclick="loadWorldZone('gatewatch')">🚧 Gatewatch</button>
+            <button class="btn" onclick="loadWorldZone('meadows')">🌾 Meadows</button>
+            <button class="btn" onclick="loadWorldZone('sanctum')">🌊 Sanctum</button>
+            <button class="btn" onclick="loadWorldZone('spire')">🌋 Spire (stub)</button>
+            <button class="btn" onclick="loadWorldZone('chasm')">❄️ Chasm (stub)</button>
+            <button class="btn" onclick="loadWorldZone('rootways')">🕳️ Rootways (stub)</button>
+          </div>
+        </div>
+
         <!-- Inspector Properties Panel -->
         <div class="control-group" id="inspector-panel">
           <div class="control-label" id="inspector-title">No Selection</div>
@@ -551,7 +566,27 @@
       { key: 'tile_dungeon_slate', name: 'Dungeon Slate', category: 'dungeon' },
       { key: 'tile_dungeon_obsidian', name: 'Obsidian Slate', category: 'dungeon' },
       { key: 'tile_dungeon_lava', name: 'Lava Tile', category: 'dungeon' },
-      { key: 'tile_dungeon_rune', name: 'Rune Circle', category: 'dungeon' }
+      { key: 'tile_dungeon_rune', name: 'Rune Circle', category: 'dungeon' },
+      // World Map Expansion (Phase 3) tiles - see vault/ASSET_MANIFEST.md Task D (some pending art generation)
+      { key: 'tile_meadow_reed', name: 'Meadow Reed', category: 'meadow' },
+      { key: 'tile_meadow_mud', name: 'Meadow Mud', category: 'meadow' },
+      { key: 'tile_meadow_path', name: 'Meadow Path', category: 'meadow' },
+      { key: 'tile_grove_moss', name: 'Grove Moss', category: 'meadow' },
+      { key: 'tile_sanctum_flooded', name: 'Sanctum Flooded', category: 'dungeon' },
+      { key: 'tile_sanctum_marble', name: 'Sanctum Marble', category: 'dungeon' },
+      { key: 'tile_sanctum_algae', name: 'Sanctum Algae', category: 'dungeon' },
+      { key: 'tile_sanctum_glass', name: 'Sanctum Glass', category: 'dungeon' },
+      { key: 'tile_spire_ash', name: 'Spire Ash', category: 'dungeon' },
+      { key: 'tile_spire_emberglass', name: 'Spire Emberglass', category: 'dungeon' },
+      { key: 'tile_spire_basalt', name: 'Spire Basalt', category: 'dungeon' },
+      { key: 'tile_ice_packed', name: 'Packed Snow', category: 'ice' },
+      { key: 'tile_ice_blue', name: 'Glacier Ice', category: 'ice' },
+      { key: 'tile_ice_crevasse', name: 'Crevasse Edge', category: 'ice' },
+      { key: 'tile_ice_mirror', name: 'Mirror Ice', category: 'ice' },
+      { key: 'tile_root_bark', name: 'Root Bark', category: 'root' },
+      { key: 'tile_root_bonemeal', name: 'Bonemeal Soil', category: 'root' },
+      { key: 'tile_root_sap', name: 'Amber Sap Pool', category: 'root' },
+      { key: 'tile_root_terrace', name: 'Sanguine Terrace Stone', category: 'root' }
     ];
 
     const ENV_PROPS = [
@@ -564,7 +599,46 @@
       { type: 'env_rock', name: 'Rock', width: 64, height: 64, anchorX: 32, anchorY: 48 },
       { type: 'env_crystal', name: 'Save Crystal', width: 64, height: 96, anchorX: 32, anchorY: 82 },
       { type: 'env_dungeon_pillar', name: 'Dungeon Pillar', width: 64, height: 128, anchorX: 32, anchorY: 116 },
-      { type: 'env_torch_brazier', name: 'Torch Brazier', width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true }
+      { type: 'env_torch_brazier', name: 'Torch Brazier', width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
+      // World Map Expansion (Phase 3) props - see vault/ASSET_MANIFEST.md Task E (some pending art generation)
+      { type: 'env_obelisk_aetherite', name: 'Aetherite Obelisk', width: 96, height: 192, anchorX: 48, anchorY: 176 },
+      { type: 'env_notice_board', name: 'Notice Board', width: 64, height: 64, anchorX: 32, anchorY: 52 },
+      { type: 'env_awning_stall', name: 'Awning Stall', width: 96, height: 96, anchorX: 48, anchorY: 64 },
+      { type: 'env_crate_stack_tall', name: 'Tall Crate Stack', width: 64, height: 96, anchorX: 32, anchorY: 82 },
+      { type: 'env_forge_anvil', name: 'Forge Anvil', width: 64, height: 64, anchorX: 32, anchorY: 50 },
+      { type: 'env_guild_banner', name: 'Guild Banner', width: 64, height: 128, anchorX: 32, anchorY: 116 },
+      { type: 'env_chimney_stack', name: 'Chimney Stack', width: 64, height: 160, anchorX: 32, anchorY: 148 },
+      { type: 'env_temple_pillar', name: 'Temple Pillar', width: 64, height: 160, anchorX: 32, anchorY: 148 },
+      { type: 'env_stained_arch', name: 'Stained Glass Arch', width: 128, height: 160, anchorX: 64, anchorY: 146 },
+      { type: 'env_prayer_candles', name: 'Prayer Candles', width: 64, height: 64, anchorX: 32, anchorY: 54 },
+      { type: 'env_lantern_string', name: 'Lantern String', width: 128, height: 64, anchorX: 64, anchorY: 20 },
+      { type: 'env_house_terrace', name: 'Terrace House', width: 128, height: 128, anchorX: 64, anchorY: 98 },
+      { type: 'env_washing_line', name: 'Washing Line', width: 96, height: 64, anchorX: 48, anchorY: 24 },
+      { type: 'env_well_stone', name: 'Stone Well', width: 64, height: 64, anchorX: 32, anchorY: 50 },
+      { type: 'env_dock_piling', name: 'Dock Piling', width: 64, height: 96, anchorX: 32, anchorY: 84 },
+      { type: 'env_cargo_crane', name: 'Cargo Crane', width: 128, height: 192, anchorX: 64, anchorY: 178 },
+      { type: 'env_fishing_net', name: 'Fishing Net', width: 64, height: 64, anchorX: 32, anchorY: 48 },
+      { type: 'env_rowboat', name: 'Rowboat', width: 96, height: 64, anchorX: 48, anchorY: 52 },
+      { type: 'env_windmill', name: 'Windmill', width: 160, height: 224, anchorX: 80, anchorY: 206 },
+      { type: 'env_fence_rail', name: 'Fence Rail', width: 64, height: 64, anchorX: 32, anchorY: 50 },
+      { type: 'env_scarecrow', name: 'Scarecrow', width: 64, height: 96, anchorX: 32, anchorY: 86 },
+      { type: 'env_palisade_wall', name: 'Palisade Wall', width: 96, height: 128, anchorX: 48, anchorY: 116 },
+      { type: 'env_campfire', name: 'Campfire', width: 64, height: 64, anchorX: 32, anchorY: 52, animated: true },
+      { type: 'env_reed_clump', name: 'Reed Clump', width: 64, height: 64, anchorX: 32, anchorY: 50 },
+      { type: 'env_hollow_tree', name: 'Hollow Tree', width: 128, height: 192, anchorX: 64, anchorY: 178 },
+      { type: 'env_waterfall_curtain', name: 'Waterfall Curtain', width: 96, height: 160, anchorX: 48, anchorY: 150 },
+      { type: 'env_pew_floating', name: 'Floating Pew', width: 96, height: 64, anchorX: 48, anchorY: 50 },
+      { type: 'env_reliquary_casket', name: 'Reliquary Casket', width: 64, height: 64, anchorX: 32, anchorY: 52 },
+      { type: 'env_lava_channel', name: 'Lava Channel', width: 64, height: 64, anchorX: 32, anchorY: 40, animated: true },
+      { type: 'env_bellows_great', name: 'Great Bellows', width: 128, height: 128, anchorX: 64, anchorY: 116 },
+      { type: 'env_ice_statue', name: 'Ice Statue', width: 64, height: 128, anchorX: 32, anchorY: 116 },
+      { type: 'env_ice_colossus_shell', name: 'Ice Colossus Shell', width: 128, height: 192, anchorX: 64, anchorY: 178 },
+      { type: 'env_cairn_waypoint', name: 'Cairn Waypoint', width: 64, height: 96, anchorX: 32, anchorY: 84 },
+      { type: 'env_guide_rope', name: 'Guide Rope', width: 96, height: 64, anchorX: 48, anchorY: 30 },
+      { type: 'env_vault_door', name: 'Vault Door', width: 128, height: 160, anchorX: 64, anchorY: 148 },
+      { type: 'env_root_hair', name: 'Root Hair (ceiling)', width: 64, height: 128, anchorX: 32, anchorY: 24 },
+      { type: 'env_weeping_branch', name: 'Weeping Branch (overhead)', width: 128, height: 160, anchorX: 64, anchorY: 40 },
+      { type: 'env_briar_wall', name: 'Briar Wall', width: 96, height: 128, anchorX: 48, anchorY: 116 }
     ];
 
     const NPC_TYPES = [
@@ -597,6 +671,18 @@
         dialogHeader: 'Royal Town Guard',
         dialogText: 'Halt! Keep peace within the town walls, adventurer.',
         options: [{ text: '💬 Ask Rumors', action: 'close' }, { text: '❌ Cancel', action: 'close' }]
+      },
+      {
+        id: 'militia', name: '[NPC] Militia Picket', title: 'Gatewatch Militia', sprite: 'npc_militia',
+        dialogHeader: 'Gatewatch Militia',
+        dialogText: 'Keep to the path, recruit. The wilds get wilder past the fence.',
+        options: [{ text: '💬 Ask about the fields', action: 'close' }, { text: '❌ Cancel', action: 'close' }]
+      },
+      {
+        id: 'smuggler', name: '[NPC] Smuggler', title: 'Silt Warrens Smuggler', sprite: 'npc_smuggler',
+        dialogHeader: 'Smuggler',
+        dialogText: 'Untaxed goods, cold-resist gear, no questions asked.',
+        options: [{ text: '🧪 Browse Wares', action: 'open_shop' }, { text: '❌ Cancel', action: 'close' }]
       }
     ];
 
@@ -606,7 +692,68 @@
       { id: 'skeleton', name: 'Skeleton', sprite: 'skeleton_ff', hp: 200, maxHp: 200, speed: 0.03, isAggro: true },
       { id: 'baphomet', name: 'Baphomet (Boss)', sprite: 'boss_baphomet_ff', hp: 800, maxHp: 800, speed: 0.04, isAggro: true },
       { id: 'cactuar', name: 'Cactuar', sprite: 'cactuar_ff', hp: 80, maxHp: 80, speed: 0.03, isAggro: true },
-      { id: 'bomb', name: 'Bomb', sprite: 'bomb_ff', hp: 100, maxHp: 100, speed: 0.035, isAggro: true }
+      { id: 'bomb', name: 'Bomb', sprite: 'bomb_ff', hp: 100, maxHp: 100, speed: 0.035, isAggro: true },
+      // World Map Expansion (Phase 3) roster - see vault/BESTIARY_EXPANSION.md
+      // Gatewatch Commons (Lv 1-5)
+      { id: 'dustmote_wisp', name: 'Dustmote Wisp', sprite: 'dustmote_wisp_ff', hp: 29, maxHp: 29, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'gutter_ratkin', name: 'Gutter Ratkin', sprite: 'gutter_ratkin_ff', hp: 29, maxHp: 29, speed: 0.025, isAggro: false, rank: 'normal' },
+      { id: 'thatch_beetle', name: 'Thatch Beetle', sprite: 'thatch_beetle_ff', hp: 44, maxHp: 44, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'straw_effigy', name: 'Straw Effigy', sprite: 'straw_effigy_ff', hp: 210, maxHp: 210, speed: 0.03, isAggro: true, rank: 'rare' },
+      // Whispering Meadows (Lv 1-16)
+      { id: 'gloopling_bellflower', name: 'Bellflower Gloopling', sprite: 'gloopling_bellflower_ff', hp: 45, maxHp: 45, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'bramblehop', name: 'Bramblehop', sprite: 'bramblehop_ff', hp: 76, maxHp: 76, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'hornhaste_wasp', name: 'Hornhaste Wasp', sprite: 'hornhaste_wasp_ff', hp: 92, maxHp: 92, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'mossback_tortin', name: 'Mossback Tortin', sprite: 'mossback_tortin_ff', hp: 141, maxHp: 141, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'fen_lurker', name: 'Fen Lurker', sprite: 'fen_lurker_ff', hp: 157, maxHp: 157, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'rot_capling', name: 'Rot Capling', sprite: 'rot_capling_ff', hp: 190, maxHp: 190, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'snagtooth_raider', name: 'Snagtooth Raider', sprite: 'snagtooth_raider_ff', hp: 120, maxHp: 120, speed: 0.035, isAggro: true, rank: 'normal' },
+      { id: 'snagtooth_warchanter', name: 'Snagtooth Warchanter', sprite: 'snagtooth_warchanter_ff', hp: 559, maxHp: 559, speed: 0.038, isAggro: true, rank: 'elite' },
+      { id: 'grovewarden_thistle', name: 'Grovewarden Thistle', sprite: 'grovewarden_thistle_ff', hp: 842, maxHp: 842, speed: 0.036, isAggro: true, rank: 'rare' },
+      { id: 'ordwin_palisade_tyrant', name: 'Ordwin the Palisade Tyrant', sprite: 'ordwin_palisade_tyrant_ff', hp: 3088, maxHp: 3088, speed: 0.045, isAggro: true, rank: 'boss' },
+      // Sunken Sanctum (Lv 15-32)
+      { id: 'drowned_marrowguard', name: 'Drowned Marrowguard', sprite: 'drowned_marrowguard_ff', hp: 280, maxHp: 280, speed: 0.03, isAggro: true, rank: 'normal' },
+      { id: 'pricklespine_thornmarch', name: 'Thornmarch Pricklespine', sprite: 'pricklespine_thornmarch_ff', hp: 291, maxHp: 291, speed: 0.028, isAggro: true, rank: 'normal' },
+      { id: 'brinemaw_eel', name: 'Brinemaw Eel', sprite: 'brinemaw_eel_ff', hp: 325, maxHp: 325, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'silt_creeper', name: 'Silt Creeper', sprite: 'silt_creeper_ff', hp: 342, maxHp: 342, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'glasslight_mote', name: 'Glasslight Mote', sprite: 'glasslight_mote_ff', hp: 359, maxHp: 359, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'reliquary_husk', name: 'Reliquary Husk', sprite: 'reliquary_husk_ff', hp: 411, maxHp: 411, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'coralbound_acolyte', name: 'Coralbound Acolyte', sprite: 'coralbound_acolyte_ff', hp: 446, maxHp: 446, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'warden_of_the_nave', name: 'Warden of the Nave', sprite: 'warden_of_the_nave_ff', hp: 1201, maxHp: 1201, speed: 0.038, isAggro: true, rank: 'elite' },
+      { id: 'pale_choirmaster', name: 'The Pale Choirmaster', sprite: 'pale_choirmaster_ff', hp: 1743, maxHp: 1743, speed: 0.036, isAggro: true, rank: 'rare' },
+      { id: 'hallowdeep_warden', name: 'Hallowdeep, the Choirfall Warden', sprite: 'hallowdeep_warden_ff', hp: 6393, maxHp: 6393, speed: 0.045, isAggro: true, rank: 'boss' },
+      // Obsidian Spire (Lv 30-52)
+      { id: 'cinderpuff', name: 'Cinderpuff', sprite: 'cinderpuff_ff', hp: 533, maxHp: 533, speed: 0.03, isAggro: true, rank: 'normal' },
+      { id: 'emberglass_shard', name: 'Emberglass Shard', sprite: 'emberglass_shard_ff', hp: 585, maxHp: 585, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'ashfall_harrier', name: 'Ashfall Harrier', sprite: 'ashfall_harrier_ff', hp: 638, maxHp: 638, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'magma_hulk', name: 'Magma Hulk', sprite: 'magma_hulk_ff', hp: 709, maxHp: 709, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'soot_revenant', name: 'Soot Revenant', sprite: 'soot_revenant_ff', hp: 727, maxHp: 727, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'forgewrought_sentinel', name: 'Forgewrought Sentinel', sprite: 'forgewrought_sentinel_ff', hp: 762, maxHp: 762, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'pyrelash_imp', name: 'Pyrelash Imp', sprite: 'pyrelash_imp_ff', hp: 798, maxHp: 798, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'bellowmaster_grukk', name: 'Bellowmaster Grukk', sprite: 'bellowmaster_grukk_ff', hp: 2083, maxHp: 2083, speed: 0.038, isAggro: true, rank: 'elite' },
+      { id: 'the_unquenched', name: 'The Unquenched', sprite: 'the_unquenched_ff', hp: 2979, maxHp: 2979, speed: 0.036, isAggro: true, rank: 'rare' },
+      { id: 'vashkar_spire_crown', name: 'Vashkar the Spire Crown', sprite: 'vashkar_spire_crown_ff', hp: 10644, maxHp: 10644, speed: 0.045, isAggro: true, rank: 'boss' },
+      // Glacial Chasm (Lv 50-72)
+      { id: 'rimewind_sprite', name: 'Rimewind Sprite', sprite: 'rimewind_sprite_ff', hp: 887, maxHp: 887, speed: 0.04, isAggro: true, rank: 'normal' },
+      { id: 'hoarfrost_stalker', name: 'Hoarfrost Stalker', sprite: 'hoarfrost_stalker_ff', hp: 923, maxHp: 923, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'frozen_penitent', name: 'Frozen Penitent', sprite: 'frozen_penitent_ff', hp: 959, maxHp: 959, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'glacier_drake_whelp', name: 'Glacier Drake Whelp', sprite: 'glacier_drake_whelp_ff', hp: 995, maxHp: 995, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'snowveil_shade', name: 'Snowveil Shade', sprite: 'snowveil_shade_ff', hp: 1031, maxHp: 1031, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'aurora_seraphon', name: 'Aurora Seraphon', sprite: 'aurora_seraphon_ff', hp: 1121, maxHp: 1121, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'permafrost_lich', name: 'Permafrost Lich', sprite: 'permafrost_lich_ff', hp: 1157, maxHp: 1157, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'statuary_colossus', name: 'Statuary Colossus', sprite: 'statuary_colossus_ff', hp: 2984, maxHp: 2984, speed: 0.038, isAggro: true, rank: 'elite' },
+      { id: 'the_vault_keeper', name: 'The Vault Keeper', sprite: 'the_vault_keeper_ff', hp: 4242, maxHp: 4242, speed: 0.036, isAggro: true, rank: 'rare' },
+      { id: 'sylveth_silent_thaw', name: 'Sylveth, Queen of the Silent Thaw', sprite: 'sylveth_silent_thaw_ff', hp: 14980, maxHp: 14980, speed: 0.045, isAggro: true, rank: 'boss' },
+      // Umbral Rootways (Lv 70-99)
+      { id: 'nethergate_creeper', name: 'Nethergate Creeper', sprite: 'nethergate_creeper_ff', hp: 1248, maxHp: 1248, speed: 0.036, isAggro: true, rank: 'normal' },
+      { id: 'umbral_houndkin', name: 'Umbral Houndkin', sprite: 'umbral_houndkin_ff', hp: 1321, maxHp: 1321, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'weeping_bough', name: 'Weeping Bough', sprite: 'weeping_bough_ff', hp: 1303, maxHp: 1303, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'rootfang_devourer', name: 'Rootfang Devourer', sprite: 'rootfang_devourer_ff', hp: 1431, maxHp: 1431, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'hollow_penitent_choir', name: 'Hollow Penitent Choir', sprite: 'hollow_penitent_choir_ff', hp: 1394, maxHp: 1394, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'sanguine_thorncaller', name: 'Sanguine Thorncaller', sprite: 'sanguine_thorncaller_ff', hp: 1376, maxHp: 1376, speed: 0.02, isAggro: false, rank: 'normal' },
+      { id: 'abyssal_heraldon', name: 'Abyssal Heraldon', sprite: 'abyssal_heraldon_ff', hp: 1523, maxHp: 1523, speed: 0.032, isAggro: true, rank: 'normal' },
+      { id: 'thorncradle_warden', name: 'Thorncradle Warden', sprite: 'thorncradle_warden_ff', hp: 3945, maxHp: 3945, speed: 0.038, isAggro: true, rank: 'elite' },
+      { id: 'the_pale_apostate', name: 'The Pale Apostate', sprite: 'the_pale_apostate_ff', hp: 5652, maxHp: 5652, speed: 0.036, isAggro: true, rank: 'rare' },
+      { id: 'verrocaine_sovereign', name: 'Verrocaine, the Horned Sovereign', sprite: 'verrocaine_sovereign_ff', hp: 20928, maxHp: 20928, speed: 0.045, isAggro: true, rank: 'boss' }
     ];
 
     // Canvas & Context Setup
@@ -619,11 +766,42 @@
     const allSpriteNames = [
       'hero_knight', 'hero_blackmage', 'hero_whitemage', 'hero_dragoon', 'hero_redmage', 'hero_thief', 'hero_monk',
       'slime_green_ff', 'goblin_ff', 'skeleton_ff', 'boss_baphomet_ff', 'cactuar_ff', 'bomb_ff',
-      'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder',
+      'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder', 'npc_militia', 'npc_smuggler',
       'env_house_shop', 'env_fountain', 'env_market_stall', 'env_barrel_crate', 'env_tree_meadow', 'env_bush', 'env_rock', 'env_crystal', 'env_dungeon_pillar', 'env_torch_brazier',
       'tile_town_cobble', 'tile_town_cobble2', 'tile_town_brick', 'tile_town_border',
       'tile_meadow_grass', 'tile_meadow_dirt', 'tile_meadow_flowers', 'tile_meadow_water',
-      'tile_dungeon_slate', 'tile_dungeon_obsidian', 'tile_dungeon_lava', 'tile_dungeon_rune'
+      'tile_dungeon_slate', 'tile_dungeon_obsidian', 'tile_dungeon_lava', 'tile_dungeon_rune',
+      // World Map Expansion (Phase 3) - see vault/ASSET_MANIFEST.md (some pending art generation)
+      'tile_meadow_reed', 'tile_meadow_mud', 'tile_meadow_path', 'tile_grove_moss',
+      'tile_sanctum_flooded', 'tile_sanctum_marble', 'tile_sanctum_algae', 'tile_sanctum_glass',
+      'tile_spire_ash', 'tile_spire_emberglass', 'tile_spire_basalt',
+      'tile_ice_packed', 'tile_ice_blue', 'tile_ice_crevasse', 'tile_ice_mirror',
+      'tile_root_bark', 'tile_root_bonemeal', 'tile_root_sap', 'tile_root_terrace',
+      'env_obelisk_aetherite', 'env_notice_board', 'env_awning_stall', 'env_crate_stack_tall',
+      'env_forge_anvil', 'env_guild_banner', 'env_chimney_stack', 'env_temple_pillar',
+      'env_stained_arch', 'env_prayer_candles', 'env_lantern_string', 'env_house_terrace',
+      'env_washing_line', 'env_well_stone', 'env_dock_piling', 'env_cargo_crane',
+      'env_fishing_net', 'env_rowboat', 'env_windmill', 'env_fence_rail', 'env_scarecrow',
+      'env_palisade_wall', 'env_campfire', 'env_reed_clump', 'env_hollow_tree',
+      'env_waterfall_curtain', 'env_pew_floating', 'env_reliquary_casket', 'env_lava_channel',
+      'env_bellows_great', 'env_ice_statue', 'env_ice_colossus_shell', 'env_cairn_waypoint',
+      'env_guide_rope', 'env_vault_door', 'env_root_hair', 'env_weeping_branch', 'env_briar_wall',
+      'dustmote_wisp_ff', 'gutter_ratkin_ff', 'thatch_beetle_ff', 'straw_effigy_ff',
+      'gloopling_bellflower_ff', 'bramblehop_ff', 'hornhaste_wasp_ff', 'mossback_tortin_ff',
+      'fen_lurker_ff', 'rot_capling_ff', 'snagtooth_raider_ff', 'snagtooth_warchanter_ff',
+      'grovewarden_thistle_ff', 'ordwin_palisade_tyrant_ff',
+      'drowned_marrowguard_ff', 'pricklespine_thornmarch_ff', 'brinemaw_eel_ff', 'silt_creeper_ff',
+      'glasslight_mote_ff', 'reliquary_husk_ff', 'coralbound_acolyte_ff', 'warden_of_the_nave_ff',
+      'pale_choirmaster_ff', 'hallowdeep_warden_ff',
+      'cinderpuff_ff', 'emberglass_shard_ff', 'ashfall_harrier_ff', 'magma_hulk_ff',
+      'soot_revenant_ff', 'forgewrought_sentinel_ff', 'pyrelash_imp_ff', 'bellowmaster_grukk_ff',
+      'the_unquenched_ff', 'vashkar_spire_crown_ff',
+      'rimewind_sprite_ff', 'hoarfrost_stalker_ff', 'frozen_penitent_ff', 'glacier_drake_whelp_ff',
+      'snowveil_shade_ff', 'aurora_seraphon_ff', 'permafrost_lich_ff', 'statuary_colossus_ff',
+      'the_vault_keeper_ff', 'sylveth_silent_thaw_ff',
+      'nethergate_creeper_ff', 'umbral_houndkin_ff', 'weeping_bough_ff', 'rootfang_devourer_ff',
+      'hollow_penitent_choir_ff', 'sanguine_thorncaller_ff', 'abyssal_heraldon_ff',
+      'thorncradle_warden_ff', 'the_pale_apostate_ff', 'verrocaine_sovereign_ff'
     ];
 
     let loadedSpriteCount = 0;
@@ -998,6 +1176,25 @@
       if (confirm('Are you sure you want to clear the entire map?')) {
         loadPresetMap('blank');
       }
+    }
+
+    // World Map Expansion (Phase 3) - loads a real zone file from web/maps/
+    // (same mapData schema this editor exports) so districts/sub-regions can
+    // be inspected and edited directly. See vault/WORLD_BUILD_REPORT.md.
+    function loadWorldZone(mapId) {
+      fetch(`maps/${mapId}.json`)
+        .then(res => res.json())
+        .then(loaded => {
+          mapData = loaded;
+          selectedObject = null;
+          updateInspector();
+          updateMapStats();
+          showToast(`Loaded world zone "${loaded.name || mapId}"!`);
+        })
+        .catch(err => {
+          console.error('Failed to load world zone', mapId, err);
+          showToast(`Failed to load ${mapId} - see console.`);
+        });
     }
 
     // Import / Export JSON & Copy JS Code

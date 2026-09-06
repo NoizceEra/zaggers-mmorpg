@@ -227,23 +227,46 @@
   // Sprites Container
   const sprites = {};
   const spriteNames = [
-    'hero_knight', 'hero_blackmage', 'hero_whitemage', 'hero_dragoon', 
-    'hero_redmage', 'hero_thief', 'hero_monk', 'slime_green_ff', 
-    'goblin_ff', 'skeleton_ff', 'boss_baphomet_ff', 'cactuar_ff', 'tileset_town_ff',
-    'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder'
+    'hero_knight', 'hero_blackmage', 'hero_whitemage', 'hero_dragoon',
+    'hero_redmage', 'hero_thief', 'hero_monk', 'slime_green_ff',
+    'goblin_ff', 'skeleton_ff', 'boss_baphomet_ff', 'cactuar_ff', 'bomb_ff', 'tileset_town_ff',
+    'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder', 'npc_militia', 'npc_smuggler',
+    // World Map Expansion (Phase 3) monster sprites - see vault/BESTIARY_EXPANSION.md
+    'dustmote_wisp_ff', 'gutter_ratkin_ff', 'thatch_beetle_ff', 'straw_effigy_ff',
+    'gloopling_bellflower_ff', 'bramblehop_ff', 'hornhaste_wasp_ff', 'mossback_tortin_ff',
+    'fen_lurker_ff', 'rot_capling_ff', 'snagtooth_raider_ff', 'snagtooth_warchanter_ff',
+    'grovewarden_thistle_ff', 'ordwin_palisade_tyrant_ff',
+    'drowned_marrowguard_ff', 'pricklespine_thornmarch_ff', 'brinemaw_eel_ff', 'silt_creeper_ff',
+    'glasslight_mote_ff', 'reliquary_husk_ff', 'coralbound_acolyte_ff', 'warden_of_the_nave_ff',
+    'pale_choirmaster_ff', 'hallowdeep_warden_ff',
+    'cinderpuff_ff', 'emberglass_shard_ff', 'rimewind_sprite_ff', 'hoarfrost_stalker_ff',
+    'nethergate_creeper_ff', 'umbral_houndkin_ff'
   ];
 
   const envSpriteNames = [
     'env_house_shop', 'env_fountain', 'env_market_stall', 'env_barrel_crate',
     'env_tree_meadow', 'env_bush', 'env_rock', 'env_crystal',
-    'env_dungeon_pillar', 'env_torch_brazier'
+    'env_dungeon_pillar', 'env_torch_brazier',
+    // World Map Expansion (Phase 3) props - see vault/ASSET_MANIFEST.md (some pending art generation)
+    'env_obelisk_aetherite', 'env_notice_board', 'env_awning_stall', 'env_crate_stack_tall',
+    'env_forge_anvil', 'env_guild_banner', 'env_chimney_stack', 'env_temple_pillar',
+    'env_stained_arch', 'env_prayer_candles', 'env_lantern_string', 'env_house_terrace',
+    'env_washing_line', 'env_well_stone', 'env_dock_piling', 'env_cargo_crane',
+    'env_fishing_net', 'env_rowboat', 'env_windmill', 'env_fence_rail', 'env_scarecrow',
+    'env_palisade_wall', 'env_campfire', 'env_reed_clump', 'env_hollow_tree',
+    'env_waterfall_curtain', 'env_pew_floating', 'env_reliquary_casket', 'env_lava_channel',
+    'env_cairn_waypoint', 'env_guide_rope', 'env_root_hair'
   ];
 
   const terrainSpriteNames = [
     'tileset_town_ff', 'tileset_meadow_ff', 'tileset_dungeon_ff',
     'tile_town_cobble', 'tile_town_cobble2', 'tile_town_border', 'tile_town_brick',
     'tile_meadow_grass', 'tile_meadow_dirt', 'tile_meadow_flowers', 'tile_meadow_water',
-    'tile_dungeon_slate', 'tile_dungeon_obsidian', 'tile_dungeon_lava', 'tile_dungeon_rune'
+    'tile_dungeon_slate', 'tile_dungeon_obsidian', 'tile_dungeon_lava', 'tile_dungeon_rune',
+    // World Map Expansion (Phase 3) tiles - see vault/ASSET_MANIFEST.md (some pending art generation)
+    'tile_meadow_reed', 'tile_meadow_mud', 'tile_grove_moss',
+    'tile_sanctum_flooded', 'tile_sanctum_marble', 'tile_sanctum_algae', 'tile_sanctum_glass',
+    'tile_spire_ash', 'tile_ice_packed', 'tile_root_bark'
   ];
 
   spriteNames.forEach(name => {
@@ -264,126 +287,19 @@
     sprites[name] = img;
   });
 
-  // Town NPCs distributed across Aethelgard Master Town Districts
-  const npcs = [
-    {
-      id: 'kafra',
-      name: '[NPC] Kafra Staff',
-      title: 'Kafra Service Staff',
-      wx: 0, wy: -2,
-      dir: 0, frame: 1,
-      sprite: 'npc_kafra',
-      dialogHeader: 'Kafra Service Staff',
-      dialogText: 'Welcome to the Aethelgard Kafra Depot! We provide save point recording and teleportation services across the 5 realms. How may I serve you today, adventurer?',
-      options: [
-        { text: '💾 Save Position & Heal (Aethelgard)', action: 'kafra_save' },
-        { text: '🌀 Teleport to Wilderness Fields', action: 'kafra_teleport' },
-        { text: '❌ Cancel', action: 'close' }
-      ]
-    },
-    {
-      id: 'merchant',
-      name: '[NPC] Market Merchant',
-      title: 'Market Bazaar Trader',
-      wx: 18, wy: 0,
-      dir: 0, frame: 1,
-      sprite: 'npc_merchant',
-      dialogHeader: 'Market Merchant',
-      dialogText: 'Welcome to the Market Bazaar! I have fresh potions brewed from royal herbs and sturdy adventure equipment. What would you like to buy?',
-      options: [
-        { text: '🧪 Open Item Shop (Potions & Gear)', action: 'open_shop' },
-        { text: '🍷 Buy Red Potion (50 z)', action: 'buy_red_potion' },
-        { text: '❌ Cancel', action: 'close' }
-      ]
-    },
-    {
-      id: 'blacksmith',
-      name: '[NPC] Master Smith',
-      title: 'Smithy Row Blacksmith',
-      wx: -18, wy: 0,
-      dir: 0, frame: 1,
-      sprite: 'npc_blacksmith',
-      dialogHeader: 'Master Smith Ironhide',
-      dialogText: 'Clang! Clang! Welcome to Smithy Row! Need your weapon sharpened or your armor reinforced? I can upgrade your gear for a modest fee!',
-      options: [
-        { text: '⚔️ Refine Weapon (+2 STR) [100 z]', action: 'upgrade_weapon' },
-        { text: '🛡️ Reinforce Armor (+20 Max HP, +10 Max SP) [150 z]', action: 'upgrade_armor' },
-        { text: '❌ Cancel', action: 'close' }
-      ]
-    },
-    {
-      id: 'elder',
-      name: '[NPC] Guildmaster',
-      title: 'Training Grounds Elder',
-      wx: 0, wy: 18,
-      dir: 0, frame: 1,
-      sprite: 'npc_elder',
-      dialogHeader: 'Guildmaster Elder',
-      dialogText: 'Greetings, brave hero. Shadows grow long in the surrounding wilderness and monsters threaten Aethelgard. Are you ready to take on a hero’s quest?',
-      options: [
-        { text: '📜 Accept Quest: Defeat Lord Baphomet', action: 'quest_accept' },
-        { text: '🎁 Claim Quest Reward (500 z)', action: 'quest_claim' },
-        { text: '💡 Seek Wisdom & Training Advice', action: 'elder_advice' },
-        { text: '❌ Cancel', action: 'close' }
-      ]
-    }
-  ];
+  // Live NPCs/props/monsters for the CURRENTLY LOADED zone. Populated by
+  // loadZoneMap() below from web/maps/*.json (see WORLD_MAP_EXPANSION.md /
+  // WORLD_BUILD_REPORT.md) - these start empty and are filled at boot.
+  const npcs = [];
 
   let activeNpc = null;
   let pendingNpcTarget = null;
   let hasQuest = false;
   let questCompleted = false;
+  const defeatedBosses = new Set();
 
-  // 2.5D Isometric Environment Structures Library (Expanded Multi-District Aethelgard & Wilderness)
-  const envStructures = [
-    // District 1: Grand Fountain Plaza (Center: wx: -8..8, wy: -8..8)
-    { type: 'env_fountain', wx: 0, wy: 0, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Aethelgard Central Fountain' },
-    { type: 'env_crystal', wx: 0, wy: 3, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'Aetherite Save Crystal' },
-    { type: 'env_market_stall', wx: -4, wy: -3, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Kafra Info Booth' },
-    { type: 'env_barrel_crate', wx: -5.2, wy: -3.2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-    { type: 'env_barrel_crate', wx: 4.2, wy: -1.2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-
-    // District 2: Smithy Row (West: wx: -25..-9, wy: -10..10)
-    { type: 'env_house_shop', wx: -18, wy: -4, width: 128, height: 128, anchorX: 64, anchorY: 98, name: 'Ironhide Blacksmith Forge' },
-    { type: 'env_barrel_crate', wx: -20, wy: 2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-    { type: 'env_barrel_crate', wx: -16, wy: 3, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-    { type: 'env_torch_brazier', wx: -15, wy: -2, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
-    { type: 'env_torch_brazier', wx: -15, wy: 2, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
-
-    // District 3: High Temple Plaza (North: wx: -10..10, wy: -25..-9)
-    { type: 'env_dungeon_pillar', wx: -6, wy: -18, width: 64, height: 128, anchorX: 32, anchorY: 116 },
-    { type: 'env_dungeon_pillar', wx: 6, wy: -18, width: 64, height: 128, anchorX: 32, anchorY: 116 },
-    { type: 'env_crystal', wx: 0, wy: -20, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'High Temple Sanctuary Shrine' },
-    { type: 'env_torch_brazier', wx: -3, wy: -16, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
-    { type: 'env_torch_brazier', wx: 3, wy: -16, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
-
-    // District 4: Market District & Bazaars (East: wx: 9..25, wy: -10..10)
-    { type: 'env_market_stall', wx: 18, wy: -3, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Potion & Elixir Stall' },
-    { type: 'env_market_stall', wx: 18, wy: 3, width: 96, height: 96, anchorX: 48, anchorY: 64, name: 'Exotic Goods Merchant' },
-    { type: 'env_barrel_crate', wx: 16, wy: 0, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-    { type: 'env_barrel_crate', wx: 21, wy: -2, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-
-    // District 5: Adventurer Guild & Training Grounds (South: wx: -10..10, wy: 9..25)
-    { type: 'env_house_shop', wx: 0, wy: 22, width: 128, height: 128, anchorX: 64, anchorY: 98, name: 'Adventurer Guild Hall' },
-    { type: 'env_barrel_crate', wx: -4, wy: 16, width: 64, height: 64, anchorX: 32, anchorY: 48, name: 'Training Target Dummy A' },
-    { type: 'env_barrel_crate', wx: 4, wy: 16, width: 64, height: 64, anchorX: 32, anchorY: 48, name: 'Training Target Dummy B' },
-
-    // District 6: Northern Wilderness Gate (North-East: wy: -45..-26)
-    { type: 'env_tree_meadow', wx: -8, wy: -30, width: 96, height: 128, anchorX: 48, anchorY: 112 },
-    { type: 'env_tree_meadow', wx: 7, wy: -34, width: 96, height: 128, anchorX: 48, anchorY: 112 },
-    { type: 'env_tree_meadow', wx: -6, wy: -40, width: 96, height: 128, anchorX: 48, anchorY: 112 },
-    { type: 'env_tree_meadow', wx: 8, wy: -44, width: 96, height: 128, anchorX: 48, anchorY: 112 },
-    { type: 'env_bush', wx: -4, wy: -28, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-    { type: 'env_bush', wx: 5, wy: -37, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-    { type: 'env_rock', wx: 3, wy: -32, width: 64, height: 64, anchorX: 32, anchorY: 48 },
-
-    // Underground Sanctum Catacombs (South Deep: wy: 26..45)
-    { type: 'env_dungeon_pillar', wx: -6, wy: 30, width: 64, height: 128, anchorX: 32, anchorY: 116 },
-    { type: 'env_dungeon_pillar', wx: 6, wy: 30, width: 64, height: 128, anchorX: 32, anchorY: 116 },
-    { type: 'env_torch_brazier', wx: -4, wy: 28, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
-    { type: 'env_torch_brazier', wx: 4, wy: 28, width: 64, height: 64, anchorX: 32, anchorY: 54, animated: true },
-    { type: 'env_crystal', wx: 0, wy: 42, width: 64, height: 96, anchorX: 32, anchorY: 82, name: 'Sanctum Core' }
-  ];
+  // 2.5D Isometric Environment Structures Library - populated per-zone by loadZoneMap()
+  const envStructures = [];
 
   // 2.5D Isometric World Projection & Dynamic Camera
   const TILE_W = 48;
@@ -453,24 +369,93 @@
     str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10, class: 'hero_knight'
   };
 
-  // Monsters across 3 zones
-  const monsters = [
-    // South Meadow Field Monsters (wy: -45..-16)
-    { id: 1, name: 'Poring', wx: -4, wy: -22, targetWx: -4, targetWy: -22, speed: 0.02, dir: 0, frame: 1, hp: 50, maxHp: 50, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
-    { id: 2, name: 'Poring', wx: 5, wy: -28, targetWx: 5, targetWy: -28, speed: 0.02, dir: 0, frame: 1, hp: 50, maxHp: 50, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
-    { id: 3, name: 'Poring', wx: -3, wy: -36, targetWx: -3, targetWy: -36, speed: 0.02, dir: 0, frame: 1, hp: 50, maxHp: 50, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
-    { id: 4, name: 'Cactuar', wx: 4, wy: -20, targetWx: 4, targetWy: -20, speed: 0.03, dir: 0, frame: 1, hp: 80, maxHp: 80, sprite: 'cactuar_ff', isAggro: true, attackCooldown: 0, zone: 'south' },
-    { id: 5, name: 'Cactuar', wx: -6, wy: -32, targetWx: -6, targetWy: -32, speed: 0.03, dir: 0, frame: 1, hp: 80, maxHp: 80, sprite: 'cactuar_ff', isAggro: true, attackCooldown: 0, zone: 'south' },
-    { id: 6, name: 'Slime', wx: -2, wy: -25, targetWx: -2, targetWy: -25, speed: 0.025, dir: 0, frame: 1, hp: 60, maxHp: 60, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
-    { id: 7, name: 'Slime', wx: 6, wy: -40, targetWx: 6, targetWy: -40, speed: 0.025, dir: 0, frame: 1, hp: 60, maxHp: 60, sprite: 'slime_green_ff', isAggro: false, attackCooldown: 0, zone: 'south' },
+  // Monsters for the CURRENTLY LOADED zone - populated by loadZoneMap()
+  const monsters = [];
 
-    // Underground Sanctum Monsters (wy: 16..45)
-    { id: 8, name: 'Goblin', wx: -4, wy: 20, targetWx: -4, targetWy: 20, speed: 0.035, dir: 0, frame: 1, hp: 140, maxHp: 140, sprite: 'goblin_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
-    { id: 9, name: 'Goblin', wx: 5, wy: 26, targetWx: 5, targetWy: 26, speed: 0.035, dir: 0, frame: 1, hp: 140, maxHp: 140, sprite: 'goblin_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
-    { id: 10, name: 'Skeleton', wx: 4, wy: 22, targetWx: 4, targetWy: 22, speed: 0.03, dir: 0, frame: 1, hp: 200, maxHp: 200, sprite: 'skeleton_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
-    { id: 11, name: 'Skeleton', wx: -5, wy: 32, targetWx: -5, targetWy: 32, speed: 0.03, dir: 0, frame: 1, hp: 200, maxHp: 200, sprite: 'skeleton_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' },
-    { id: 12, name: 'Baphomet (Boss)', wx: 0, wy: 40, targetWx: 0, targetWy: 40, speed: 0.04, dir: 0, frame: 1, hp: 800, maxHp: 800, sprite: 'boss_baphomet_ff', isAggro: true, attackCooldown: 0, zone: 'dungeon' }
-  ];
+  // ==========================================
+  // Zone / Map Loading (WORLD_MAP_EXPANSION.md)
+  // ==========================================
+  // Registry of playable maps -> their JSON file under web/maps/.
+  // See vault/WORLD_BUILD_REPORT.md for what's fully built vs. stub hubs.
+  // Ids match zaggers_database.json zones[].id exactly (aethelgard,
+  // gatewatch, meadows, sanctum, spire, chasm, rootways).
+  const MAP_REGISTRY = {
+    aethelgard: 'maps/aethelgard.json',
+    gatewatch: 'maps/gatewatch.json',
+    meadows: 'maps/meadows.json',
+    sanctum: 'maps/sanctum.json',
+    spire: 'maps/spire.json',
+    chasm: 'maps/chasm.json',
+    rootways: 'maps/rootways.json'
+  };
+
+  let currentMapId = null;
+  let currentMapName = 'Aethelgard';
+  let currentMapDefaultTile = 'tile_town_cobble';
+  let currentMapBounds = { minWx: -28, maxWx: 28, minWy: -45, maxWy: 45 };
+  let currentMapExits = [];
+  let currentMapSubRegions = [];
+  let exitCooldownFrames = 0;
+
+  // Fetches a zone's map JSON (editor.html mapData schema) and swaps it in
+  // as the live world. Mirrors loadCustomMapData() below but sources from
+  // the maps/ registry instead of a user file upload, and also applies the
+  // additive fields (bounds, exits, subRegions, defaultTile, spawn).
+  async function loadZoneMap(mapId, spawnOverride) {
+    const file = MAP_REGISTRY[mapId];
+    if (!file) { console.warn('Unknown mapId', mapId); return; }
+    try {
+      const res = await fetch(file);
+      const mapData = await res.json();
+      applyZoneMapData(mapId, mapData, spawnOverride);
+    } catch (err) {
+      console.error('Failed to load zone map', mapId, err);
+    }
+  }
+
+  function applyZoneMapData(mapId, mapData, spawnOverride) {
+    if (mapData.tiles) customTileMap = mapData.tiles;
+    envStructures.length = 0;
+    if (Array.isArray(mapData.envStructures)) envStructures.push(...mapData.envStructures);
+    npcs.length = 0;
+    if (Array.isArray(mapData.npcs)) npcs.push(...mapData.npcs);
+    monsters.length = 0;
+    if (Array.isArray(mapData.monsters)) monsters.push(...mapData.monsters);
+
+    currentMapId = mapId || mapData.id || null;
+    currentMapName = mapData.name || currentMapId || 'Unknown Zone';
+    currentMapDefaultTile = mapData.defaultTile || 'tile_town_cobble';
+    currentMapBounds = mapData.bounds || { minWx: -28, maxWx: 28, minWy: -45, maxWy: 45 };
+    currentMapExits = Array.isArray(mapData.exits) ? mapData.exits : [];
+    currentMapSubRegions = Array.isArray(mapData.subRegions) ? mapData.subRegions : [];
+
+    const spawn = spawnOverride || mapData.spawn || { wx: 0, wy: 0 };
+    player.wx = spawn.wx; player.wy = spawn.wy;
+    player.targetWx = spawn.wx; player.targetWy = spawn.wy;
+    cameraX = spawn.wx; cameraY = spawn.wy;
+    pendingNpcTarget = null;
+    exitCooldownFrames = 60; // grace period so re-entering an exit doesn't immediately bounce back
+
+    showDistrictBanner(`Entering ${currentMapName}`);
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Arrived at ${currentMapName}.</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }
+
+  // Checks player proximity to the current zone's exits/portals each frame
+  // and triggers a zone transition (WORLD_MAP_EXPANSION.md topology).
+  function checkZoneExits() {
+    if (exitCooldownFrames > 0) { exitCooldownFrames--; return; }
+    for (const exit of currentMapExits) {
+      const dist = Math.hypot(player.wx - exit.wx, player.wy - exit.wy);
+      if (dist <= (exit.radius || 1.5)) {
+        loadZoneMap(exit.targetMap, { wx: exit.targetWx, wy: exit.targetWy });
+        return;
+      }
+    }
+  }
 
   const floatingTexts = [];
   const clickRipples = [];
@@ -615,7 +600,9 @@
         m.hp = Math.max(0, m.hp - dmg);
         floatingTexts.push({ wx: m.wx, wy: m.wy, offsetY: 45, text: `-${dmg}`, color: (dmg > 30 ? '#ffd54f' : '#ff5252'), life: 40 });
         if (m.hp === 0) {
-          player.zeny += (m.sprite === 'boss_baphomet_ff' ? 500 : 50);
+          const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
+          player.zeny += (isBoss ? 500 : 50);
+          if (isBoss) defeatedBosses.add(m.id);
           updateHUD();
           setTimeout(() => { m.hp = m.maxHp; }, 5000);
         }
@@ -701,14 +688,11 @@
       chatBox.scrollTop = chatBox.scrollHeight;
       document.getElementById('npc-dialog-text').innerText = 'Your save point has been recorded and your HP/SP fully restored! Have a safe journey, adventurer!';
     } else if (action === 'kafra_teleport') {
-      player.wx = 5;
-      player.wy = 20;
-      player.targetWx = 5;
-      player.targetWy = 20;
       floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🌀 TELEPORT!', color: '#4fc3f7', life: 50 });
-      chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Kafra]:</span> Teleported to Dungeon Entrance!</div>`;
+      chatBox.innerHTML += `<div><span style="color: #4fc3f7;">[Kafra]:</span> Teleported to Whispering Meadows!</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
       closeNpcDialog();
+      loadZoneMap('meadows');
     } else if (action === 'open_shop') {
       closeNpcDialog();
       toggleWindow('shop-window');
@@ -756,25 +740,25 @@
       }
     } else if (action === 'quest_accept') {
       hasQuest = true;
-      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Elder]:</span> Quest Accepted! Venture to Underground Sanctum and slay Baphomet (Boss) at coordinates (0, 40).</div>`;
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Elder]:</span> Quest Accepted! Venture through the Rampart Gate to Whispering Meadows and slay Ordwin the Palisade Tyrant at Raider's Palisade.</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
-      document.getElementById('npc-dialog-text').innerText = 'Quest active! Hunt down Baphomet in the Underground Sanctum (0, 40) and return to me for your 500 z reward!';
+      document.getElementById('npc-dialog-text').innerText = 'Quest active! Hunt down Ordwin the Palisade Tyrant in Whispering Meadows and return to me for your 500 z reward!';
     } else if (action === 'quest_claim') {
-      const baphomet = monsters.find(m => m.id === 12);
-      if (hasQuest && baphomet && baphomet.hp <= 0) {
+      const ordwinDefeated = defeatedBosses.has('palisade_boss_ordwin');
+      if (hasQuest && ordwinDefeated) {
         hasQuest = false;
         questCompleted = true;
         player.zeny += 500;
         updateHUD();
         floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🎉 QUEST COMPLETE! +500z', color: '#ffd54f', life: 60 });
-        chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Elder]:</span> Outstanding victory! You defeated Baphomet! Here is your 500 Zeny reward.</div>`;
+        chatBox.innerHTML += `<div><span style="color: #ffd54f;">[Elder]:</span> Outstanding victory! You defeated Ordwin the Palisade Tyrant! Here is your 500 Zeny reward.</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
-        document.getElementById('npc-dialog-text').innerText = 'Incredible bravery! The town is safe thanks to you. Here is your 500 Zeny reward!';
+        document.getElementById('npc-dialog-text').innerText = 'Incredible bravery! The Meadows are safer thanks to you. Here is your 500 Zeny reward!';
       } else if (!hasQuest) {
-        chatBox.innerHTML += `<div><span style="color: #b0bec5;">[Elder]:</span> You must accept the Baphomet quest first.</div>`;
+        chatBox.innerHTML += `<div><span style="color: #b0bec5;">[Elder]:</span> You must accept the Ordwin quest first.</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
       } else {
-        chatBox.innerHTML += `<div><span style="color: #ff5252;">[Elder]:</span> Baphomet is still alive! Slay the boss at (0, 40) first.</div>`;
+        chatBox.innerHTML += `<div><span style="color: #ff5252;">[Elder]:</span> Ordwin the Palisade Tyrant still stands! Slay him at Raider's Palisade first.</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
       }
     } else if (action === 'elder_advice') {
@@ -838,6 +822,15 @@
       monsters.length = 0;
       monsters.push(...mapData.monsters);
     }
+    // Additive Phase 3 fields (WORLD_MAP_EXPANSION.md) - safe no-ops for
+    // older/plain custom maps that don't carry them.
+    currentMapId = mapData.id || null;
+    currentMapName = mapData.name || 'Custom Map';
+    if (mapData.defaultTile) currentMapDefaultTile = mapData.defaultTile;
+    if (mapData.bounds) currentMapBounds = mapData.bounds;
+    currentMapExits = Array.isArray(mapData.exits) ? mapData.exits : [];
+    currentMapSubRegions = Array.isArray(mapData.subRegions) ? mapData.subRegions : [];
+    exitCooldownFrames = 60;
     try {
       localStorage.setItem('zaggers_custom_map', JSON.stringify(mapData));
     } catch(e) {}
@@ -926,17 +919,19 @@
 
   // 2.5D Isometric Structure & Boundary Collision Engine
   function checkCollision(wx, wy) {
-    // 1. World Map Perimeter Bounds (Aethelgard 60x60 Grid: wx: -28..28, wy: -45..45)
-    if (wx < -28 || wx > 28 || wy < -45 || wy > 45) return true;
+    // 1. World Map Perimeter Bounds - dynamic per loaded zone (see currentMapBounds,
+    // set by loadZoneMap()/loadCustomMapData() from web/maps/*.json)
+    const b = currentMapBounds;
+    if (wx < b.minWx || wx > b.maxWx || wy < b.minWy || wy > b.maxWy) return true;
 
     // 2. Environment Structures Collision Bounding Boxes
     for (let i = 0; i < envStructures.length; i++) {
       const s = envStructures[i];
       let radius = 0.8; // Default collision radius
-      if (s.type === 'env_house_shop') radius = 2.2;
-      else if (s.type === 'env_fountain') radius = 1.8;
-      else if (s.type === 'env_market_stall') radius = 1.4;
-      else if (s.type === 'env_crystal' || s.type === 'env_dungeon_pillar') radius = 1.0;
+      if (s.type === 'env_house_shop' || s.type === 'env_house_terrace' || s.type === 'env_obelisk_aetherite' || s.type === 'env_cargo_crane' || s.type === 'env_windmill') radius = 2.2;
+      else if (s.type === 'env_fountain' || s.type === 'env_stained_arch' || s.type === 'env_palisade_wall' || s.type === 'env_waterfall_curtain') radius = 1.8;
+      else if (s.type === 'env_market_stall' || s.type === 'env_awning_stall' || s.type === 'env_hollow_tree') radius = 1.4;
+      else if (s.type === 'env_crystal' || s.type === 'env_dungeon_pillar' || s.type === 'env_temple_pillar') radius = 1.0;
       else if (s.type === 'env_tree_meadow') radius = 0.9;
       else if (s.type === 'env_torch_brazier' || s.type === 'env_barrel_crate') radius = 0.7;
 
@@ -1070,19 +1065,15 @@
   }
 
   function checkDistrictTransition() {
-    let newDistrict = 'Aethelgard Grand Plaza';
-    if (player.wy < -25) {
-      newDistrict = 'Whispering Meadows Wilderness';
-    } else if (player.wy > 25) {
-      newDistrict = 'Sunken Sanctum Catacombs';
-    } else if (player.wx < -8 && Math.abs(player.wy) <= 12) {
-      newDistrict = 'Smithy Row Forge District';
-    } else if (player.wy < -8 && Math.abs(player.wx) <= 12) {
-      newDistrict = 'High Temple Sacred Plaza';
-    } else if (player.wx > 8 && Math.abs(player.wy) <= 12) {
-      newDistrict = 'Market District & Bazaars';
-    } else if (player.wy > 8 && Math.abs(player.wx) <= 12) {
-      newDistrict = 'Adventurer Guild & Training Grounds';
+    // Data-driven: match the player against the loaded zone's subRegions
+    // bounding boxes (WORLD_MAP_EXPANSION.md). Falls back to the zone name.
+    let newDistrict = currentMapName;
+    for (const region of currentMapSubRegions) {
+      if (player.wx >= region.minWx && player.wx <= region.maxWx &&
+          player.wy >= region.minWy && player.wy <= region.maxWy) {
+        newDistrict = region.name;
+        break;
+      }
     }
 
     if (newDistrict !== currentDistrictName) {
@@ -1093,12 +1084,18 @@
   window.addEventListener('DOMContentLoaded', () => {
     renderCreatorClassCards();
     setInterval(updateCreatorPreviewCanvas, 50);
-    const savedMap = localStorage.getItem('zaggers_custom_map');
-    if (savedMap) {
-      try {
-        loadCustomMapData(JSON.parse(savedMap));
-      } catch(e) {}
-    }
+
+    // Boot into the Aethelgard master town (WORLD_MAP_EXPANSION.md), then
+    // let a previously-saved custom map (from the "Load Map" button) win if
+    // one exists, preserving prior behavior.
+    loadZoneMap('aethelgard').then(() => {
+      const savedMap = localStorage.getItem('zaggers_custom_map');
+      if (savedMap) {
+        try {
+          loadCustomMapData(JSON.parse(savedMap));
+        } catch(e) {}
+      }
+    });
   });
 
   // Draw 2.5D Diamond Isometric Tile (PNG Ground Tile Asset Textures & Fallback)
@@ -1106,54 +1103,10 @@
     const tw = TILE_W * cameraZoom + 0.5;
     const th = TILE_H * cameraZoom + 0.5;
 
-    // Determine tile asset key based on custom map or world coordinates (wx, wy)
-    let tileKey = customTileMap[`${wx},${wy}`] || 'tile_town_cobble';
-
-    if (!customTileMap[`${wx},${wy}`]) {
-      if (wy < -25.5) {
-        // Northern Wilderness Gate & Whispering Meadows
-        if (Math.abs(wx) <= 1) {
-          tileKey = 'tile_meadow_dirt';
-        } else if (wx <= -12 && wy <= -35) {
-          tileKey = 'tile_meadow_water';
-        } else if ((Math.abs(wx) + Math.abs(wy)) % 5 === 0) {
-          tileKey = 'tile_meadow_flowers';
-        } else {
-          tileKey = 'tile_meadow_grass';
-        }
-      } else if (wy > 25.5) {
-        // Sunken Sanctum Catacombs
-        if (Math.hypot(wx, wy - 40) <= 3) {
-          tileKey = 'tile_dungeon_rune';
-        } else if ((Math.abs(wx) + Math.abs(wy)) % 6 === 0 || wy >= 42) {
-          tileKey = 'tile_dungeon_lava';
-        } else if (Math.abs(wx) <= 2) {
-          tileKey = 'tile_dungeon_obsidian';
-        } else {
-          tileKey = 'tile_dungeon_slate';
-        }
-      } else {
-        // Aethelgard Master Town (5 Districts)
-        if (Math.hypot(wx, wy) <= 3) {
-          tileKey = 'tile_town_brick';
-        } else if (wy > 8 && Math.abs(wx) <= 10) {
-          // Training Grounds (dirt paths)
-          tileKey = ((Math.abs(wx) + Math.abs(wy)) % 2 === 0) ? 'tile_meadow_dirt' : 'tile_town_cobble';
-        } else if (wy < -8 && Math.abs(wx) <= 10) {
-          // High Temple Plaza (sacred stone)
-          tileKey = ((Math.abs(wx) + Math.abs(wy)) % 3 === 0) ? 'tile_dungeon_slate' : 'tile_town_brick';
-        } else if (wx < -8 && Math.abs(wy) <= 10) {
-          // Smithy Row (forge brick)
-          tileKey = ((Math.abs(wx) + Math.abs(wy)) % 2 === 0) ? 'tile_town_cobble2' : 'tile_town_brick';
-        } else if (Math.abs(wx) === 25 || Math.abs(wy) === 25) {
-          tileKey = 'tile_town_border';
-        } else if ((Math.abs(wx) + Math.abs(wy)) % 4 === 0) {
-          tileKey = 'tile_town_cobble2';
-        } else {
-          tileKey = 'tile_town_cobble';
-        }
-      }
-    }
+    // Determine tile asset key from the loaded zone's tile dict, falling
+    // back to its defaultTile (WORLD_MAP_EXPANSION.md map data - see
+    // web/maps/*.json). Replaces the old single hardcoded placeholder map.
+    const tileKey = customTileMap[`${wx},${wy}`] || currentMapDefaultTile;
 
     const tileImg = sprites[tileKey];
     if (tileImg && tileImg.complete && tileImg.naturalWidth > 0) {
@@ -1166,9 +1119,9 @@
       ctx.lineTo(screenX - tw / 2, screenY);
       ctx.closePath();
 
-      if (wy < -15.5) ctx.fillStyle = isOdd ? '#1b3a24' : '#152e1c';
-      else if (wy > 15.5) ctx.fillStyle = isOdd ? '#1c1824' : '#15121b';
-      else ctx.fillStyle = isOdd ? '#263147' : '#1e2738';
+      // Missing/pending art (see vault/ASSET_MANIFEST.md) falls back to a
+      // plain checkerboard rather than a hardcoded per-zone color band.
+      ctx.fillStyle = isOdd ? '#263147' : '#1e2738';
       ctx.fill();
       ctx.strokeStyle = '#354563';
       ctx.lineWidth = 1;
@@ -1187,51 +1140,40 @@
     minimapCtx.fillStyle = '#0a0c10';
     minimapCtx.fillRect(0, 0, mw, mh);
 
-    // Map coordinate projection: wx: -30..30 -> mx: 14..114, wy: -45..45 -> my: 10..118
+    // Map coordinate projection - scaled to the loaded zone's own bounds
+    // (currentMapBounds) rather than a fixed world size.
     const mapPaddingX = 14;
     const mapPaddingY = 10;
     const mapW = mw - mapPaddingX * 2; // 100
     const mapH = mh - mapPaddingY * 2; // 108
+    const b = currentMapBounds;
+    const bW = Math.max(1, b.maxWx - b.minWx);
+    const bH = Math.max(1, b.maxWy - b.minWy);
 
     function worldToMinimap(wx, wy) {
-      const mx = mapPaddingX + ((wx + 30) / 60) * mapW;
-      const my = mapPaddingY + ((wy + 45) / 90) * mapH;
+      const mx = mapPaddingX + ((wx - b.minWx) / bW) * mapW;
+      const my = mapPaddingY + ((wy - b.minWy) / bH) * mapH;
       return { x: mx, y: my };
     }
 
-    // 1. Draw Zone Background Terrains
-    // North Wilderness Gate: wy: -45..-25
-    const topMeadow = worldToMinimap(-30, -45);
-    const botMeadow = worldToMinimap(30, -25);
-    minimapCtx.fillStyle = '#163820';
-    minimapCtx.fillRect(topMeadow.x, topMeadow.y, mapW, botMeadow.y - topMeadow.y);
+    // 1. Draw zone background + sub-region tint rectangles (data-driven from
+    // the loaded map's subRegions, see WORLD_MAP_EXPANSION.md)
+    const topLeft = worldToMinimap(b.minWx, b.minWy);
+    minimapCtx.fillStyle = '#1b2233';
+    minimapCtx.fillRect(topLeft.x, topLeft.y, mapW, mapH);
 
-    // Aethelgard Master Town (5 Districts): wy: -25..25
-    const topTown = worldToMinimap(-30, -25);
-    const botTown = worldToMinimap(30, 25);
-    minimapCtx.fillStyle = '#222b3e';
-    minimapCtx.fillRect(topTown.x, topTown.y, mapW, botTown.y - topTown.y);
-
-    // Sunken Sanctum Catacombs: wy: 25..45
-    const topDungeon = worldToMinimap(-30, 25);
-    const botDungeon = worldToMinimap(30, 45);
-    minimapCtx.fillStyle = '#191522';
-    minimapCtx.fillRect(topDungeon.x, topDungeon.y, mapW, botDungeon.y - topDungeon.y);
-
-    // Zone Divider Lines
-    minimapCtx.strokeStyle = '#4a5573';
-    minimapCtx.lineWidth = 1;
-    minimapCtx.beginPath();
-    minimapCtx.moveTo(topTown.x, topTown.y);
-    minimapCtx.lineTo(topTown.x + mapW, topTown.y);
-    minimapCtx.moveTo(botTown.x, botTown.y);
-    minimapCtx.lineTo(botTown.x + mapW, botTown.y);
-    minimapCtx.stroke();
+    const REGION_TINTS = { district: '#222b3e', field: '#163820', vista: '#25405a', hidden: '#3a2540', cave: '#191522', elite: '#402525', boss: '#402525' };
+    currentMapSubRegions.forEach(region => {
+      const p1 = worldToMinimap(region.minWx, region.minWy);
+      const p2 = worldToMinimap(region.maxWx, region.maxWy);
+      minimapCtx.fillStyle = REGION_TINTS[region.type] || '#222b3e';
+      minimapCtx.fillRect(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y));
+    });
 
     // Map Border Frame
     minimapCtx.strokeStyle = '#3d4a68';
     minimapCtx.lineWidth = 1.5;
-    minimapCtx.strokeRect(topMeadow.x, topMeadow.y, mapW, mapH);
+    minimapCtx.strokeRect(topLeft.x, topLeft.y, mapW, mapH);
 
     // 2. Camera Viewport Box Indicator
     const camIsoMin = isoToWorld(0, 0);
@@ -1256,13 +1198,14 @@
       minimapCtx.fill();
     });
 
-    // Red Dots for Monsters
+    // Red Dots for Monsters (bigger/brighter for bosses)
     monsters.forEach(m => {
       if (m.hp > 0) {
         const pos = worldToMinimap(m.wx, m.wy);
-        minimapCtx.fillStyle = (m.sprite === 'boss_baphomet_ff') ? '#ff1744' : '#ff5252';
+        const isBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
+        minimapCtx.fillStyle = isBoss ? '#ff1744' : '#ff5252';
         minimapCtx.beginPath();
-        minimapCtx.arc(pos.x, pos.y, (m.sprite === 'boss_baphomet_ff' ? 4 : 2), 0, Math.PI * 2);
+        minimapCtx.arc(pos.x, pos.y, (isBoss ? 4 : 2), 0, Math.PI * 2);
         minimapCtx.fill();
       }
     });
@@ -1277,16 +1220,10 @@
     minimapCtx.lineWidth = 1;
     minimapCtx.stroke();
 
-    // Update Zone Name Title
-    let currentZone = "Prontera Town Center";
-    if (player.wy < -15.5) {
-      currentZone = "South Prontera Field";
-    } else if (player.wy > 15.5) {
-      currentZone = "Underground Sanctum";
-    }
+    // Update Zone Name Title - mirrors the district banner's current region
     const zoneTitleEl = document.getElementById('minimap-zone-title');
-    if (zoneTitleEl && zoneTitleEl.innerText !== currentZone) {
-      zoneTitleEl.innerText = currentZone;
+    if (zoneTitleEl && zoneTitleEl.innerText !== currentDistrictName) {
+      zoneTitleEl.innerText = currentDistrictName;
     }
   }
 
@@ -1301,19 +1238,19 @@
     cameraX += (targetCamX - cameraX) * 0.1;
     cameraY += (targetCamY - cameraY) * 0.1;
 
-    // Clamp Camera to Expanded World Map Boundaries
-    cameraX = Math.max(-15, Math.min(15, cameraX));
-    cameraY = Math.max(-45, Math.min(45, cameraY));
+    // Clamp Camera to the loaded zone's boundaries (currentMapBounds)
+    cameraX = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, cameraX));
+    cameraY = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, cameraY));
 
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#10141f';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // 1. Render 2.5D Isometric Diamond Grid Terrain (Visible range around camera)
-    const minWx = Math.max(-15, Math.floor(cameraX - 20));
-    const maxWx = Math.min(15, Math.ceil(cameraX + 20));
-    const minWy = Math.max(-45, Math.floor(cameraY - 20));
-    const maxWy = Math.min(45, Math.ceil(cameraY + 20));
+    const minWx = Math.max(currentMapBounds.minWx, Math.floor(cameraX - 20));
+    const maxWx = Math.min(currentMapBounds.maxWx, Math.ceil(cameraX + 20));
+    const minWy = Math.max(currentMapBounds.minWy, Math.floor(cameraY - 20));
+    const maxWy = Math.min(currentMapBounds.maxWy, Math.ceil(cameraY + 20));
 
     for (let wy = minWy; wy <= maxWy; wy++) {
       for (let wx = minWx; wx <= maxWx; wx++) {
@@ -1372,9 +1309,13 @@
       }
     }
 
-    // World Boundaries (-15..15 wx, -45..45 wy)
-    player.wx = Math.max(-28, Math.min(28, player.wx));
-    player.wy = Math.max(-45, Math.min(45, player.wy));
+    // World Boundaries - dynamic per loaded zone (currentMapBounds)
+    player.wx = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, player.wx));
+    player.wy = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, player.wy));
+
+    // Zone/district banner + portal transitions (WORLD_MAP_EXPANSION.md)
+    checkDistrictTransition();
+    checkZoneExits();
 
     // Check pending NPC interaction proximity
     if (pendingNpcTarget) {
@@ -1415,16 +1356,14 @@
           updateHUD();
         }
       } else {
-        // Wandering logic: pick random target every ~120 frames within zone bounds
+        // Wandering logic: pick random target every ~120 frames, clamped to
+        // the loaded zone's bounds and a short leash around its spawn point
+        // so monsters don't wander the whole map.
         if (Math.random() < 0.015 && Math.hypot(m.targetWx - m.wx, m.targetWy - m.wy) < 0.2) {
-          m.targetWx = m.wx + (Math.random() * 4 - 2);
-          m.targetWy = m.wy + (Math.random() * 4 - 2);
-          m.targetWx = Math.max(-14, Math.min(14, m.targetWx));
-          if (m.zone === 'south') {
-            m.targetWy = Math.max(-44, Math.min(-17, m.targetWy));
-          } else if (m.zone === 'dungeon') {
-            m.targetWy = Math.max(17, Math.min(44, m.targetWy));
-          }
+          const homeX = (m.homeWx !== undefined) ? m.homeWx : (m.homeWx = m.wx);
+          const homeY = (m.homeWy !== undefined) ? m.homeWy : (m.homeWy = m.wy);
+          m.targetWx = Math.max(currentMapBounds.minWx, Math.min(currentMapBounds.maxWx, homeX + (Math.random() * 4 - 2)));
+          m.targetWy = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, homeY + (Math.random() * 4 - 2)));
         }
       }
 
@@ -1609,10 +1548,11 @@
         const barY = e.isoY - 58 * cameraZoom;
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(e.isoX - barW / 2, barY, barW, barH);
-        ctx.fillStyle = (m.sprite === 'boss_baphomet_ff' ? '#ff1744' : '#ff5252');
+        const mIsBoss = m.rank === 'boss' || m.sprite === 'boss_baphomet_ff';
+        ctx.fillStyle = (mIsBoss ? '#ff1744' : '#ff5252');
         ctx.fillRect(e.isoX - barW / 2, barY, (m.hp / m.maxHp) * barW, barH);
 
-        ctx.fillStyle = (m.sprite === 'boss_baphomet_ff' ? '#ff8a80' : '#fff');
+        ctx.fillStyle = (mIsBoss ? '#ff8a80' : '#fff');
         ctx.font = `${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
         ctx.textAlign = 'center';
         ctx.fillText(m.name, e.isoX, barY - 4);

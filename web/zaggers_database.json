@@ -1,59 +1,100 @@
 {
+  "schemaVersion": 2,
   "classes": {
     "vanguard": {
       "id": "vanguard",
       "name": "Vanguard",
       "role": "Tank / Melee DPS",
       "sprite": "hero_knight.png",
-      "baseStats": { "str": 14, "agi": 10, "vit": 16, "int": 6, "dex": 12, "luk": 8 },
+      "baseStats": {
+        "str": 14,
+        "agi": 10,
+        "vit": 16,
+        "int": 6,
+        "dex": 12,
+        "luk": 8
+      },
       "hpGrowth": 18,
       "spGrowth": 4,
       "primaryWeapon": "Sword / Shield",
-      "description": "Stalwart frontline titan with heavy armor and high health growth."
+      "description": "Stalwart frontline titan with heavy armor and high health growth.",
+      "affinity": "Neutral"
     },
     "spellweaver": {
       "id": "spellweaver",
       "name": "Spellweaver",
       "role": "Elemental Ranged DPS",
       "sprite": "hero_blackmage.png",
-      "baseStats": { "str": 5, "agi": 8, "vit": 8, "int": 18, "dex": 14, "luk": 10 },
+      "baseStats": {
+        "str": 5,
+        "agi": 8,
+        "vit": 8,
+        "int": 18,
+        "dex": 14,
+        "luk": 10
+      },
       "hpGrowth": 10,
       "spGrowth": 12,
       "primaryWeapon": "Archmage Staff",
-      "description": "Master of arcane storm and flame, dealing devastating area damage."
+      "description": "Master of arcane storm and flame, dealing devastating area damage.",
+      "affinity": "Fire"
     },
     "shadowblade": {
       "id": "shadowblade",
       "name": "Shadowblade",
       "role": "Agile Assassin",
       "sprite": "hero_thief.png",
-      "baseStats": { "str": 12, "agi": 18, "vit": 8, "int": 6, "dex": 14, "luk": 12 },
+      "baseStats": {
+        "str": 12,
+        "agi": 18,
+        "vit": 8,
+        "int": 6,
+        "dex": 14,
+        "luk": 12
+      },
       "hpGrowth": 12,
       "spGrowth": 5,
       "primaryWeapon": "Dual Daggers",
-      "description": "Lethal rogue specializing in rapid critical hits and high evasion."
+      "description": "Lethal rogue specializing in rapid critical hits and high evasion.",
+      "affinity": "Shadow"
     },
     "cleric": {
       "id": "cleric",
       "name": "Cleric",
       "role": "Support / Healer",
       "sprite": "hero_whitemage.png",
-      "baseStats": { "str": 8, "agi": 6, "vit": 12, "int": 15, "dex": 10, "luk": 12 },
+      "baseStats": {
+        "str": 8,
+        "agi": 6,
+        "vit": 12,
+        "int": 15,
+        "dex": 10,
+        "luk": 12
+      },
       "hpGrowth": 13,
       "spGrowth": 10,
       "primaryWeapon": "Holy Mace",
-      "description": "Devout guardian granting holy protection, healing, and resurrection."
+      "description": "Devout guardian granting holy protection, healing, and resurrection.",
+      "affinity": "Holy"
     },
     "ranger": {
       "id": "ranger",
       "name": "Ranger",
       "role": "Marksman / Trapper",
       "sprite": "hero_redmage.png",
-      "baseStats": { "str": 10, "agi": 14, "vit": 10, "int": 8, "dex": 18, "luk": 10 },
+      "baseStats": {
+        "str": 10,
+        "agi": 14,
+        "vit": 10,
+        "int": 8,
+        "dex": 18,
+        "luk": 10
+      },
       "hpGrowth": 14,
       "spGrowth": 6,
       "primaryWeapon": "Composite Bow",
-      "description": "Precision sniper firing deadly arrows from afar."
+      "description": "Precision sniper firing deadly arrows from afar.",
+      "affinity": "Wind"
     }
   },
   "skills": {
@@ -65,7 +106,87 @@
       "cooldownMs": 1200,
       "multiplier": 2.2,
       "targetType": "single_enemy",
-      "description": "Strike an enemy with powerful physical force."
+      "description": "Strike an enemy with powerful physical force.",
+      "element": "Neutral",
+      "reqLevel": 1,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "provoke_roar": {
+      "id": "provoke_roar",
+      "name": "Provoke Roar",
+      "classId": "vanguard",
+      "spCost": 10,
+      "cooldownMs": 6000,
+      "multiplier": 0.5,
+      "targetType": "aoe_enemy",
+      "description": "Bellow a challenge, forcing nearby enemies to target you and lowering their DEF.",
+      "element": "Neutral",
+      "reqLevel": 8,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "shield_bulwark": {
+      "id": "shield_bulwark",
+      "name": "Shield Bulwark",
+      "classId": "vanguard",
+      "spCost": 14,
+      "cooldownMs": 12000,
+      "multiplier": 0.0,
+      "targetType": "self_buff",
+      "description": "Plant your shield. Damage taken is reduced by 40% while you hold position.",
+      "element": "Neutral",
+      "reqLevel": 18,
+      "tier": 2,
+      "requires": "bash",
+      "damageType": "none"
+    },
+    "cleaving_sweep": {
+      "id": "cleaving_sweep",
+      "name": "Cleaving Sweep",
+      "classId": "vanguard",
+      "spCost": 22,
+      "cooldownMs": 3500,
+      "multiplier": 2.8,
+      "targetType": "aoe_enemy",
+      "description": "A wide arcing swing that strikes every enemy in front of you.",
+      "element": "Neutral",
+      "reqLevel": 28,
+      "tier": 2,
+      "requires": "bash",
+      "damageType": "physical"
+    },
+    "iron_stance": {
+      "id": "iron_stance",
+      "name": "Iron Stance",
+      "classId": "vanguard",
+      "spCost": 30,
+      "cooldownMs": 30000,
+      "multiplier": 0.0,
+      "targetType": "self_buff",
+      "description": "Root yourself in the earth: immune to knockback, +50% DEF, movement halved.",
+      "element": "Earth",
+      "reqLevel": 40,
+      "tier": 3,
+      "requires": "shield_bulwark",
+      "damageType": "none"
+    },
+    "aegis_of_the_legion": {
+      "id": "aegis_of_the_legion",
+      "name": "Aegis of the Legion",
+      "classId": "vanguard",
+      "spCost": 45,
+      "cooldownMs": 45000,
+      "multiplier": 0.0,
+      "targetType": "party_buff",
+      "description": "Extend the Legion's oath over your party, granting every ally a damage shield.",
+      "element": "Holy",
+      "reqLevel": 55,
+      "tier": 3,
+      "requires": "shield_bulwark",
+      "damageType": "none"
     },
     "fireball": {
       "id": "fireball",
@@ -75,7 +196,177 @@
       "cooldownMs": 2000,
       "multiplier": 3.0,
       "targetType": "aoe_enemy",
-      "description": "Hurl an exploding ball of fire dealing high elemental damage."
+      "description": "Hurl an exploding ball of fire dealing high elemental damage.",
+      "element": "Fire",
+      "reqLevel": 1,
+      "tier": 1,
+      "requires": null,
+      "damageType": "magic"
+    },
+    "frost_lance": {
+      "id": "frost_lance",
+      "name": "Frost Lance",
+      "classId": "spellweaver",
+      "spCost": 13,
+      "cooldownMs": 1800,
+      "multiplier": 2.6,
+      "targetType": "single_enemy",
+      "description": "Impale a single target on a spear of ice, slowing its movement.",
+      "element": "Water",
+      "reqLevel": 8,
+      "tier": 1,
+      "requires": null,
+      "damageType": "magic"
+    },
+    "chain_lightning": {
+      "id": "chain_lightning",
+      "name": "Chain Lightning",
+      "classId": "spellweaver",
+      "spCost": 24,
+      "cooldownMs": 4000,
+      "multiplier": 2.4,
+      "targetType": "aoe_enemy",
+      "description": "Loose an arc that leaps between up to four enemies, weakening with each jump.",
+      "element": "Wind",
+      "reqLevel": 18,
+      "tier": 2,
+      "requires": "fireball",
+      "damageType": "magic"
+    },
+    "arcane_siphon": {
+      "id": "arcane_siphon",
+      "name": "Arcane Siphon",
+      "classId": "spellweaver",
+      "spCost": 18,
+      "cooldownMs": 8000,
+      "multiplier": 1.8,
+      "targetType": "single_enemy",
+      "description": "Drain a target's essence, converting a portion of the damage dealt into SP.",
+      "element": "Neutral",
+      "reqLevel": 28,
+      "tier": 2,
+      "requires": "frost_lance",
+      "damageType": "magic"
+    },
+    "mana_shield": {
+      "id": "mana_shield",
+      "name": "Mana Shield",
+      "classId": "spellweaver",
+      "spCost": 35,
+      "cooldownMs": 20000,
+      "multiplier": 0.0,
+      "targetType": "self_buff",
+      "description": "Spend SP instead of HP for incoming damage until your reserves run dry.",
+      "element": "Neutral",
+      "reqLevel": 40,
+      "tier": 3,
+      "requires": "arcane_siphon",
+      "damageType": "none"
+    },
+    "meteor_fall": {
+      "id": "meteor_fall",
+      "name": "Meteor Fall",
+      "classId": "spellweaver",
+      "spCost": 60,
+      "cooldownMs": 15000,
+      "multiplier": 6.5,
+      "targetType": "aoe_enemy",
+      "description": "Call down burning stone across a wide area. The Spire's signature, stolen.",
+      "element": "Fire",
+      "reqLevel": 55,
+      "tier": 3,
+      "requires": "chain_lightning",
+      "damageType": "magic"
+    },
+    "venom_edge": {
+      "id": "venom_edge",
+      "name": "Venom Edge",
+      "classId": "shadowblade",
+      "spCost": 7,
+      "cooldownMs": 1000,
+      "multiplier": 1.9,
+      "targetType": "single_enemy",
+      "description": "Coat both blades and strike, leaving a wound that bleeds venom over time.",
+      "element": "Poison",
+      "reqLevel": 1,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "shadow_step": {
+      "id": "shadow_step",
+      "name": "Shadow Step",
+      "classId": "shadowblade",
+      "spCost": 12,
+      "cooldownMs": 5000,
+      "multiplier": 1.6,
+      "targetType": "single_enemy",
+      "description": "Vanish and reappear behind your target, striking before they turn.",
+      "element": "Shadow",
+      "reqLevel": 8,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "fan_of_blades": {
+      "id": "fan_of_blades",
+      "name": "Fan of Blades",
+      "classId": "shadowblade",
+      "spCost": 20,
+      "cooldownMs": 3000,
+      "multiplier": 2.3,
+      "targetType": "aoe_enemy",
+      "description": "Spin through a crowd, cutting everything within a dagger's reach.",
+      "element": "Neutral",
+      "reqLevel": 18,
+      "tier": 2,
+      "requires": "venom_edge",
+      "damageType": "physical"
+    },
+    "cloak_of_dusk": {
+      "id": "cloak_of_dusk",
+      "name": "Cloak of Dusk",
+      "classId": "shadowblade",
+      "spCost": 25,
+      "cooldownMs": 18000,
+      "multiplier": 0.0,
+      "targetType": "self_buff",
+      "description": "Fade from sight. Your next strike from concealment is a guaranteed critical.",
+      "element": "Shadow",
+      "reqLevel": 28,
+      "tier": 2,
+      "requires": "shadow_step",
+      "damageType": "none"
+    },
+    "exploit_weakness": {
+      "id": "exploit_weakness",
+      "name": "Exploit Weakness",
+      "classId": "shadowblade",
+      "spCost": 22,
+      "cooldownMs": 9000,
+      "multiplier": 3.4,
+      "targetType": "single_enemy",
+      "description": "Read the gap in their guard and put a blade through it. Ignores most DEF.",
+      "element": "Neutral",
+      "reqLevel": 40,
+      "tier": 3,
+      "requires": "fan_of_blades",
+      "damageType": "physical"
+    },
+    "thousand_cuts": {
+      "id": "thousand_cuts",
+      "name": "Thousand Cuts",
+      "classId": "shadowblade",
+      "spCost": 48,
+      "cooldownMs": 25000,
+      "multiplier": 7.0,
+      "targetType": "single_enemy",
+      "description": "An unbroken flurry. Damage scales with how long you remain unhit.",
+      "element": "Shadow",
+      "reqLevel": 55,
+      "tier": 3,
+      "requires": "cloak_of_dusk",
+      "damageType": "physical"
     },
     "heal": {
       "id": "heal",
@@ -85,7 +376,177 @@
       "cooldownMs": 1500,
       "multiplier": 2.5,
       "targetType": "ally_heal",
-      "description": "Restore target ally's HP based on INT stat."
+      "description": "Restore target ally's HP based on INT stat.",
+      "element": "Holy",
+      "reqLevel": 1,
+      "tier": 1,
+      "requires": null,
+      "damageType": "none"
+    },
+    "holy_light": {
+      "id": "holy_light",
+      "name": "Holy Light",
+      "classId": "cleric",
+      "spCost": 14,
+      "cooldownMs": 1800,
+      "multiplier": 2.7,
+      "targetType": "single_enemy",
+      "description": "A lance of Aetherite light. Devastating against the returned dead.",
+      "element": "Holy",
+      "reqLevel": 8,
+      "tier": 1,
+      "requires": null,
+      "damageType": "magic"
+    },
+    "sanctuary_ward": {
+      "id": "sanctuary_ward",
+      "name": "Sanctuary Ward",
+      "classId": "cleric",
+      "spCost": 26,
+      "cooldownMs": 15000,
+      "multiplier": 1.4,
+      "targetType": "party_buff",
+      "description": "Consecrate the ground beneath your party, healing all who stand within it.",
+      "element": "Holy",
+      "reqLevel": 18,
+      "tier": 2,
+      "requires": "heal",
+      "damageType": "none"
+    },
+    "purge_affliction": {
+      "id": "purge_affliction",
+      "name": "Purge Affliction",
+      "classId": "cleric",
+      "spCost": 16,
+      "cooldownMs": 6000,
+      "multiplier": 0.0,
+      "targetType": "ally_single",
+      "description": "Burn poison, curse, and freeze out of an ally in a single searing moment.",
+      "element": "Holy",
+      "reqLevel": 28,
+      "tier": 2,
+      "requires": "heal",
+      "damageType": "none"
+    },
+    "blessing_of_valor": {
+      "id": "blessing_of_valor",
+      "name": "Blessing of Valor",
+      "classId": "cleric",
+      "spCost": 34,
+      "cooldownMs": 30000,
+      "multiplier": 0.0,
+      "targetType": "party_buff",
+      "description": "The Order's oath made manifest: +ATK, +HIT and +MDEF for the whole party.",
+      "element": "Holy",
+      "reqLevel": 40,
+      "tier": 3,
+      "requires": "sanctuary_ward",
+      "damageType": "none"
+    },
+    "resurrection_rite": {
+      "id": "resurrection_rite",
+      "name": "Resurrection Rite",
+      "classId": "cleric",
+      "spCost": 70,
+      "cooldownMs": 60000,
+      "multiplier": 0.0,
+      "targetType": "ally_single",
+      "description": "The rite performed in the High Temple, spoken over the fallen where they lie.",
+      "element": "Holy",
+      "reqLevel": 55,
+      "tier": 3,
+      "requires": "purge_affliction",
+      "damageType": "none"
+    },
+    "piercing_shot": {
+      "id": "piercing_shot",
+      "name": "Piercing Shot",
+      "classId": "ranger",
+      "spCost": 9,
+      "cooldownMs": 1300,
+      "multiplier": 2.4,
+      "targetType": "single_enemy",
+      "description": "A drawn-through shot that punches past armour and out the other side.",
+      "element": "Neutral",
+      "reqLevel": 1,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "snare_trap": {
+      "id": "snare_trap",
+      "name": "Snare Trap",
+      "classId": "ranger",
+      "spCost": 11,
+      "cooldownMs": 7000,
+      "multiplier": 1.2,
+      "targetType": "ground_trap",
+      "description": "Set a hidden snare. The first thing to cross it is held fast and bleeding.",
+      "element": "Earth",
+      "reqLevel": 8,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "volley_of_thorns": {
+      "id": "volley_of_thorns",
+      "name": "Volley of Thorns",
+      "classId": "ranger",
+      "spCost": 21,
+      "cooldownMs": 3200,
+      "multiplier": 2.5,
+      "targetType": "aoe_enemy",
+      "description": "Loose a spread of barbed shafts across a cone of ground.",
+      "element": "Earth",
+      "reqLevel": 18,
+      "tier": 2,
+      "requires": "piercing_shot",
+      "damageType": "physical"
+    },
+    "hawk_eye": {
+      "id": "hawk_eye",
+      "name": "Hawk Eye",
+      "classId": "ranger",
+      "spCost": 18,
+      "cooldownMs": 20000,
+      "multiplier": 0.0,
+      "targetType": "self_buff",
+      "description": "Steady the breath and the wind. Greatly increased range, HIT and critical rate.",
+      "element": "Wind",
+      "reqLevel": 28,
+      "tier": 2,
+      "requires": "piercing_shot",
+      "damageType": "none"
+    },
+    "beast_bond": {
+      "id": "beast_bond",
+      "name": "Beast Bond",
+      "classId": "ranger",
+      "spCost": 40,
+      "cooldownMs": 45000,
+      "multiplier": 2.0,
+      "targetType": "self_buff",
+      "description": "Call the hawk that has been following you since the Corps took you in.",
+      "element": "Wind",
+      "reqLevel": 40,
+      "tier": 3,
+      "requires": "hawk_eye",
+      "damageType": "physical"
+    },
+    "rain_of_arrows": {
+      "id": "rain_of_arrows",
+      "name": "Rain of Arrows",
+      "classId": "ranger",
+      "spCost": 55,
+      "cooldownMs": 18000,
+      "multiplier": 5.8,
+      "targetType": "aoe_enemy",
+      "description": "Empty the quiver skyward. Everything in the marked ground is under it.",
+      "element": "Wind",
+      "reqLevel": 55,
+      "tier": 3,
+      "requires": "volley_of_thorns",
+      "damageType": "physical"
     }
   },
   "items": {
@@ -95,17 +556,231 @@
       "type": "consumable",
       "price": 50,
       "healHp": 100,
-      "atk": 0, "matk": 0, "def": 0,
-      "icon": "potion_health_ff.png"
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "potion_health_ff.png",
+      "slot": null,
+      "reqLevel": 1,
+      "element": null,
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
     },
-    "mythril_armor": {
-      "id": "mythril_armor",
-      "name": "Mythril Armor",
-      "type": "armor",
-      "price": 300,
+    "blue_potion": {
+      "id": "blue_potion",
+      "name": "Blue Potion",
+      "type": "consumable",
+      "price": 80,
       "healHp": 0,
-      "atk": 0, "matk": 0, "def": 15,
-      "icon": "prop_crystal_save.png"
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "potion_mana_ff.png",
+      "slot": null,
+      "reqLevel": 1,
+      "element": null,
+      "mdef": 0,
+      "healSp": 60,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "meadow_bread": {
+      "id": "meadow_bread",
+      "name": "Meadow Bread",
+      "type": "consumable",
+      "price": 25,
+      "healHp": 45,
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "food_bread_ff.png",
+      "slot": null,
+      "reqLevel": 1,
+      "element": null,
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "aetherite_draught": {
+      "id": "aetherite_draught",
+      "name": "Aetherite Draught",
+      "type": "consumable",
+      "price": 900,
+      "healHp": 800,
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "potion_aetherite_ff.png",
+      "slot": null,
+      "reqLevel": 50,
+      "element": "Holy",
+      "mdef": 0,
+      "healSp": 300,
+      "twoHanded": false,
+      "tier": 4,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "thawstone": {
+      "id": "thawstone",
+      "name": "Thawstone",
+      "type": "consumable",
+      "price": 0,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "key_thawstone_ff.png",
+      "slot": null,
+      "reqLevel": 60,
+      "element": "Water",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 4,
+      "source": "chasm",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "bellflower_shortsword": {
+      "id": "bellflower_shortsword",
+      "name": "Bellflower Shortsword",
+      "type": "weapon",
+      "price": 90,
+      "healHp": 0,
+      "atk": 14,
+      "matk": 0,
+      "def": 0,
+      "icon": "wpn_shortsword_ff.png",
+      "slot": "weapon",
+      "reqLevel": 1,
+      "element": "Neutral",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "snagtooth_cleaver": {
+      "id": "snagtooth_cleaver",
+      "name": "Snagtooth Cleaver",
+      "type": "weapon",
+      "price": 260,
+      "healHp": 0,
+      "atk": 22,
+      "matk": 0,
+      "def": 0,
+      "icon": "wpn_cleaver_ff.png",
+      "slot": "weapon",
+      "reqLevel": 12,
+      "element": "Neutral",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "meadows",
+      "bonus": {
+        "str": 2,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "tidebreak_trident": {
+      "id": "tidebreak_trident",
+      "name": "Tidebreak Trident",
+      "type": "weapon",
+      "price": 700,
+      "healHp": 0,
+      "atk": 38,
+      "matk": 0,
+      "def": 0,
+      "icon": "wpn_trident_ff.png",
+      "slot": "weapon",
+      "reqLevel": 22,
+      "element": "Water",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": true,
+      "tier": 2,
+      "source": "sanctum",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 3,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
     },
     "dragon_lance": {
       "id": "dragon_lance",
@@ -113,45 +788,3300 @@
       "type": "weapon",
       "price": 600,
       "healHp": 0,
-      "atk": 35, "matk": 0, "def": 0,
-      "icon": "excalibur_ff.png"
+      "atk": 35,
+      "matk": 0,
+      "def": 0,
+      "icon": "excalibur_ff.png",
+      "slot": "weapon",
+      "reqLevel": 34,
+      "element": "Neutral",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": true,
+      "tier": 3,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 10,
+        "flee": 0
+      }
+    },
+    "emberglass_edge": {
+      "id": "emberglass_edge",
+      "name": "Emberglass Edge",
+      "type": "weapon",
+      "price": 1800,
+      "healHp": 0,
+      "atk": 62,
+      "matk": 0,
+      "def": 0,
+      "icon": "wpn_emberglass_ff.png",
+      "slot": "weapon",
+      "reqLevel": 40,
+      "element": "Fire",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 3,
+      "source": "spire",
+      "bonus": {
+        "str": 4,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 6,
+        "flee": 0
+      }
+    },
+    "hoarfrost_longbow": {
+      "id": "hoarfrost_longbow",
+      "name": "Hoarfrost Longbow",
+      "type": "weapon",
+      "price": 4200,
+      "healHp": 0,
+      "atk": 92,
+      "matk": 0,
+      "def": 0,
+      "icon": "wpn_longbow_ff.png",
+      "slot": "weapon",
+      "reqLevel": 58,
+      "element": "Water",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": true,
+      "tier": 4,
+      "source": "chasm",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 8,
+        "luk": 0,
+        "crit": 8,
+        "flee": 0
+      }
+    },
+    "rootfang_staff": {
+      "id": "rootfang_staff",
+      "name": "Rootfang Staff",
+      "type": "weapon",
+      "price": 9500,
+      "healHp": 0,
+      "atk": 30,
+      "matk": 118,
+      "def": 0,
+      "icon": "wpn_staff_root_ff.png",
+      "slot": "weapon",
+      "reqLevel": 76,
+      "element": "Shadow",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": true,
+      "tier": 5,
+      "source": "rootways",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 12,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "oaken_targe": {
+      "id": "oaken_targe",
+      "name": "Oaken Targe",
+      "type": "shield",
+      "price": 120,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 6,
+      "icon": "shd_targe_ff.png",
+      "slot": "shield",
+      "reqLevel": 5,
+      "element": "Earth",
+      "mdef": 2,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "nave_aegis": {
+      "id": "nave_aegis",
+      "name": "Nave Aegis",
+      "type": "shield",
+      "price": 850,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 18,
+      "icon": "shd_aegis_ff.png",
+      "slot": "shield",
+      "reqLevel": 26,
+      "element": "Water",
+      "mdef": 10,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 2,
+      "source": "sanctum",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 3,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "forgewrought_bulwark": {
+      "id": "forgewrought_bulwark",
+      "name": "Forgewrought Bulwark",
+      "type": "shield",
+      "price": 3600,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 34,
+      "icon": "shd_bulwark_ff.png",
+      "slot": "shield",
+      "reqLevel": 46,
+      "element": "Fire",
+      "mdef": 14,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 3,
+      "source": "spire",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 6,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "travellers_jerkin": {
+      "id": "travellers_jerkin",
+      "name": "Traveller's Jerkin",
+      "type": "armor",
+      "price": 70,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 5,
+      "icon": "arm_jerkin_ff.png",
+      "slot": "armor",
+      "reqLevel": 1,
+      "element": "Neutral",
+      "mdef": 1,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "mythril_armor": {
+      "id": "mythril_armor",
+      "name": "Mythril Armor",
+      "type": "armor",
+      "price": 300,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 15,
+      "icon": "arm_mythril_ff.png",
+      "slot": "armor",
+      "reqLevel": 20,
+      "element": "Neutral",
+      "mdef": 5,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 2,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "slagworks_plate": {
+      "id": "slagworks_plate",
+      "name": "Slagworks Plate",
+      "type": "armor",
+      "price": 3200,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 32,
+      "icon": "arm_slagplate_ff.png",
+      "slot": "armor",
+      "reqLevel": 44,
+      "element": "Fire",
+      "mdef": 10,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 3,
+      "source": "spire",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 5,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "umbral_shroud": {
+      "id": "umbral_shroud",
+      "name": "Umbral Shroud",
+      "type": "armor",
+      "price": 11000,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 58,
+      "icon": "arm_shroud_ff.png",
+      "slot": "armor",
+      "reqLevel": 74,
+      "element": "Shadow",
+      "mdef": 40,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 5,
+      "source": "rootways",
+      "bonus": {
+        "str": 0,
+        "agi": 8,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 15
+      }
+    },
+    "militia_kettle_helm": {
+      "id": "militia_kettle_helm",
+      "name": "Militia Kettle Helm",
+      "type": "headgear",
+      "price": 60,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 4,
+      "icon": "hat_kettle_ff.png",
+      "slot": "headgear",
+      "reqLevel": 3,
+      "element": "Neutral",
+      "mdef": 1,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "shop",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 1,
+        "int": 0,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "coral_circlet": {
+      "id": "coral_circlet",
+      "name": "Coral Circlet",
+      "type": "headgear",
+      "price": 1100,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 9,
+      "icon": "hat_circlet_ff.png",
+      "slot": "headgear",
+      "reqLevel": 27,
+      "element": "Water",
+      "mdef": 6,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 2,
+      "source": "sanctum",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 3,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "aurora_diadem": {
+      "id": "aurora_diadem",
+      "name": "Aurora Diadem",
+      "type": "headgear",
+      "price": 7800,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 22,
+      "icon": "hat_diadem_ff.png",
+      "slot": "headgear",
+      "reqLevel": 64,
+      "element": "Holy",
+      "mdef": 18,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 4,
+      "source": "chasm",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 6,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "hedgerow_charm": {
+      "id": "hedgerow_charm",
+      "name": "Hedgerow Charm",
+      "type": "accessory",
+      "price": 150,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "acc_charm_ff.png",
+      "slot": "accessory",
+      "reqLevel": 6,
+      "element": "Earth",
+      "mdef": 0,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 1,
+      "source": "meadows",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 0,
+        "luk": 2,
+        "crit": 0,
+        "flee": 5
+      }
+    },
+    "glasslight_pendant": {
+      "id": "glasslight_pendant",
+      "name": "Glasslight Pendant",
+      "type": "accessory",
+      "price": 1400,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "acc_pendant_ff.png",
+      "slot": "accessory",
+      "reqLevel": 24,
+      "element": "Holy",
+      "mdef": 8,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 2,
+      "source": "sanctum",
+      "bonus": {
+        "str": 0,
+        "agi": 0,
+        "vit": 0,
+        "int": 4,
+        "dex": 0,
+        "luk": 0,
+        "crit": 0,
+        "flee": 0
+      }
+    },
+    "sovereigns_signet": {
+      "id": "sovereigns_signet",
+      "name": "Sovereign's Signet",
+      "type": "accessory",
+      "price": 40000,
+      "healHp": 0,
+      "atk": 0,
+      "matk": 0,
+      "def": 0,
+      "icon": "acc_signet_ff.png",
+      "slot": "accessory",
+      "reqLevel": 90,
+      "element": "Shadow",
+      "mdef": 12,
+      "healSp": 0,
+      "twoHanded": false,
+      "tier": 6,
+      "source": "rootways",
+      "bonus": {
+        "str": 8,
+        "agi": 0,
+        "vit": 0,
+        "int": 0,
+        "dex": 8,
+        "luk": 0,
+        "crit": 15,
+        "flee": 0
+      }
     }
   },
   "monsters": {
-    "slime_green": {
-      "id": "slime_green",
-      "name": "Green Slime",
-      "sprite": "slime_green_ff.png",
+    "dustmote_wisp": {
+      "id": "dustmote_wisp",
+      "name": "Dustmote Wisp",
+      "sprite": "dustmote_wisp_ff.png",
       "aggro": "passive",
-      "hp": 45, "atk": 8, "def": 2, "exp": 12, "zeny": 15
+      "hp": 29,
+      "atk": 5,
+      "def": 1,
+      "exp": 7,
+      "zeny": 8,
+      "element": "Wind",
+      "level": 2,
+      "rank": "normal",
+      "zone": "gatewatch",
+      "subRegion": "gatewatch_commons",
+      "spriteStatus": "new",
+      "description": "A knot of chaff and sunlight that drifts where the threshing was; harmless until it isn't.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.25
+        }
+      ]
     },
-    "goblin_raider": {
-      "id": "goblin_raider",
-      "name": "Goblin Raider",
-      "sprite": "goblin_ff.png",
+    "gutter_ratkin": {
+      "id": "gutter_ratkin",
+      "name": "Gutter Ratkin",
+      "sprite": "gutter_ratkin_ff.png",
       "aggro": "aggressive",
-      "hp": 120, "atk": 22, "def": 6, "exp": 45, "zeny": 50
+      "hp": 44,
+      "atk": 8,
+      "def": 2,
+      "exp": 12,
+      "zeny": 14,
+      "element": "Neutral",
+      "level": 3,
+      "rank": "normal",
+      "zone": "gatewatch",
+      "subRegion": "gatewatch_commons",
+      "spriteStatus": "new",
+      "description": "Knee-high, wearing a scrap of someone's coin-purse as a hood, entirely unimpressed by you.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.25
+        }
+      ]
     },
-    "skeleton_warrior": {
-      "id": "skeleton_warrior",
-      "name": "Skeleton Warrior",
-      "sprite": "skeleton_ff.png",
+    "thatch_beetle": {
+      "id": "thatch_beetle",
+      "name": "Thatch Beetle",
+      "sprite": "thatch_beetle_ff.png",
+      "aggro": "passive",
+      "hp": 60,
+      "atk": 11,
+      "def": 3,
+      "exp": 17,
+      "zeny": 20,
+      "element": "Earth",
+      "level": 4,
+      "rank": "normal",
+      "zone": "gatewatch",
+      "subRegion": "gatewatch_commons",
+      "spriteStatus": "new",
+      "description": "Fat, iridescent, and eating the roof; the militia pay a copper a shell.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.25
+        }
+      ]
+    },
+    "straw_effigy": {
+      "id": "straw_effigy",
+      "name": "Straw Effigy",
+      "sprite": "straw_effigy_ff.png",
       "aggro": "aggressive",
-      "hp": 280, "atk": 45, "def": 12, "exp": 120, "zeny": 110
+      "hp": 266,
+      "atk": 19,
+      "def": 5,
+      "exp": 115,
+      "zeny": 135,
+      "element": "Fire",
+      "level": 5,
+      "rank": "rare",
+      "zone": "gatewatch",
+      "subRegion": "gatewatch_commons",
+      "spriteStatus": "new",
+      "description": "A scarecrow that turned to watch you. It burns beautifully, which it seems to know.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.25
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.3
+        }
+      ]
     },
-    "lord_baphomet": {
-      "id": "lord_baphomet",
-      "name": "Lord Baphomet",
-      "sprite": "boss_baphomet_ff.png",
+    "gloopling_bellflower": {
+      "id": "gloopling_bellflower",
+      "name": "Bellflower Gloopling",
+      "sprite": "gloopling_bellflower_ff.png",
+      "aggro": "passive",
+      "hp": 45,
+      "atk": 8,
+      "def": 2,
+      "exp": 12,
+      "zeny": 15,
+      "element": "Water",
+      "level": 3,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "bellflower_downs",
+      "spriteStatus": "reuse",
+      "description": "A pint of blue meadow-water that got ideas; leaves a trail of crushed petals.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "bramblehop": {
+      "id": "bramblehop",
+      "name": "Bramblehop",
+      "sprite": "bramblehop_ff.png",
+      "aggro": "passive",
+      "hp": 76,
+      "atk": 14,
+      "def": 4,
+      "exp": 23,
+      "zeny": 27,
+      "element": "Earth",
+      "level": 5,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "bellflower_downs",
+      "spriteStatus": "new",
+      "description": "A hare made mostly of thorn-scrub, and it does not stop bouncing while you fight it.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "hornhaste_wasp": {
+      "id": "hornhaste_wasp",
+      "name": "Hornhaste Wasp",
+      "sprite": "hornhaste_wasp_ff.png",
+      "aggro": "aggressive",
+      "hp": 92,
+      "atk": 16,
+      "def": 4,
+      "exp": 29,
+      "zeny": 34,
+      "element": "Wind",
+      "level": 6,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "bellflower_downs",
+      "spriteStatus": "new",
+      "description": "Fist-sized, furious, and always in threes. The Downs' hedgerows hum with them.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "snagtooth_raider": {
+      "id": "snagtooth_raider",
+      "name": "Snagtooth Raider",
+      "sprite": "snagtooth_raider_ff.png",
+      "aggro": "aggressive",
+      "hp": 120,
+      "atk": 22,
+      "def": 6,
+      "exp": 45,
+      "zeny": 50,
+      "element": "Neutral",
+      "level": 8,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "raiders_palisade",
+      "spriteStatus": "reuse",
+      "description": "Wiry, tusked, and armed with whatever the last caravan was carrying. Never travels alone.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "mossback_tortin": {
+      "id": "mossback_tortin",
+      "name": "Mossback Tortin",
+      "sprite": "mossback_tortin_ff.png",
+      "aggro": "passive",
+      "hp": 157,
+      "atk": 27,
+      "def": 7,
+      "exp": 58,
+      "zeny": 61,
+      "element": "Earth",
+      "level": 10,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "thistlemarch_fen",
+      "spriteStatus": "new",
+      "description": "A shield with legs. Two feet of moss-grown shell that has outlived four generations of raiders.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "fen_lurker": {
+      "id": "fen_lurker",
+      "name": "Fen Lurker",
+      "sprite": "fen_lurker_ff.png",
+      "aggro": "aggressive",
+      "hp": 157,
+      "atk": 27,
+      "def": 7,
+      "exp": 58,
+      "zeny": 61,
+      "element": "Water",
+      "level": 10,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "thistlemarch_fen",
+      "spriteStatus": "new",
+      "description": "You will see the reeds part before you see the Lurker. That is the only warning offered.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "rot_capling": {
+      "id": "rot_capling",
+      "name": "Rot Capling",
+      "sprite": "rot_capling_ff.png",
+      "aggro": "passive",
+      "hp": 207,
+      "atk": 35,
+      "def": 9,
+      "exp": 82,
+      "zeny": 80,
+      "element": "Poison",
+      "level": 13,
+      "rank": "normal",
+      "zone": "meadows",
+      "subRegion": "thistlemarch_fen",
+      "spriteStatus": "new",
+      "description": "A mushroom the size of a child that walks on its own stalk and coughs spores when struck.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        }
+      ]
+    },
+    "snagtooth_warchanter": {
+      "id": "snagtooth_warchanter",
+      "name": "Snagtooth Warchanter",
+      "sprite": "snagtooth_warchanter_ff.png",
+      "aggro": "aggressive",
+      "hp": 559,
+      "atk": 49,
+      "def": 14,
+      "exp": 316,
+      "zeny": 257,
+      "element": "Neutral",
+      "level": 14,
+      "rank": "elite",
+      "zone": "meadows",
+      "subRegion": "raiders_palisade",
+      "spriteStatus": "new",
+      "description": "Beats a shield-totem to a rhythm that makes the whole palisade hit harder. Kill the drum first.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.2
+        }
+      ]
+    },
+    "grovewarden_thistle": {
+      "id": "grovewarden_thistle",
+      "name": "Grovewarden Thistle",
+      "sprite": "grovewarden_thistle_ff.png",
+      "aggro": "aggressive",
+      "hp": 842,
+      "atk": 57,
+      "def": 15,
+      "exp": 495,
+      "zeny": 458,
+      "element": "Earth",
+      "level": 15,
+      "rank": "rare",
+      "zone": "meadows",
+      "subRegion": "hollowroot_grove",
+      "spriteStatus": "new",
+      "description": "The Hollowroot's keeper: a briar-and-antler shape that was standing there before the trees were.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.35
+        },
+        {
+          "itemId": "meadow_bread",
+          "chance": 0.2
+        },
+        {
+          "itemId": "hedgerow_charm",
+          "chance": 0.03
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.3
+        }
+      ]
+    },
+    "ordwin_palisade_tyrant": {
+      "id": "ordwin_palisade_tyrant",
+      "name": "Ordwin the Palisade Tyrant",
+      "sprite": "ordwin_palisade_tyrant_ff.png",
       "aggro": "boss",
-      "hp": 5000, "atk": 240, "def": 45, "exp": 5000, "zeny": 10000
+      "hp": 3088,
+      "atk": 69,
+      "def": 22,
+      "exp": 1294,
+      "zeny": 971,
+      "element": "Neutral",
+      "level": 16,
+      "rank": "boss",
+      "zone": "meadows",
+      "subRegion": "raiders_palisade",
+      "spriteStatus": "new",
+      "description": "Snagtooth chieftain in stolen Legion plate three sizes too large, and it has not slowed him down once.",
+      "drops": [
+        {
+          "itemId": "snagtooth_cleaver",
+          "chance": 0.5
+        },
+        {
+          "itemId": "oaken_targe",
+          "chance": 0.35
+        },
+        {
+          "itemId": "red_potion",
+          "chance": 1.0
+        }
+      ]
+    },
+    "drowned_marrowguard": {
+      "id": "drowned_marrowguard",
+      "name": "Drowned Marrowguard",
+      "sprite": "drowned_marrowguard_ff.png",
+      "aggro": "aggressive",
+      "hp": 280,
+      "atk": 45,
+      "def": 12,
+      "exp": 120,
+      "zeny": 110,
+      "element": "Undead",
+      "level": 17,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "tidebreak_stair",
+      "spriteStatus": "reuse",
+      "description": "Still at its post, still in formation, four centuries after the water came in.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "pricklespine_thornmarch": {
+      "id": "pricklespine_thornmarch",
+      "name": "Thornmarch Pricklespine",
+      "sprite": "pricklespine_thornmarch_ff.png",
+      "aggro": "passive",
+      "hp": 291,
+      "atk": 49,
+      "def": 13,
+      "exp": 126,
+      "zeny": 107,
+      "element": "Earth",
+      "level": 18,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "tidebreak_stair",
+      "spriteStatus": "reuse",
+      "description": "A bristling green thing that stands perfectly still until it is suddenly somewhere else.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "brinemaw_eel": {
+      "id": "brinemaw_eel",
+      "name": "Brinemaw Eel",
+      "sprite": "brinemaw_eel_ff.png",
+      "aggro": "aggressive",
+      "hp": 342,
+      "atk": 57,
+      "def": 15,
+      "exp": 155,
+      "zeny": 132,
+      "element": "Water",
+      "level": 21,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "silt_warrens",
+      "spriteStatus": "new",
+      "description": "Six feet of muscle and hinge-jaw that lives in the flooded pews and considers them home.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "silt_creeper": {
+      "id": "silt_creeper",
+      "name": "Silt Creeper",
+      "sprite": "silt_creeper_ff.png",
+      "aggro": "aggressive",
+      "hp": 359,
+      "atk": 59,
+      "def": 15,
+      "exp": 165,
+      "zeny": 140,
+      "element": "Poison",
+      "level": 22,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "silt_warrens",
+      "spriteStatus": "new",
+      "description": "It looks like sediment until the sediment reaches for your ankle. The Warrens are full of them.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "glasslight_mote": {
+      "id": "glasslight_mote",
+      "name": "Glasslight Mote",
+      "sprite": "glasslight_mote_ff.png",
+      "aggro": "passive",
+      "hp": 377,
+      "atk": 62,
+      "def": 16,
+      "exp": 175,
+      "zeny": 149,
+      "element": "Holy",
+      "level": 23,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "glasslight_reliquary",
+      "spriteStatus": "new",
+      "description": "A shard of living Aetherite light. Lead three to the braziers and the Reliquary opens.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "reliquary_husk": {
+      "id": "reliquary_husk",
+      "name": "Reliquary Husk",
+      "sprite": "reliquary_husk_ff.png",
+      "aggro": "aggressive",
+      "hp": 428,
+      "atk": 70,
+      "def": 18,
+      "exp": 206,
+      "zeny": 175,
+      "element": "Undead",
+      "level": 26,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "drowned_nave",
+      "spriteStatus": "new",
+      "description": "A pilgrim who reached the reliquary, knelt, and never got back up - and then did.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "coralbound_acolyte": {
+      "id": "coralbound_acolyte",
+      "name": "Coralbound Acolyte",
+      "sprite": "coralbound_acolyte_ff.png",
+      "aggro": "aggressive",
+      "hp": 463,
+      "atk": 76,
+      "def": 20,
+      "exp": 227,
+      "zeny": 193,
+      "element": "Water",
+      "level": 28,
+      "rank": "normal",
+      "zone": "sanctum",
+      "subRegion": "choirfall_deep",
+      "spriteStatus": "new",
+      "description": "Robed, kneeling, and grown through with pink coral. It still tries to finish the rite.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        }
+      ]
+    },
+    "warden_of_the_nave": {
+      "id": "warden_of_the_nave",
+      "name": "Warden of the Nave",
+      "sprite": "warden_of_the_nave_ff.png",
+      "aggro": "aggressive",
+      "hp": 1201,
+      "atk": 102,
+      "def": 28,
+      "exp": 833,
+      "zeny": 607,
+      "element": "Undead",
+      "level": 29,
+      "rank": "elite",
+      "zone": "sanctum",
+      "subRegion": "drowned_nave",
+      "spriteStatus": "new",
+      "description": "Twelve feet of ceremonial armour full of black water. It patrols the transept on a schedule.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.2
+        }
+      ]
+    },
+    "pale_choirmaster": {
+      "id": "pale_choirmaster",
+      "name": "The Pale Choirmaster",
+      "sprite": "pale_choirmaster_ff.png",
+      "aggro": "aggressive",
+      "hp": 1743,
+      "atk": 113,
+      "def": 29,
+      "exp": 1244,
+      "zeny": 1058,
+      "element": "Holy",
+      "level": 30,
+      "rank": "rare",
+      "zone": "sanctum",
+      "subRegion": "glasslight_reliquary",
+      "spriteStatus": "new",
+      "description": "Conducts nothing, in an empty nave, and the Husks all stop moving when it raises its hands.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.3
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "glasslight_pendant",
+          "chance": 0.02
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.3
+        }
+      ]
+    },
+    "hallowdeep_warden": {
+      "id": "hallowdeep_warden",
+      "name": "Hallowdeep, the Choirfall Warden",
+      "sprite": "hallowdeep_warden_ff.png",
+      "aggro": "boss",
+      "hp": 6393,
+      "atk": 138,
+      "def": 45,
+      "exp": 3254,
+      "zeny": 2305,
+      "element": "Water",
+      "level": 32,
+      "rank": "boss",
+      "zone": "sanctum",
+      "subRegion": "choirfall_deep",
+      "spriteStatus": "new",
+      "description": "What the Sanctum was built to contain, wearing the last warden's vestments as an apology.",
+      "drops": [
+        {
+          "itemId": "tidebreak_trident",
+          "chance": 0.45
+        },
+        {
+          "itemId": "nave_aegis",
+          "chance": 0.4
+        },
+        {
+          "itemId": "coral_circlet",
+          "chance": 0.3
+        }
+      ]
+    },
+    "cinderpuff": {
+      "id": "cinderpuff",
+      "name": "Cinderpuff",
+      "sprite": "cinderpuff_ff.png",
+      "aggro": "aggressive",
+      "hp": 533,
+      "atk": 86,
+      "def": 22,
+      "exp": 271,
+      "zeny": 230,
+      "element": "Fire",
+      "level": 32,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "cinderfall_approach",
+      "spriteStatus": "reuse",
+      "description": "A grinning sphere of contained detonation that drifts closer while you decide what to do.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "emberglass_shard": {
+      "id": "emberglass_shard",
+      "name": "Emberglass Shard",
+      "sprite": "emberglass_shard_ff.png",
+      "aggro": "passive",
+      "hp": 585,
+      "atk": 94,
+      "def": 24,
+      "exp": 305,
+      "zeny": 260,
+      "element": "Fire",
+      "level": 35,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "emberglass_terraces",
+      "spriteStatus": "new",
+      "description": "Volcanic glass that cooled into a shape with intent, and edges that have not cooled at all.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "ashfall_harrier": {
+      "id": "ashfall_harrier",
+      "name": "Ashfall Harrier",
+      "sprite": "ashfall_harrier_ff.png",
+      "aggro": "aggressive",
+      "hp": 638,
+      "atk": 103,
+      "def": 27,
+      "exp": 341,
+      "zeny": 290,
+      "element": "Wind",
+      "level": 38,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "emberglass_terraces",
+      "spriteStatus": "new",
+      "description": "A raptor that nests in the ash column; you hear the dive a half-second before it lands.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "magma_hulk": {
+      "id": "magma_hulk",
+      "name": "Magma Hulk",
+      "sprite": "magma_hulk_ff.png",
+      "aggro": "aggressive",
+      "hp": 709,
+      "atk": 113,
+      "def": 29,
+      "exp": 389,
+      "zeny": 331,
+      "element": "Fire",
+      "level": 42,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "the_slagworks",
+      "spriteStatus": "new",
+      "description": "Slag given shoulders. Slow, enormous, and it leaves the floor burning where it walked.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "soot_revenant": {
+      "id": "soot_revenant",
+      "name": "Soot Revenant",
+      "sprite": "soot_revenant_ff.png",
+      "aggro": "aggressive",
+      "hp": 727,
+      "atk": 116,
+      "def": 30,
+      "exp": 402,
+      "zeny": 341,
+      "element": "Undead",
+      "level": 43,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "the_slagworks",
+      "spriteStatus": "new",
+      "description": "A foundry-hand who never clocked off, outlined in the shape of the ash that settled on him.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "forgewrought_sentinel": {
+      "id": "forgewrought_sentinel",
+      "name": "Forgewrought Sentinel",
+      "sprite": "forgewrought_sentinel_ff.png",
+      "aggro": "aggressive",
+      "hp": 762,
+      "atk": 122,
+      "def": 31,
+      "exp": 427,
+      "zeny": 363,
+      "element": "Earth",
+      "level": 45,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "the_slagworks",
+      "spriteStatus": "new",
+      "description": "Built to guard the Slagworks. Nobody told it the Slagworks ended. It is still guarding.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "pyrelash_imp": {
+      "id": "pyrelash_imp",
+      "name": "Pyrelash Imp",
+      "sprite": "pyrelash_imp_ff.png",
+      "aggro": "aggressive",
+      "hp": 798,
+      "atk": 127,
+      "def": 33,
+      "exp": 452,
+      "zeny": 384,
+      "element": "Fire",
+      "level": 47,
+      "rank": "normal",
+      "zone": "spire",
+      "subRegion": "collapsed_skybridge",
+      "spriteStatus": "new",
+      "description": "Small, quick, and armed with a whip of live flame it clearly enjoys using.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        }
+      ]
+    },
+    "bellowmaster_grukk": {
+      "id": "bellowmaster_grukk",
+      "name": "Bellowmaster Grukk",
+      "sprite": "bellowmaster_grukk_ff.png",
+      "aggro": "aggressive",
+      "hp": 2083,
+      "atk": 172,
+      "def": 48,
+      "exp": 1673,
+      "zeny": 1219,
+      "element": "Fire",
+      "level": 49,
+      "rank": "elite",
+      "zone": "spire",
+      "subRegion": "the_slagworks",
+      "spriteStatus": "new",
+      "description": "Works the great bellows alone. Every pump makes the crucibles - and the Hulks - flare.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.2
+        }
+      ]
+    },
+    "the_unquenched": {
+      "id": "the_unquenched",
+      "name": "The Unquenched",
+      "sprite": "the_unquenched_ff.png",
+      "aggro": "aggressive",
+      "hp": 2979,
+      "atk": 189,
+      "def": 49,
+      "exp": 2455,
+      "zeny": 2086,
+      "element": "Fire",
+      "level": 50,
+      "rank": "rare",
+      "zone": "spire",
+      "subRegion": "the_spire_crown",
+      "spriteStatus": "new",
+      "description": "A fire that has been burning in the Crown's hollow since before the Shattering, and resents interruption.",
+      "drops": [
+        {
+          "itemId": "red_potion",
+          "chance": 0.28
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.2
+        },
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.015
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.3
+        }
+      ]
+    },
+    "vashkar_spire_crown": {
+      "id": "vashkar_spire_crown",
+      "name": "Vashkar the Spire Crown",
+      "sprite": "vashkar_spire_crown_ff.png",
+      "aggro": "boss",
+      "hp": 10644,
+      "atk": 225,
+      "def": 73,
+      "exp": 6206,
+      "zeny": 4396,
+      "element": "Fire",
+      "level": 52,
+      "rank": "boss",
+      "zone": "spire",
+      "subRegion": "the_spire_crown",
+      "spriteStatus": "new",
+      "description": "The mountain's own idea of a king: obsidian, crowned, and molten at every joint.",
+      "drops": [
+        {
+          "itemId": "emberglass_edge",
+          "chance": 0.45
+        },
+        {
+          "itemId": "forgewrought_bulwark",
+          "chance": 0.4
+        },
+        {
+          "itemId": "slagworks_plate",
+          "chance": 0.35
+        }
+      ]
+    },
+    "rimewind_sprite": {
+      "id": "rimewind_sprite",
+      "name": "Rimewind Sprite",
+      "sprite": "rimewind_sprite_ff.png",
+      "aggro": "aggressive",
+      "hp": 887,
+      "atk": 140,
+      "def": 36,
+      "exp": 517,
+      "zeny": 440,
+      "element": "Wind",
+      "level": 52,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "rimewind_pass",
+      "spriteStatus": "new",
+      "description": "The blizzard, locally. It has a face for as long as you look directly at it.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "hoarfrost_stalker": {
+      "id": "hoarfrost_stalker",
+      "name": "Hoarfrost Stalker",
+      "sprite": "hoarfrost_stalker_ff.png",
+      "aggro": "aggressive",
+      "hp": 923,
+      "atk": 146,
+      "def": 38,
+      "exp": 544,
+      "zeny": 462,
+      "element": "Water",
+      "level": 54,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "rimewind_pass",
+      "spriteStatus": "new",
+      "description": "White on white, patient, and it has been pacing you since the second cairn.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "frozen_penitent": {
+      "id": "frozen_penitent",
+      "name": "Frozen Penitent",
+      "sprite": "frozen_penitent_ff.png",
+      "aggro": "aggressive",
+      "hp": 959,
+      "atk": 151,
+      "def": 39,
+      "exp": 571,
+      "zeny": 485,
+      "element": "Undead",
+      "level": 56,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "statuary_of_the_fallen",
+      "spriteStatus": "new",
+      "description": "One of the Statuary. Ice sloughs off it as it remembers how to kneel, then how to stand.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "glacier_drake_whelp": {
+      "id": "glacier_drake_whelp",
+      "name": "Glacier Drake Whelp",
+      "sprite": "glacier_drake_whelp_ff.png",
+      "aggro": "aggressive",
+      "hp": 995,
+      "atk": 157,
+      "def": 41,
+      "exp": 598,
+      "zeny": 508,
+      "element": "Water",
+      "level": 58,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "crevasse_undershelf",
+      "spriteStatus": "new",
+      "description": "Cat-sized, cobalt-scaled, and its breath frosts your armour solid in one pass.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "snowveil_shade": {
+      "id": "snowveil_shade",
+      "name": "Snowveil Shade",
+      "sprite": "snowveil_shade_ff.png",
+      "aggro": "aggressive",
+      "hp": 1031,
+      "atk": 162,
+      "def": 42,
+      "exp": 626,
+      "zeny": 532,
+      "element": "Shadow",
+      "level": 60,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "statuary_of_the_fallen",
+      "spriteStatus": "new",
+      "description": "A shadow with nothing casting it, sliding between the statues at the edge of the lamp-light.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "aurora_seraphon": {
+      "id": "aurora_seraphon",
+      "name": "Aurora Seraphon",
+      "sprite": "aurora_seraphon_ff.png",
+      "aggro": "passive",
+      "hp": 1121,
+      "atk": 176,
+      "def": 46,
+      "exp": 696,
+      "zeny": 592,
+      "element": "Holy",
+      "level": 65,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "thronehall_of_ice",
+      "spriteStatus": "new",
+      "description": "A ribbon of aurora folded into six wings. It circles the Shelf and does not care about you until it does.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "permafrost_lich": {
+      "id": "permafrost_lich",
+      "name": "Permafrost Lich",
+      "sprite": "permafrost_lich_ff.png",
+      "aggro": "aggressive",
+      "hp": 1157,
+      "atk": 181,
+      "def": 47,
+      "exp": 725,
+      "zeny": 616,
+      "element": "Undead",
+      "level": 67,
+      "rank": "normal",
+      "zone": "chasm",
+      "subRegion": "hoarfrost_vault",
+      "spriteStatus": "new",
+      "description": "Vault-keeper, ledger-keeper, and it will tell you exactly which shelf your death goes on.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        }
+      ]
+    },
+    "statuary_colossus": {
+      "id": "statuary_colossus",
+      "name": "Statuary Colossus",
+      "sprite": "statuary_colossus_ff.png",
+      "aggro": "aggressive",
+      "hp": 2984,
+      "atk": 242,
+      "def": 68,
+      "exp": 2637,
+      "zeny": 1921,
+      "element": "Water",
+      "level": 69,
+      "rank": "elite",
+      "zone": "chasm",
+      "subRegion": "statuary_of_the_fallen",
+      "spriteStatus": "new",
+      "description": "A hero of the old war, thirty feet of them, still frozen and no longer still. Drops the Thawstone.",
+      "drops": [
+        {
+          "itemId": "thawstone",
+          "chance": 1.0
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.2
+        }
+      ]
+    },
+    "the_vault_keeper": {
+      "id": "the_vault_keeper",
+      "name": "The Vault Keeper",
+      "sprite": "the_vault_keeper_ff.png",
+      "aggro": "aggressive",
+      "hp": 4242,
+      "atk": 265,
+      "def": 69,
+      "exp": 3840,
+      "zeny": 3264,
+      "element": "Undead",
+      "level": 70,
+      "rank": "rare",
+      "zone": "chasm",
+      "subRegion": "hoarfrost_vault",
+      "spriteStatus": "new",
+      "description": "It has the only key, and it has been waiting a very long time for someone to ask politely.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.12
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.25
+        },
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.012
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.3
+        }
+      ]
+    },
+    "sylveth_silent_thaw": {
+      "id": "sylveth_silent_thaw",
+      "name": "Sylveth, Queen of the Silent Thaw",
+      "sprite": "sylveth_silent_thaw_ff.png",
+      "aggro": "boss",
+      "hp": 14980,
+      "atk": 311,
+      "def": 101,
+      "exp": 9567,
+      "zeny": 6777,
+      "element": "Water",
+      "level": 72,
+      "rank": "boss",
+      "zone": "chasm",
+      "subRegion": "thronehall_of_ice",
+      "spriteStatus": "new",
+      "description": "She stopped the blizzard once, for a heartbeat, and the silence is what people remember.",
+      "drops": [
+        {
+          "itemId": "hoarfrost_longbow",
+          "chance": 0.4
+        },
+        {
+          "itemId": "aurora_diadem",
+          "chance": 0.35
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 1.0
+        }
+      ]
+    },
+    "nethergate_creeper": {
+      "id": "nethergate_creeper",
+      "name": "Nethergate Creeper",
+      "sprite": "nethergate_creeper_ff.png",
+      "aggro": "aggressive",
+      "hp": 1248,
+      "atk": 194,
+      "def": 50,
+      "exp": 797,
+      "zeny": 678,
+      "element": "Shadow",
+      "level": 72,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "nethergate_descent",
+      "spriteStatus": "new",
+      "description": "Root-hair braided into a body, walking upside-down along the shaft wall beside you.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "weeping_bough": {
+      "id": "weeping_bough",
+      "name": "Weeping Bough",
+      "sprite": "weeping_bough_ff.png",
+      "aggro": "passive",
+      "hp": 1303,
+      "atk": 202,
+      "def": 52,
+      "exp": 842,
+      "zeny": 716,
+      "element": "Poison",
+      "level": 75,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "the_weeping_boughs",
+      "spriteStatus": "new",
+      "description": "A branch that hangs low, weeps amber, and closes when something warm passes underneath.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "umbral_houndkin": {
+      "id": "umbral_houndkin",
+      "name": "Umbral Houndkin",
+      "sprite": "umbral_houndkin_ff.png",
+      "aggro": "aggressive",
+      "hp": 1340,
+      "atk": 208,
+      "def": 54,
+      "exp": 872,
+      "zeny": 741,
+      "element": "Shadow",
+      "level": 77,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "bonemeal_hollows",
+      "spriteStatus": "new",
+      "description": "Hunts in fours, casts no shadow of its own, and is always closer than it was.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "sanguine_thorncaller": {
+      "id": "sanguine_thorncaller",
+      "name": "Sanguine Thorncaller",
+      "sprite": "sanguine_thorncaller_ff.png",
+      "aggro": "passive",
+      "hp": 1376,
+      "atk": 213,
+      "def": 55,
+      "exp": 902,
+      "zeny": 767,
+      "element": "Shadow",
+      "level": 79,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "sanguine_terrace",
+      "spriteStatus": "new",
+      "description": "Immaculately dressed, seated on the Terrace stair, and will not rise unless you strike first.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "hollow_penitent_choir": {
+      "id": "hollow_penitent_choir",
+      "name": "Hollow Penitent Choir",
+      "sprite": "hollow_penitent_choir_ff.png",
+      "aggro": "aggressive",
+      "hp": 1413,
+      "atk": 219,
+      "def": 57,
+      "exp": 932,
+      "zeny": 793,
+      "element": "Undead",
+      "level": 81,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "bonemeal_hollows",
+      "spriteStatus": "new",
+      "description": "Nine hollow figures that only move while singing, and only sing while you are looking away.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "rootfang_devourer": {
+      "id": "rootfang_devourer",
+      "name": "Rootfang Devourer",
+      "sprite": "rootfang_devourer_ff.png",
+      "aggro": "aggressive",
+      "hp": 1449,
+      "atk": 224,
+      "def": 58,
+      "exp": 963,
+      "zeny": 819,
+      "element": "Poison",
+      "level": 83,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "the_weeping_boughs",
+      "spriteStatus": "new",
+      "description": "The mouth at the end of the root. There is nothing else to it, and nothing else is needed.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "abyssal_heraldon": {
+      "id": "abyssal_heraldon",
+      "name": "Abyssal Heraldon",
+      "sprite": "abyssal_heraldon_ff.png",
+      "aggro": "aggressive",
+      "hp": 1523,
+      "atk": 235,
+      "def": 61,
+      "exp": 1025,
+      "zeny": 872,
+      "element": "Shadow",
+      "level": 87,
+      "rank": "normal",
+      "zone": "rootways",
+      "subRegion": "thorncradle_vault",
+      "spriteStatus": "new",
+      "description": "The Sovereign's messenger: horned, armoured, and it announces you before it kills you.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        }
+      ]
+    },
+    "thorncradle_warden": {
+      "id": "thorncradle_warden",
+      "name": "Thorncradle Warden",
+      "sprite": "thorncradle_warden_ff.png",
+      "aggro": "aggressive",
+      "hp": 3945,
+      "atk": 316,
+      "def": 88,
+      "exp": 3755,
+      "zeny": 2736,
+      "element": "Shadow",
+      "level": 90,
+      "rank": "elite",
+      "zone": "rootways",
+      "subRegion": "thorncradle_vault",
+      "spriteStatus": "new",
+      "description": "Honour guard of the briar-bowl, drilled to the second, and it fights three of you at once.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.2
+        }
+      ]
+    },
+    "the_pale_apostate": {
+      "id": "the_pale_apostate",
+      "name": "The Pale Apostate",
+      "sprite": "the_pale_apostate_ff.png",
+      "aggro": "aggressive",
+      "hp": 5652,
+      "atk": 348,
+      "def": 90,
+      "exp": 5523,
+      "zeny": 4695,
+      "element": "Holy",
+      "level": 92,
+      "rank": "rare",
+      "zone": "rootways",
+      "subRegion": "thorncradle_vault",
+      "spriteStatus": "new",
+      "description": "A Cleric of the High Temple who walked down here on purpose and is still, technically, holy.",
+      "drops": [
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.18
+        },
+        {
+          "itemId": "blue_potion",
+          "chance": 0.22
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.01
+        },
+        {
+          "itemId": "aetherite_draught",
+          "chance": 0.3
+        }
+      ]
+    },
+    "verrocaine_sovereign": {
+      "id": "verrocaine_sovereign",
+      "name": "Verrocaine, the Horned Sovereign",
+      "sprite": "verrocaine_sovereign_ff.png",
+      "aggro": "boss",
+      "hp": 20928,
+      "atk": 428,
+      "def": 139,
+      "exp": 14613,
+      "zeny": 10351,
+      "element": "Shadow",
+      "level": 99,
+      "rank": "boss",
+      "zone": "rootways",
+      "subRegion": "throne_of_the_horned_sovereign",
+      "spriteStatus": "reuse",
+      "description": "Sovereign of the abyss beneath the world tree. He has been expecting you since Aethelgard was founded.",
+      "drops": [
+        {
+          "itemId": "rootfang_staff",
+          "chance": 0.35
+        },
+        {
+          "itemId": "umbral_shroud",
+          "chance": 0.3
+        },
+        {
+          "itemId": "sovereigns_signet",
+          "chance": 0.1
+        }
+      ]
     }
   },
   "zones": [
-    { "id": "aethelgard", "name": "Aethelgard Master Town", "minLv": 1, "maxLv": 99, "light": "#ffffff", "monsters": "None (Peaceful Town)" },
-    { "id": "meadows", "name": "Whispering Meadows", "minLv": 1, "maxLv": 15, "light": "#fff8e7", "monsters": "Green Slime, Horn Hornet" },
-    { "id": "sanctum", "name": "Sunken Sanctum", "minLv": 15, "maxLv": 30, "light": "#e0f7fa", "monsters": "Skeleton Warrior, Cactuar" },
-    { "id": "spire", "name": "Obsidian Spire", "minLv": 30, "maxLv": 50, "light": "#ffebee", "monsters": "Fire Bomb, Lava Golem" },
-    { "id": "chasm", "name": "Glacial Chasm", "minLv": 50, "maxLv": 70, "light": "#e8eaf6", "monsters": "Frost Lich, Snow Specter" }
-  ]
+    {
+      "id": "aethelgard",
+      "name": "Aethelgard Master Town",
+      "minLv": 1,
+      "maxLv": 99,
+      "light": "#ffffff",
+      "monsters": "None (Peaceful Town)",
+      "element": "Holy",
+      "tileset": "town",
+      "gridWidth": 64,
+      "gridHeight": 64,
+      "defaultTile": "tile_town_cobble",
+      "boss": null,
+      "connections": [
+        "gatewatch",
+        "sanctum",
+        "spire",
+        "chasm"
+      ],
+      "description": "Central sanctuary of humanity, built as a wheel around the Aetherite Obelisk. Five district wedges and an outer wall with four gates; every district arch is visible from the Obelisk dais.",
+      "subRegions": [
+        {
+          "id": "obelisk_plaza",
+          "name": "Obelisk Plaza",
+          "minLv": 1,
+          "maxLv": 99,
+          "type": "district",
+          "draw": [
+            "save_crystal",
+            "world_map",
+            "party_board"
+          ],
+          "monsters": [],
+          "connections": [
+            "kestrel_market",
+            "ashen_ward",
+            "high_temple",
+            "lantern_rows",
+            "wetstone_docks"
+          ],
+          "description": "The Aetherite Obelisk on a raised octagonal dais, ringed by the Grand Fountain's four basins. Respawn anchor, world-map interface, and the loudest recruiting ground in the realm."
+        },
+        {
+          "id": "kestrel_market",
+          "name": "Kestrel Market District",
+          "minLv": 1,
+          "maxLv": 99,
+          "type": "district",
+          "draw": [
+            "vendor",
+            "storage",
+            "teleport",
+            "auction"
+          ],
+          "monsters": [],
+          "connections": [
+            "obelisk_plaza",
+            "lantern_rows",
+            "wetstone_docks"
+          ],
+          "description": "Awning-shaded lanes of stall rows, the loudest district in the game. Home of the Kestrel Consignment House: storage vaults, teleport service and world maps."
+        },
+        {
+          "id": "ashen_ward",
+          "name": "Ashen Ward",
+          "minLv": 1,
+          "maxLv": 99,
+          "type": "district",
+          "draw": [
+            "smith",
+            "refine",
+            "guild_halls",
+            "skill_trainer"
+          ],
+          "monsters": [],
+          "connections": [
+            "obelisk_plaza",
+            "lantern_rows",
+            "high_temple"
+          ],
+          "description": "Soot-black brickwork, chimney smoke and the constant ring of hammers. The Obsidian Smithy and all five class guild halls, each a narrow banner-hung tower."
+        },
+        {
+          "id": "high_temple",
+          "name": "The High Temple",
+          "minLv": 1,
+          "maxLv": 99,
+          "type": "district",
+          "draw": [
+            "resurrect",
+            "buff",
+            "cure",
+            "quest_hook"
+          ],
+          "monsters": [],
+          "connections": [
+            "obelisk_plaza",
+            "ashen_ward"
+          ],
+          "description": "Pale stone and stained glass; the only quiet district. Resurrection rites, blessings, and the Cleric Order's cloister garden."
+        },
+        {
+          "id": "lantern_rows",
+          "name": "Lantern Rows",
+          "minLv": 1,
+          "maxLv": 99,
+          "type": "district",
+          "draw": [
+            "quest_hub",
+            "shortcut"
+          ],
+          "monsters": [],
+          "connections": [
+            "obelisk_plaza",
+            "kestrel_market",
+            "ashen_ward"
+          ],
+          "description": "Terraced housing under strung paper lanterns, washing lines between the upper storeys. The Elder's House at the top of the Rows opens the main questline; the Rooftop Walk shortcuts to Ashen Ward."
+        },
+        {
+          "id": "wetstone_docks",
+          "name": "Wetstone Docks",
+          "minLv": 1,
+          "maxLv": 99,
+          "type": "district",
+          "draw": [
+            "ferry",
+            "tavern",
+            "rumours",
+            "hidden"
+          ],
+          "monsters": [],
+          "connections": [
+            "obelisk_plaza",
+            "kestrel_market",
+            "tidebreak_stair"
+          ],
+          "description": "Wet flagstones, tide-stained pilings and cargo cranes. The ferry berth to the Sunken Sanctum, The Barnacle tavern, and the unmarked Bilge Steps down to the Silt Warrens."
+        }
+      ]
+    },
+    {
+      "id": "gatewatch",
+      "name": "Gatewatch Commons",
+      "minLv": 1,
+      "maxLv": 5,
+      "light": "#fffdf2",
+      "monsters": "Dustmote Wisp, Gutter Ratkin, Thatch Beetle, Straw Effigy",
+      "element": "Neutral",
+      "tileset": "meadow",
+      "gridWidth": 32,
+      "gridHeight": 32,
+      "defaultTile": "tile_meadow_grass",
+      "boss": null,
+      "connections": [
+        "aethelgard",
+        "meadows"
+      ],
+      "description": "Cropped fields and rabbit-fences immediately outside the Rampart Gate, patrolled by bored town militia. Hand-tuned for the first fifteen minutes of play.",
+      "subRegions": [
+        {
+          "id": "gatewatch_commons",
+          "name": "Gatewatch Commons",
+          "minLv": 1,
+          "maxLv": 5,
+          "type": "field",
+          "draw": [
+            "tutorial",
+            "save_crystal"
+          ],
+          "monsters": [
+            "dustmote_wisp",
+            "gutter_ratkin",
+            "thatch_beetle",
+            "straw_effigy"
+          ],
+          "connections": [
+            "aethelgard",
+            "bellflower_downs"
+          ],
+          "description": "Militia Picket, Scarecrow Field and the Broken Fence - the visible gap into Bellflower Downs that tells a new player the world continues that way."
+        }
+      ]
+    },
+    {
+      "id": "meadows",
+      "name": "Whispering Meadows",
+      "minLv": 1,
+      "maxLv": 16,
+      "light": "#fff8e7",
+      "monsters": "Bellflower Gloopling, Bramblehop, Hornhaste Wasp, Snagtooth Raider, Mossback Tortin, Fen Lurker, Rot Capling",
+      "element": "Earth",
+      "tileset": "meadow",
+      "gridWidth": 64,
+      "gridHeight": 64,
+      "defaultTile": "tile_meadow_grass",
+      "boss": "ordwin_palisade_tyrant",
+      "connections": [
+        "gatewatch",
+        "sanctum"
+      ],
+      "description": "Rolling emerald hills that turn to reed and standing water at the northern fen, hemmed by tree lines the Snagtooths patrol.",
+      "subRegions": [
+        {
+          "id": "bellflower_downs",
+          "name": "Bellflower Downs",
+          "minLv": 3,
+          "maxLv": 8,
+          "type": "field",
+          "draw": [
+            "gathering",
+            "save_crystal"
+          ],
+          "monsters": [
+            "gloopling_bellflower",
+            "bramblehop",
+            "hornhaste_wasp"
+          ],
+          "connections": [
+            "gatewatch_commons",
+            "windmill_ridge",
+            "thistlemarch_fen"
+          ],
+          "description": "Blue-flowered meadow from the Broken Fence to the first tree line. Gentle, generous and full of sightlines - the area that teaches the camera. Hedgerow herb cluster and the first Save Crystal."
+        },
+        {
+          "id": "windmill_ridge",
+          "name": "Windmill Ridge",
+          "minLv": 1,
+          "maxLv": 16,
+          "type": "vista",
+          "draw": [
+            "vista",
+            "rest_buff",
+            "map_reveal"
+          ],
+          "monsters": [],
+          "connections": [
+            "bellflower_downs",
+            "thistlemarch_fen"
+          ],
+          "description": "A single stone windmill on the realm's highest ground, sails still turning. From the platform you can see the Obelisk south and the Obsidian Spire smoking on the horizon."
+        },
+        {
+          "id": "thistlemarch_fen",
+          "name": "Thistlemarch Fen",
+          "minLv": 7,
+          "maxLv": 12,
+          "type": "field",
+          "draw": [
+            "gathering",
+            "chest"
+          ],
+          "monsters": [
+            "fen_lurker",
+            "mossback_tortin",
+            "rot_capling",
+            "hornhaste_wasp"
+          ],
+          "connections": [
+            "bellflower_downs",
+            "windmill_ridge",
+            "hollowroot_grove",
+            "raiders_palisade"
+          ],
+          "description": "Where the Downs turn to standing water and yellow reed. Slow footing, short sightlines, Fen Lurkers ambushing from the water - the first area that feels genuinely unfriendly."
+        },
+        {
+          "id": "hollowroot_grove",
+          "name": "Hollowroot Grove",
+          "minLv": 10,
+          "maxLv": 16,
+          "type": "hidden",
+          "draw": [
+            "secret",
+            "rare_spawn",
+            "shortcut"
+          ],
+          "monsters": [
+            "grovewarden_thistle",
+            "rot_capling"
+          ],
+          "connections": [
+            "thistlemarch_fen",
+            "tidebreak_stair"
+          ],
+          "description": "Entered by walking through the waterfall curtain at the fen's north end; no map marker until you do. A ring of hollow trees around a still pool, and a root-tunnel behind it that drops one-way into the Sunken Sanctum."
+        },
+        {
+          "id": "raiders_palisade",
+          "name": "Raider's Palisade",
+          "minLv": 12,
+          "maxLv": 16,
+          "type": "elite",
+          "draw": [
+            "elite_camp",
+            "boss",
+            "gear"
+          ],
+          "monsters": [
+            "snagtooth_raider",
+            "snagtooth_warchanter",
+            "ordwin_palisade_tyrant"
+          ],
+          "connections": [
+            "thistlemarch_fen"
+          ],
+          "description": "A Snagtooth war camp of sharpened logs and cook-fires against the eastern tree line. Patrols pull in threes - the realm's difficulty spike and the first content that wants a party."
+        }
+      ]
+    },
+    {
+      "id": "sanctum",
+      "name": "Sunken Sanctum",
+      "minLv": 15,
+      "maxLv": 32,
+      "light": "#e0f7fa",
+      "monsters": "Drowned Marrowguard, Thornmarch Pricklespine, Brinemaw Eel, Silt Creeper, Glasslight Mote, Reliquary Husk, Coralbound Acolyte",
+      "element": "Water",
+      "tileset": "dungeon",
+      "gridWidth": 64,
+      "gridHeight": 64,
+      "defaultTile": "tile_dungeon_slate",
+      "boss": "hallowdeep_warden",
+      "connections": [
+        "aethelgard",
+        "meadows"
+      ],
+      "description": "Ancient submerged ruins beneath Aethelgard: bioluminescent turquoise flora, echoing water, and the drowned garrison that never stood down.",
+      "subRegions": [
+        {
+          "id": "tidebreak_stair",
+          "name": "Tidebreak Stair",
+          "minLv": 15,
+          "maxLv": 19,
+          "type": "field",
+          "draw": [
+            "save_crystal",
+            "set_piece"
+          ],
+          "monsters": [
+            "drowned_marrowguard",
+            "pricklespine_thornmarch"
+          ],
+          "connections": [
+            "wetstone_docks",
+            "hollowroot_grove",
+            "drowned_nave",
+            "silt_warrens"
+          ],
+          "description": "A vast spiral of submerged steps descending from the ferry berth, water to the knee and rising as you go. Algae in the stone joints is the only light."
+        },
+        {
+          "id": "silt_warrens",
+          "name": "Silt Warrens",
+          "minLv": 19,
+          "maxLv": 24,
+          "type": "cave",
+          "draw": [
+            "smuggler_vendor",
+            "shortcut"
+          ],
+          "monsters": [
+            "silt_creeper",
+            "brinemaw_eel"
+          ],
+          "connections": [
+            "tidebreak_stair",
+            "wetstone_docks"
+          ],
+          "description": "Silt-cut tunnels the Wetstone smugglers widened into a warehouse: untaxed crates, tallow lamps, and things that got in through the flooded end. The Bilge Steps run straight back to the Docks."
+        },
+        {
+          "id": "drowned_nave",
+          "name": "Drowned Nave",
+          "minLv": 18,
+          "maxLv": 25,
+          "type": "field",
+          "draw": [
+            "crossroads",
+            "vista"
+          ],
+          "monsters": [
+            "drowned_marrowguard",
+            "reliquary_husk",
+            "coralbound_acolyte",
+            "warden_of_the_nave"
+          ],
+          "connections": [
+            "tidebreak_stair",
+            "glasslight_reliquary",
+            "choirfall_deep"
+          ],
+          "description": "The cathedral heart of the Sanctum, its vault half-collapsed and open to a column of green water-light. The pews float. The Marrowguard here still keep formation."
+        },
+        {
+          "id": "glasslight_reliquary",
+          "name": "Glasslight Reliquary",
+          "minLv": 20,
+          "maxLv": 28,
+          "type": "hidden",
+          "draw": [
+            "secret",
+            "puzzle",
+            "gathering",
+            "gear"
+          ],
+          "monsters": [
+            "glasslight_mote",
+            "pale_choirmaster"
+          ],
+          "connections": [
+            "drowned_nave"
+          ],
+          "description": "Sealed behind fused Aetherite glass in the north transept; opens when three Glasslight Motes are led into the alcove braziers. Dry, warm and gold-lit - the only dry room in the realm."
+        },
+        {
+          "id": "choirfall_deep",
+          "name": "Choirfall Deep",
+          "minLv": 25,
+          "maxLv": 32,
+          "type": "boss",
+          "draw": [
+            "boss"
+          ],
+          "monsters": [
+            "coralbound_acolyte",
+            "reliquary_husk",
+            "hallowdeep_warden"
+          ],
+          "connections": [
+            "drowned_nave"
+          ],
+          "description": "The lowest chamber, where an underground fall pours endlessly into darkness and the sound of it resolves, if you stand still, into something like singing."
+        }
+      ]
+    },
+    {
+      "id": "spire",
+      "name": "Obsidian Spire",
+      "minLv": 30,
+      "maxLv": 52,
+      "light": "#ffebee",
+      "monsters": "Cinderpuff, Emberglass Shard, Ashfall Harrier, Magma Hulk, Soot Revenant, Forgewrought Sentinel, Pyrelash Imp",
+      "element": "Fire",
+      "tileset": "dungeon",
+      "gridWidth": 64,
+      "gridHeight": 64,
+      "defaultTile": "tile_dungeon_obsidian",
+      "boss": "vashkar_spire_crown",
+      "connections": [
+        "aethelgard",
+        "rootways"
+      ],
+      "description": "Volcanic peak crowned with a jagged tower of solid obsidian. Crimson skies, constant ashfall, lava running in cut stone gutters beside the road.",
+      "subRegions": [
+        {
+          "id": "cinderfall_approach",
+          "name": "Cinderfall Approach",
+          "minLv": 30,
+          "maxLv": 36,
+          "type": "field",
+          "draw": [
+            "save_crystal",
+            "vendor"
+          ],
+          "monsters": [
+            "cinderpuff",
+            "emberglass_shard"
+          ],
+          "connections": [
+            "aethelgard",
+            "emberglass_terraces",
+            "ashfall_overlook",
+            "the_slagworks"
+          ],
+          "description": "The switchback road up the volcano's flank where the Ashroad caravan drops you. Ash falls constantly and settles on everything; visibility is deliberately reduced."
+        },
+        {
+          "id": "emberglass_terraces",
+          "name": "Emberglass Terraces",
+          "minLv": 33,
+          "maxLv": 40,
+          "type": "field",
+          "draw": [
+            "gathering",
+            "node_cluster"
+          ],
+          "monsters": [
+            "emberglass_shard",
+            "ashfall_harrier"
+          ],
+          "connections": [
+            "cinderfall_approach",
+            "ashfall_overlook"
+          ],
+          "description": "Stepped shelves where cooling lava sheeted into fields of black volcanic glass. The richest resource area in the game - emberglass, obsidian and fire-salt, densely packed and under-defended on purpose."
+        },
+        {
+          "id": "ashfall_overlook",
+          "name": "Ashfall Overlook",
+          "minLv": 30,
+          "maxLv": 52,
+          "type": "vista",
+          "draw": [
+            "vista",
+            "rest_buff",
+            "map_reveal"
+          ],
+          "monsters": [],
+          "connections": [
+            "cinderfall_approach",
+            "emberglass_terraces"
+          ],
+          "description": "A basalt finger above the ash line: clear air above, grey soup below. The whole realm topology is visible, and at night the Glacial Chasm glitters to the east."
+        },
+        {
+          "id": "the_slagworks",
+          "name": "The Slagworks",
+          "minLv": 36,
+          "maxLv": 45,
+          "type": "field",
+          "draw": [
+            "dungeon",
+            "set_piece",
+            "elite"
+          ],
+          "monsters": [
+            "magma_hulk",
+            "forgewrought_sentinel",
+            "soot_revenant",
+            "bellowmaster_grukk"
+          ],
+          "connections": [
+            "cinderfall_approach",
+            "collapsed_skybridge"
+          ],
+          "description": "Someone built a foundry here and the mountain reclaimed it. Half-melted machinery, crucible pits still glowing, and Sentinels left running with no one to serve."
+        },
+        {
+          "id": "collapsed_skybridge",
+          "name": "Collapsed Skybridge",
+          "minLv": 45,
+          "maxLv": 52,
+          "type": "shortcut",
+          "draw": [
+            "shortcut",
+            "traversal",
+            "realm_link"
+          ],
+          "monsters": [
+            "ashfall_harrier",
+            "pyrelash_imp"
+          ],
+          "connections": [
+            "the_slagworks",
+            "the_spire_crown",
+            "nethergate_descent"
+          ],
+          "description": "A basalt arch that once spanned the caldera, broken in the middle and crossable by a chain of standing pillars. Also the only route from here to the Umbral Rootways."
+        },
+        {
+          "id": "the_spire_crown",
+          "name": "The Spire Crown",
+          "minLv": 48,
+          "maxLv": 52,
+          "type": "boss",
+          "draw": [
+            "boss",
+            "rare_spawn"
+          ],
+          "monsters": [
+            "pyrelash_imp",
+            "the_unquenched",
+            "vashkar_spire_crown"
+          ],
+          "connections": [
+            "collapsed_skybridge"
+          ],
+          "description": "The jagged obsidian tower at the summit, hollow, with the whole caldera visible through cracks in its walls."
+        }
+      ]
+    },
+    {
+      "id": "chasm",
+      "name": "Glacial Chasm",
+      "minLv": 50,
+      "maxLv": 72,
+      "light": "#e8eaf6",
+      "monsters": "Rimewind Sprite, Hoarfrost Stalker, Frozen Penitent, Glacier Drake Whelp, Snowveil Shade, Aurora Seraphon, Permafrost Lich",
+      "element": "Water",
+      "tileset": "dungeon",
+      "gridWidth": 64,
+      "gridHeight": 64,
+      "defaultTile": "tile_dungeon_slate",
+      "boss": "sylveth_silent_thaw",
+      "connections": [
+        "aethelgard",
+        "rootways"
+      ],
+      "description": "Perpetual blizzard canyons where the frozen statues of past heroes stand in ranks and guard the lost vaults behind them.",
+      "subRegions": [
+        {
+          "id": "rimewind_pass",
+          "name": "Rimewind Pass",
+          "minLv": 50,
+          "maxLv": 56,
+          "type": "field",
+          "draw": [
+            "save_crystal",
+            "navigation"
+          ],
+          "monsters": [
+            "rimewind_sprite",
+            "hoarfrost_stalker"
+          ],
+          "connections": [
+            "aethelgard",
+            "statuary_of_the_fallen",
+            "crevasse_undershelf",
+            "aurora_shelf"
+          ],
+          "description": "Where the tram line ends: canyon floor under permanent blizzard, wind loud enough to mask footsteps, guide-ropes strung between waypoint cairns."
+        },
+        {
+          "id": "statuary_of_the_fallen",
+          "name": "Statuary of the Fallen",
+          "minLv": 54,
+          "maxLv": 62,
+          "type": "field",
+          "draw": [
+            "set_piece",
+            "collectible",
+            "elite"
+          ],
+          "monsters": [
+            "frozen_penitent",
+            "snowveil_shade",
+            "statuary_colossus"
+          ],
+          "connections": [
+            "rimewind_pass",
+            "hoarfrost_vault"
+          ],
+          "description": "Hundreds of ice-encased figures in the poses they died in, ranked down a mile of canyon. Some are recognisable. Some are still moving, very slowly."
+        },
+        {
+          "id": "crevasse_undershelf",
+          "name": "Crevasse Undershelf",
+          "minLv": 56,
+          "maxLv": 63,
+          "type": "cave",
+          "draw": [
+            "smuggler_vendor",
+            "rest"
+          ],
+          "monsters": [
+            "hoarfrost_stalker",
+            "glacier_drake_whelp"
+          ],
+          "connections": [
+            "rimewind_pass"
+          ],
+          "description": "A shelf of blue ice beneath the canyon floor, warmer than the surface and lamp-lit, occupied by the people who run goods over the ice where no tram goes."
+        },
+        {
+          "id": "aurora_shelf",
+          "name": "Aurora Shelf",
+          "minLv": 50,
+          "maxLv": 72,
+          "type": "vista",
+          "draw": [
+            "vista",
+            "rest_buff",
+            "gathering",
+            "map_reveal"
+          ],
+          "monsters": [],
+          "connections": [
+            "rimewind_pass"
+          ],
+          "description": "A wind-scoured plateau above the blizzard line: clear sky, permanent aurora, utter silence. The tonal opposite of everything below it."
+        },
+        {
+          "id": "hoarfrost_vault",
+          "name": "Hoarfrost Vault",
+          "minLv": 60,
+          "maxLv": 68,
+          "type": "hidden",
+          "draw": [
+            "secret",
+            "timed_puzzle",
+            "gear",
+            "lore"
+          ],
+          "monsters": [
+            "permafrost_lich",
+            "the_vault_keeper"
+          ],
+          "connections": [
+            "statuary_of_the_fallen",
+            "thronehall_of_ice"
+          ],
+          "description": "The lost frozen vaults. Sealed doors at the back of the Statuary, opened only by carrying a Thawstone the length of the canyon before it melts."
+        },
+        {
+          "id": "thronehall_of_ice",
+          "name": "Thronehall of Ice",
+          "minLv": 66,
+          "maxLv": 72,
+          "type": "boss",
+          "draw": [
+            "boss",
+            "realm_link"
+          ],
+          "monsters": [
+            "aurora_seraphon",
+            "permafrost_lich",
+            "sylveth_silent_thaw"
+          ],
+          "connections": [
+            "hoarfrost_vault",
+            "nethergate_descent"
+          ],
+          "description": "A natural cathedral of blue ice at the canyon's head, floor polished to a mirror. The stair behind the throne goes down to the Rootways."
+        }
+      ]
+    },
+    {
+      "id": "rootways",
+      "name": "Umbral Rootways",
+      "minLv": 70,
+      "maxLv": 99,
+      "light": "#ede7f6",
+      "monsters": "Nethergate Creeper, Weeping Bough, Umbral Houndkin, Sanguine Thorncaller, Hollow Penitent Choir, Rootfang Devourer, Abyssal Heraldon",
+      "element": "Shadow",
+      "tileset": "dungeon",
+      "gridWidth": 64,
+      "gridHeight": 64,
+      "defaultTile": "tile_dungeon_rune",
+      "boss": "verrocaine_sovereign",
+      "connections": [
+        "spire",
+        "chasm"
+      ],
+      "formerName": "Realm of Baphomet",
+      "description": "The unholy shadow domain beneath the roots of the world tree. Eerie purple twilight, low horns, shifting shadows - and no town portal in. You walk here from the Spire or the Chasm or not at all.",
+      "subRegions": [
+        {
+          "id": "nethergate_descent",
+          "name": "Nethergate Descent",
+          "minLv": 70,
+          "maxLv": 76,
+          "type": "field",
+          "draw": [
+            "save_crystal",
+            "convergence"
+          ],
+          "monsters": [
+            "nethergate_creeper",
+            "umbral_houndkin"
+          ],
+          "connections": [
+            "collapsed_skybridge",
+            "thronehall_of_ice",
+            "bonemeal_hollows"
+          ],
+          "description": "Both approach routes converge on a shaft that goes down past the roots of the world tree, lit purple by nothing identifiable. Gravity feels wrong near the walls."
+        },
+        {
+          "id": "bonemeal_hollows",
+          "name": "Bonemeal Hollows",
+          "minLv": 74,
+          "maxLv": 82,
+          "type": "field",
+          "draw": [
+            "dungeon"
+          ],
+          "monsters": [
+            "umbral_houndkin",
+            "rootfang_devourer",
+            "hollow_penitent_choir"
+          ],
+          "connections": [
+            "nethergate_descent",
+            "the_weeping_boughs",
+            "thorncradle_vault"
+          ],
+          "description": "Chambers where the soil is not soil. Root-hair the thickness of rope hangs from the ceiling and twitches toward warmth."
+        },
+        {
+          "id": "the_weeping_boughs",
+          "name": "The Weeping Boughs",
+          "minLv": 78,
+          "maxLv": 86,
+          "type": "field",
+          "draw": [
+            "hazard_terrain",
+            "gathering"
+          ],
+          "monsters": [
+            "weeping_bough",
+            "rootfang_devourer",
+            "sanguine_thorncaller"
+          ],
+          "connections": [
+            "bonemeal_hollows",
+            "sanguine_terrace"
+          ],
+          "description": "Enormous downward-growing branches weeping a slow amber sap that is not sap. Poison-saturated: standing still costs HP. The game's only damage-over-time terrain."
+        },
+        {
+          "id": "sanguine_terrace",
+          "name": "Sanguine Terrace",
+          "minLv": 80,
+          "maxLv": 88,
+          "type": "hidden",
+          "draw": [
+            "secret",
+            "lore",
+            "gear",
+            "pacifist_gate"
+          ],
+          "monsters": [
+            "sanguine_thorncaller"
+          ],
+          "connections": [
+            "the_weeping_boughs"
+          ],
+          "description": "A terraced garden, immaculately kept, red-lit, with a table set for eight. Someone maintains it. Entered only by not fighting the Thorncaller that guards the stair."
+        },
+        {
+          "id": "thorncradle_vault",
+          "name": "Thorncradle Vault",
+          "minLv": 86,
+          "maxLv": 93,
+          "type": "elite",
+          "draw": [
+            "elite_camp",
+            "gear_gate",
+            "rare_spawn"
+          ],
+          "monsters": [
+            "abyssal_heraldon",
+            "thorncradle_warden",
+            "the_pale_apostate"
+          ],
+          "connections": [
+            "bonemeal_hollows",
+            "throne_of_the_horned_sovereign"
+          ],
+          "description": "A briar-walled bowl where the Sovereign's honour guard drills. Everything here is elite-tier and pulls are unforgiving - the last gear check before the throne."
+        },
+        {
+          "id": "throne_of_the_horned_sovereign",
+          "name": "Throne of the Horned Sovereign",
+          "minLv": 93,
+          "maxLv": 99,
+          "type": "boss",
+          "draw": [
+            "boss",
+            "finale"
+          ],
+          "monsters": [
+            "abyssal_heraldon",
+            "hollow_penitent_choir",
+            "verrocaine_sovereign"
+          ],
+          "connections": [
+            "thorncradle_vault"
+          ],
+          "description": "A chamber of roots grown into the shape of a hall, and at the end of it a throne that was never built."
+        }
+      ]
+    }
+  ],
+  "elements": {
+    "list": [
+      "Neutral",
+      "Earth",
+      "Wind",
+      "Water",
+      "Fire",
+      "Poison",
+      "Shadow",
+      "Holy",
+      "Undead"
+    ],
+    "colors": {
+      "Neutral": "#bdbdbd",
+      "Earth": "#8d6e63",
+      "Wind": "#aed581",
+      "Water": "#4fc3f7",
+      "Fire": "#ff7043",
+      "Poison": "#9ccc65",
+      "Shadow": "#7e57c2",
+      "Holy": "#fff59d",
+      "Undead": "#90a4ae"
+    },
+    "modifiers": {
+      "Neutral": {
+        "Neutral": 1.0,
+        "Earth": 1.0,
+        "Wind": 1.0,
+        "Water": 1.0,
+        "Fire": 1.0,
+        "Poison": 1.0,
+        "Shadow": 0.75,
+        "Holy": 1.0,
+        "Undead": 0.75
+      },
+      "Earth": {
+        "Neutral": 1.0,
+        "Earth": 0.5,
+        "Wind": 1.5,
+        "Water": 1.0,
+        "Fire": 1.0,
+        "Poison": 1.0,
+        "Shadow": 1.0,
+        "Holy": 1.0,
+        "Undead": 1.0
+      },
+      "Wind": {
+        "Neutral": 1.0,
+        "Earth": 0.5,
+        "Wind": 0.5,
+        "Water": 1.5,
+        "Fire": 1.0,
+        "Poison": 1.0,
+        "Shadow": 1.0,
+        "Holy": 1.0,
+        "Undead": 1.0
+      },
+      "Water": {
+        "Neutral": 1.0,
+        "Earth": 1.0,
+        "Wind": 1.0,
+        "Water": 0.5,
+        "Fire": 1.75,
+        "Poison": 1.0,
+        "Shadow": 1.0,
+        "Holy": 1.0,
+        "Undead": 1.0
+      },
+      "Fire": {
+        "Neutral": 1.0,
+        "Earth": 1.5,
+        "Wind": 1.0,
+        "Water": 0.25,
+        "Fire": 0.5,
+        "Poison": 1.25,
+        "Shadow": 1.0,
+        "Holy": 1.0,
+        "Undead": 1.25
+      },
+      "Poison": {
+        "Neutral": 1.25,
+        "Earth": 1.0,
+        "Wind": 1.0,
+        "Water": 1.0,
+        "Fire": 1.0,
+        "Poison": 0.0,
+        "Shadow": 1.0,
+        "Holy": 0.75,
+        "Undead": 0.25
+      },
+      "Shadow": {
+        "Neutral": 1.0,
+        "Earth": 1.0,
+        "Wind": 1.0,
+        "Water": 1.0,
+        "Fire": 1.0,
+        "Poison": 1.0,
+        "Shadow": 0.25,
+        "Holy": 1.75,
+        "Undead": 0.5
+      },
+      "Holy": {
+        "Neutral": 1.0,
+        "Earth": 1.0,
+        "Wind": 1.0,
+        "Water": 1.0,
+        "Fire": 1.0,
+        "Poison": 1.0,
+        "Shadow": 1.75,
+        "Holy": 0.25,
+        "Undead": 2.0
+      },
+      "Undead": {
+        "Neutral": 1.0,
+        "Earth": 1.0,
+        "Wind": 1.0,
+        "Water": 1.0,
+        "Fire": 1.0,
+        "Poison": 0.5,
+        "Shadow": 0.75,
+        "Holy": 1.5,
+        "Undead": 0.5
+      }
+    },
+    "note": "finalDamage = baseDamage * skillMultiplier * modifiers[attackElement][defendElement]"
+  },
+  "equipSlots": {
+    "list": [
+      "weapon",
+      "shield",
+      "armor",
+      "headgear",
+      "accessory"
+    ],
+    "weapon": {
+      "label": "Weapon",
+      "primary": [
+        "atk",
+        "matk"
+      ]
+    },
+    "shield": {
+      "label": "Shield",
+      "primary": [
+        "def",
+        "mdef"
+      ],
+      "blockedBy": "twoHanded"
+    },
+    "armor": {
+      "label": "Armor",
+      "primary": [
+        "def",
+        "mdef"
+      ]
+    },
+    "headgear": {
+      "label": "Headgear",
+      "primary": [
+        "def"
+      ]
+    },
+    "accessory": {
+      "label": "Accessory",
+      "primary": [
+        "bonus"
+      ]
+    }
+  }
 }
