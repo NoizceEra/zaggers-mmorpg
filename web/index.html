@@ -326,7 +326,12 @@
       <div class="stat-row"><span>VIT (Max HP)</span><span id="stat-vit">10</span><button class="stat-btn" onclick="addStat('vit')">+</button></div>
       <div class="stat-row"><span>INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
       <div class="stat-row"><span>DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
-      <div class="stat-row"><span>LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button></div>
+      <div class="stat-row"><span>LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button>
+      <div style="border-top: 1px solid #3d4a68; margin-top: 10px; padding-top: 8px;">
+        <div style="font-size: 11px; font-weight: bold; color: #ffd54f; margin-bottom: 4px;">Class Advancement & Branching</div>
+        <div id="job-branch-list" style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;"></div>
+      </div>
+</div>
     </div>
   </div>
 
@@ -447,8 +452,11 @@
     'env_waterfall_curtain', 'env_pew_floating', 'env_reliquary_casket', 'env_lava_channel',
     'env_bellows_great', 'env_ice_statue', 'env_ice_colossus_shell', 'env_cairn_waypoint',
     'env_guide_rope', 'env_vault_door', 'env_root_hair', 'env_weeping_branch', 'env_briar_wall',
+    // Kingdom-town buildings & walls (Aethelgard) — scripts/generate_town_buildings.py
+    'env_wall_curtain', 'env_wall_corner', 'env_gatehouse', 'env_house_smithy',
+    'env_house_temple', 'env_house_guild', 'env_house_inn', 'env_house_row',
     // Collision/Walls/Doors pass (vault/COLLISION_WALLS_DOORS_REPORT.md)
-    'env_wall_curtain', 'env_wall_corner', 'env_gatehouse', 'env_door'
+    'env_door'
   ];
 
   const terrainSpriteNames = [
@@ -992,29 +1000,33 @@
   // "World Boundaries" below) and the customTileMap border-tile / zone-exit
   // gap logic in checkZoneExits() - neither of those is touched here.
   //
-  // Solid env-structure types get a collision radius approximating their
-  // ground footprint (matches the existing "author several segments in a
-  // line" convention already used for env_palisade_wall/env_briar_wall in
-  // meadows.json/rootways.json). Purely decorative props (fountains,
-  // barrels, banners, etc.) are intentionally left OUT of this map so they
-  // stay walk-through exactly as before this pass - only wall/gate/door/
-  // building-footprint types block movement.
+  // NOTE: a parallel "town-buildings" pass landed a first checkCollision(wx,wy)
+  // (bounds + tile_town_border w/ exit-gap tolerance + a type->radius env
+  // table) on integration/master concurrently with this one - merged here
+  // rather than kept as two competing collision functions. Their radius
+  // table is the base; this pass adds the entity (NPC/monster/player) layer
+  // and env_door's open/closed state on top.
   // ==========================================
   const ENV_COLLISION_RADII = {
-    env_house_shop: 1.8,
-    env_house_terrace: 1.8,
-    env_wall_curtain: 1.1,
-    env_wall_corner: 1.05,
-    env_palisade_wall: 1.1,
-    env_briar_wall: 1.1,
-    env_vault_door: 1.4,
-    // env_gatehouse and env_stained_arch are walk-through archways (their
-    // art depicts an open passage through the middle) - marking the gate
-    // visually while leaving the passage itself unobstructed, same as a
-    // real gatehouse. The flanking env_wall_curtain/env_wall_corner
-    // segments placed on either side are what actually seal the perimeter.
-    env_door: 0.9 // overridden per-instance while open, see isPositionBlocked()
+    env_house_shop: 2.2, env_house_terrace: 2.2, env_house_smithy: 2.2,
+    env_house_temple: 2.2, env_house_guild: 2.2, env_house_inn: 2.2, env_house_row: 2.2,
+    env_wall_corner: 2.0,
+    env_wall_curtain: 1.35, env_palisade_wall: 1.35, env_briar_wall: 1.35,
+    env_fountain: 1.8,
+    env_market_stall: 1.3, env_awning_stall: 1.3,
+    env_obelisk_aetherite: 1.5, env_cargo_crane: 1.5,
+    env_stained_arch: 1.0, env_temple_pillar: 1.0, env_chimney_stack: 1.0,
+    env_vault_door: 1.4
   };
+  // Types that never block regardless of the 0.75 default below (overhead/
+  // thin-overlay props, plus gatehouses whose art depicts an open archway
+  // through the middle - the passage itself must stay walkable).
+  const ENV_COLLISION_EXEMPT = new Set([
+    'env_lantern_string', 'env_washing_line', 'env_guide_rope', 'env_fishing_net',
+    'env_gatehouse'
+  ]);
+  const ENV_COLLISION_DEFAULT_RADIUS = 0.75;
+  const ENV_DOOR_CLOSED_RADIUS = 0.9;
 
   // Per-entity (NPC/monster/player) "can't stand on top of" radius. Kept
   // small and below monster attack range (1.2 tiles, see triggerAttack-
@@ -1034,22 +1046,46 @@
     }
   }
 
-  // True if world position (wx,wy) is blocked for a mover of `selfRadius`.
+  // Returns true if world position (wx,wy) is blocked: map bounds, border
+  // tiles (with the zone-exit gap tolerance), solid env structures, and -
+  // additively - live entities (NPC/monster/player), each per `opts`.
   // opts: { selfRadius, ignorePlayer, ignoreNpcs, ignoreMonsters, excludeMonster }
   function isPositionBlocked(wx, wy, opts) {
     opts = opts || {};
     const selfRadius = opts.selfRadius != null ? opts.selfRadius : MOVER_SELF_RADIUS;
 
-    // 1. Solid environment structures (walls, gatehouses, buildings, doors)
-    for (let i = 0; i < envStructures.length; i++) {
-      const s = envStructures[i];
-      if (s.type === 'env_door' && s.open) continue; // open doors are passable
-      const r = ENV_COLLISION_RADII[s.type];
-      if (r == null) continue; // decorative prop - walk-through
-      if (Math.hypot(wx - s.wx, wy - s.wy) < r + selfRadius) return true;
+    // 1. Map perimeter
+    const b = currentMapBounds;
+    if (wx < b.minWx || wx > b.maxWx || wy < b.minWy || wy > b.maxWy) return true;
+
+    // 2. customTileMap border tiles, tolerant of the zone-exit gap radius
+    // (ENGINE_INFRA_AUDIT.md "customTileMap tile_town_border + 2.5 exit gaps")
+    const tx = Math.round(wx), ty = Math.round(wy);
+    const tileKey = customTileMap[`${tx},${ty}`];
+    if (tileKey === 'tile_town_border') {
+      let nearExit = false;
+      for (let i = 0; i < currentMapExits.length; i++) {
+        const ex = currentMapExits[i];
+        if (Math.hypot(wx - ex.wx, wy - ex.wy) <= 2.5) { nearExit = true; break; }
+      }
+      if (!nearExit) return true;
     }
 
-    // 2. Live entities - so the player can't stand on top of an NPC or a
+    // 3. Solid environment structures (walls, buildings, doors)
+    for (let i = 0; i < envStructures.length; i++) {
+      const s = envStructures[i];
+      const t = s.type;
+      if (t === 'env_door') {
+        if (s.open) continue; // open doors are passable
+        if (Math.hypot(wx - s.wx, wy - s.wy) < ENV_DOOR_CLOSED_RADIUS) return true;
+        continue;
+      }
+      if (ENV_COLLISION_EXEMPT.has(t)) continue;
+      const radius = ENV_COLLISION_RADII[t] != null ? ENV_COLLISION_RADII[t] : ENV_COLLISION_DEFAULT_RADIUS;
+      if (Math.hypot(wx - s.wx, wy - s.wy) < radius) return true;
+    }
+
+    // 4. Live entities - so the player can't stand on top of an NPC or a
     // live monster (projectiles/floating text never call this, they aren't
     // movers). Stationary NPCs and alive monsters only.
     if (!opts.ignoreNpcs) {
@@ -1070,6 +1106,13 @@
       if (Math.hypot(wx - player.wx, wy - player.wy) < ENTITY_COLLISION_RADIUS + selfRadius) return true;
     }
     return false;
+  }
+
+  // Back-compat alias: the parallel town-buildings pass's original
+  // checkCollision(wx, wy) signature (env/bounds/border only, no entities) -
+  // kept callable under its original name in case anything still expects it.
+  function checkCollision(wx, wy) {
+    return isPositionBlocked(wx, wy, { ignoreNpcs: true, ignoreMonsters: true, ignorePlayer: true });
   }
 
   // Axis-slide step helper shared by player WASD/click-follow movement and
@@ -1736,6 +1779,65 @@
     el.classList.remove('bar-pulse');
     void el.offsetWidth; // force reflow so the animation can restart
     el.classList.add('bar-pulse');
+  }
+
+  function updateJobAdvancementUI() {
+    const container = document.getElementById('job-branch-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const classesMap = getDbClasses();
+    const currentClassId = selectedCreatorClassId;
+
+    Object.values(classesMap).forEach(c => {
+      if (c.id === currentClassId) return;
+      const req = c.advancementRequirements;
+      if (!req) return;
+
+      let meetsAll = true;
+      let reqText = [];
+      for (const [statKey, reqVal] of Object.entries(req)) {
+        const curVal = player[statKey] || 10;
+        reqText.push(`${statKey.toUpperCase()}: ${curVal}/${reqVal}`);
+        if (curVal < reqVal) meetsAll = false;
+      }
+
+      const div = document.createElement('div');
+      div.style.cssText = 'background: #111824; border: 1px solid #2e3d58; border-radius: 4px; padding: 6px; display: flex; justify-content: space-between; align-items: center;';
+      div.innerHTML = `
+        <div>
+          <strong style="color: ${meetsAll ? '#81c784' : '#b0bec5'};">${c.name}</strong><br>
+          <small style="color: #94a3b8;">${reqText.join(' | ')}</small>
+        </div>
+        <button class="btn-icon" style="background: ${meetsAll ? '#2e7d32' : '#33415c'}; opacity: ${meetsAll ? '1' : '0.5'};" ${meetsAll ? '' : 'disabled'} onclick="promoteJobClass('${c.id}')">Promote</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function promoteJobClass(targetClassId) {
+    const classesMap = getDbClasses();
+    const c = classesMap[targetClassId];
+    if (!c) return;
+
+    player.class = c.sprite || 'hero_knight';
+    player.sprite = c.sprite || 'hero_knight';
+    selectedCreatorClassId = c.id;
+
+    const pNameEl = document.getElementById('player-name');
+    if (pNameEl) {
+      const heroName = pNameEl.innerText.split(' [')[0] || 'Hero';
+      pNameEl.innerText = `${heroName} [${c.name}]`;
+    }
+
+    updateHUD();
+    updateJobAdvancementUI();
+
+    const chatBox = document.getElementById('chat-messages');
+    if (chatBox) {
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> 🌟 <strong>JOB ADVANCEMENT!</strong> You have promoted to <strong>${c.name}</strong>!</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
   }
 
   function updateHUD() {

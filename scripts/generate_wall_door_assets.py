@@ -85,10 +85,12 @@ def create_wall_curtain():
 
 
 def create_wall_corner():
-    """Stone wall corner piece - two faces meeting at a vertical edge, same
-    footprint size as env_wall_curtain so it can be dropped at perimeter
-    turns without a visible seam mismatch."""
-    w, h, anchor = 96, 128, (48, 116)
+    """Stone wall corner piece - two faces meeting at a vertical edge.
+    Sized 96x144 / anchor (48,132) to match the canonical dimensions already
+    adopted by scripts/build_aethelgard_town.py's PROP_META and
+    web/editor.html's ENV_PROPS entry (a taller corner bastion silhouette
+    than the plain curtain-wall segment)."""
+    w, h, anchor = 96, 144, (48, 132)
     c_left, c_right, c_dark, c_accent = hx("#767680"), hx("#9a9aa4"), hx("#3c3c44"), hx("#c9c2a0")
     img, draw = new_canvas(w, h)
     ax, ay = anchor
@@ -121,8 +123,11 @@ def create_gatehouse():
     """Town gatehouse - a wide stone structure with a dark walkable archway
     cut through the middle (the archway itself is the passable gap the map
     author places between two wall runs; the gatehouse sprite's own footprint
-    is still solid on the sides)."""
-    w, h, anchor = 160, 192, (80, 178)
+    is still solid on the sides). Sized 128x160 / anchor (64,148) to match
+    the canonical dimensions already adopted by
+    scripts/build_aethelgard_town.py's PROP_META and web/editor.html's
+    ENV_PROPS entry."""
+    w, h, anchor = 128, 160, (64, 148)
     c_main, c_dark, c_accent, c_roof = hx("#8a8a90"), hx("#45454c"), hx("#d8a840"), hx("#5a3c28")
     img, draw = new_canvas(w, h)
     ax, ay = anchor

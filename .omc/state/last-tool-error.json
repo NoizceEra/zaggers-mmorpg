@@ -1,7 +1,7 @@
 {
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd \\\"D:/ai-studio/Zaggers/.claude/worktrees/agent-a3b12d2ecaed5d7b9\\\" && git show \\\"origin/master:.omc/notepads/collision-restore/learnings.md\\\"\"}",
-  "error": "Exit code 128\nfatal: ambiguous argument 'origin\\master;.omc\\notepads\\collision-restore\\learnings.md': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]'",
-  "timestamp": "2026-09-06T23:22:31.540Z",
-  "retry_count": 2
+  "tool_name": "mcp__Claude_Browser__preview_start",
+  "tool_input_preview": "{\"url\":\"http://localhost:8792/index.html\"}",
+  "error": "Tab cap reached. Close a tab (tabs_close) before opening another, or call tabs_context to find an existing tab to reuse.",
+  "timestamp": "2026-09-06T23:29:19.388Z",
+  "retry_count": 1
 }

@@ -24,13 +24,13 @@ def wall_seg(wx, wy):
 
 
 def corner_seg(wx, wy):
-    return {"type": "env_wall_corner", "wx": wx, "wy": wy, "width": 96, "height": 128,
-            "anchorX": 48, "anchorY": 116, MARKER: True}
+    return {"type": "env_wall_corner", "wx": wx, "wy": wy, "width": 96, "height": 144,
+            "anchorX": 48, "anchorY": 132, MARKER: True}
 
 
 def gatehouse(wx, wy, name):
-    return {"type": "env_gatehouse", "wx": wx, "wy": wy, "width": 160, "height": 192,
-            "anchorX": 80, "anchorY": 178, "name": name, MARKER: True}
+    return {"type": "env_gatehouse", "wx": wx, "wy": wy, "width": 128, "height": 160,
+            "anchorX": 64, "anchorY": 148, "name": name, MARKER: True}
 
 
 def door(wx, wy, name):
