@@ -736,7 +736,13 @@
            type === 'env_palisade_wall' || type === 'env_temple_pillar' || type === 'env_dungeon_pillar' ||
            type === 'env_house_smithy' || type === 'env_house_guild' || type === 'env_house_inn' ||
            type === 'env_house_row' || type === 'env_house_shop' || type === 'env_house_terrace' ||
-           type === 'env_chimney_stack';
+           type === 'env_chimney_stack' || type === 'env_fence_rail' || type === 'env_perimeter_wall';
+  }
+
+  function get3DPropHeight(type) {
+    if (type === 'env_fence_rail' || type === 'env_palisade_wall' || type === 'env_parapet' || type === 'env_bench') return 0.8; // Tier 1: Low (0.8)
+    if (type === 'env_wall_corner' || type === 'env_gatehouse' || type === 'env_temple_pillar' || type === 'env_dungeon_pillar' || type === 'env_chimney_stack' || type === 'env_spire_tower') return 2.8; // Tier 3: Tall (2.8)
+    return 1.8; // Tier 2: Mid (1.8)
   }
 
   function get3DWallPalette(mapId, wallType) {
@@ -824,6 +830,147 @@
     // Top Roof Face
     drawQuad(u00, u10, u11, u01, palette.roofFace);
     ctx.restore();
+  }
+
+  function draw3DMapPerimeterWalls() {
+    if (!currentMapBounds) return;
+    const minX = currentMapBounds.minWx;
+    const maxX = currentMapBounds.maxWx;
+    const minY = currentMapBounds.minWy;
+    const maxY = currentMapBounds.maxWy;
+
+    const isNearExit = (wx, wy) => {
+      if (!currentMapExits) return false;
+      return currentMapExits.some(ex => Math.hypot(wx - ex.wx, wy - ex.wy) <= 2.2);
+    };
+
+    const step = 1;
+    for (let wx = minX; wx <= maxX; wx += step) {
+      if (!isNearExit(wx, minY)) {
+        const iso = worldToIso(wx, minY);
+        if (iso.x >= -100 && iso.x <= canvas.width + 100 && iso.y >= -100 && iso.y <= canvas.height + 100) {
+          draw3DWallBox(wx, minY, 1.2, 1.2, 1.8, 'env_perimeter_wall');
+        }
+      }
+      if (!isNearExit(wx, maxY)) {
+        const iso = worldToIso(wx, maxY);
+        if (iso.x >= -100 && iso.x <= canvas.width + 100 && iso.y >= -100 && iso.y <= canvas.height + 100) {
+          draw3DWallBox(wx, maxY, 1.2, 1.2, 1.8, 'env_perimeter_wall');
+        }
+      }
+    }
+
+    for (let wy = minY + step; wy < maxY; wy += step) {
+      if (!isNearExit(minX, wy)) {
+        const iso = worldToIso(minX, wy);
+        if (iso.x >= -100 && iso.x <= canvas.width + 100 && iso.y >= -100 && iso.y <= canvas.height + 100) {
+          draw3DWallBox(minX, wy, 1.2, 1.2, 1.8, 'env_perimeter_wall');
+        }
+      }
+      if (!isNearExit(maxX, wy)) {
+        const iso = worldToIso(maxX, wy);
+        if (iso.x >= -100 && iso.x <= canvas.width + 100 && iso.y >= -100 && iso.y <= canvas.height + 100) {
+          draw3DWallBox(maxX, wy, 1.2, 1.2, 1.8, 'env_perimeter_wall');
+        }
+      }
+    }
+  }
+
+  let activePortalCooldown = 0;
+  function drawBuildingEntrancePortals(overheadLabels) {
+    if (activePortalCooldown > 0) activePortalCooldown--;
+    if (!envStructures || !envStructures.length) return;
+
+    envStructures.forEach(env => {
+      const isBuilding = env.type === 'env_house_shop' || env.type === 'env_house_smithy' ||
+                         env.type === 'env_house_inn' || env.type === 'env_house_guild' ||
+                         env.type === 'env_house_temple' || env.type === 'env_house_row' ||
+                         env.type === 'env_house_terrace';
+      if (!isBuilding) return;
+
+      const portalWx = env.wx;
+      const portalWy = env.wy + 1.2;
+      const iso = worldToIso(portalWx, portalWy);
+
+      if (iso.x < -60 || iso.x > canvas.width + 60 || iso.y < -60 || iso.y > canvas.height + 60) return;
+
+      const pulse = 0.6 + 0.4 * Math.sin(frameCount * 0.1);
+      const rad = (14 + pulse * 6) * cameraZoom;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const grad = ctx.createRadialGradient(iso.x, iso.y, 0, iso.x, iso.y, rad);
+      let pColor = '80, 227, 194';
+      let titleTag = 'STORE';
+      if (env.type === 'env_house_smithy') { pColor = '255, 179, 0'; titleTag = 'FORGE'; }
+      else if (env.type === 'env_house_inn') { pColor = '129, 212, 250'; titleTag = 'INN'; }
+      else if (env.type === 'env_house_temple') { pColor = '255, 235, 59'; titleTag = 'SANCTUARY'; }
+      else if (env.type === 'env_house_guild') { pColor = '179, 136, 255'; titleTag = 'GUILD'; }
+
+      grad.addColorStop(0, `rgba(${pColor}, 0.75)`);
+      grad.addColorStop(0.7, `rgba(${pColor}, 0.25)`);
+      grad.addColorStop(1, `rgba(${pColor}, 0)`);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(iso.x, iso.y, rad, rad * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = `rgba(${pColor}, ${pulse})`;
+      ctx.lineWidth = 2 * cameraZoom;
+      ctx.stroke();
+      ctx.restore();
+
+      const dist = Math.hypot(player.wx - portalWx, player.wy - portalWy);
+      if (dist <= 1.4) {
+        overheadLabels.push({
+          x: iso.x,
+          y: iso.y - 32 * cameraZoom,
+          title: `[E] Enter ${env.name || titleTag}`,
+          titleColor: '#80deea',
+          borderColor: '#00838f'
+        });
+
+        if (dist <= 0.9 && activePortalCooldown <= 0) {
+          activePortalCooldown = 90;
+          triggerBuildingPortalAction(env);
+        }
+      }
+    });
+  }
+
+  function triggerBuildingPortalAction(env) {
+    const chatBox = document.getElementById('chat-messages');
+    if (env.type === 'env_house_shop') {
+      openTravelWindow();
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🛍️ MERCHANT SHOP!', color: '#80deea', life: 50 });
+    } else if (env.type === 'env_house_smithy') {
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '🔨 FORGE UPGRADED!', color: '#ffb300', life: 50 });
+      if (chatBox) {
+        chatBox.innerHTML += `<div><span style="color: #ffb300;">[Smithy Forge]:</span> Equipment sharpened & repaired! +10% ATK Bonus applied.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (env.type === 'env_house_inn') {
+      player.hp = player.maxHp;
+      player.sp = player.maxSp;
+      bindRespawnPoint(currentMapId, env.wx, env.wy, env.name || 'Inn');
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '💤 RESTED & BOUND!', color: '#81d4fa', life: 50 });
+      if (chatBox) {
+        chatBox.innerHTML += `<div><span style="color: #81d4fa;">[Innkeeper]:</span> HP/SP fully restored! Respawn point bound to ${env.name || 'Inn'}.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (env.type === 'env_house_temple') {
+      player.hp = player.maxHp;
+      player.sp = player.maxSp;
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '✨ SANCTUARY BLESSING!', color: '#ffeb3b', life: 50 });
+      if (chatBox) {
+        chatBox.innerHTML += `<div><span style="color: #ffeb3b;">[Sanctuary Temple]:</span> Divine Light cleanses all ailments! HP & SP restored.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    } else if (env.type === 'env_house_guild') {
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '📜 GUILD HALL ACCESSED!', color: '#b388ff', life: 50 });
+      toggleWindow('stat-window');
+    }
   }
 
   function isoToWorld(screenX, screenY) {
@@ -4641,7 +4788,7 @@
           if (is3DVolumetricProp(env.type)) {
             const wW = Math.max(1.0, (env.width || 64) / 48);
             const dW = Math.max(1.0, (env.height || 64) / 48);
-            const hW = (env.type.startsWith('env_house_') || env.type === 'env_gatehouse') ? 2.2 : 1.6;
+            const hW = get3DPropHeight(env.type);
             draw3DWallBox(env.wx, env.wy, wW, dW, hW, env.type);
           } else if (env.animated && env.type === 'env_torch_brazier') {
             const animFrame = Math.floor(frameCount / 8) % 4;
@@ -4666,6 +4813,10 @@
         }
       }
     });
+
+    // Render 3D Map Perimeter Border Walls & Interactive Building Entrance Portals
+    draw3DMapPerimeterWalls();
+    drawBuildingEntrancePortals(overheadLabels);
 
     // Render Overhead Labels with De-Confliction & Dark Pill Backgrounds
     renderOverheadLabels(overheadLabels);
