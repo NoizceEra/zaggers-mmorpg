@@ -559,6 +559,18 @@
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
 
+  const safeStorage = {
+    getItem(key) {
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    },
+    setItem(key, val) {
+      try { localStorage.setItem(key, val); } catch (e) {}
+    },
+    removeItem(key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    }
+  };
+
   const minimapCanvas = document.getElementById('minimap-canvas');
   const minimapCtx = minimapCanvas ? minimapCanvas.getContext('2d') : null;
 
@@ -2124,12 +2136,6 @@
   let middleDragStartX = 0;
   let middleDragStartY = 0;
 
-  // Input Listeners
-  window.addEventListener('keydown', e => {
-    if (document.activeElement === document.getElementById('chat-input')) {
-      if (e.code === 'Enter') handleChatInput();
-      return;
-    }
   function interactWithNearest() {
     let bestTarget = null;
     let minTargetDist = 999;
@@ -2189,7 +2195,7 @@
         bestTarget.open = !bestTarget.open;
         floatingTexts.push({ wx: bestTarget.wx, wy: bestTarget.wy, offsetY: 20, text: bestTarget.open ? '🚪 Door Opened' : '🚪 Door Closed', color: '#81d4fa', life: 40 });
       } else if (targetType === 'portal') {
-        changeMap(bestTarget.targetMap, bestTarget.targetWx, bestTarget.targetWy);
+        loadZoneMap(bestTarget.targetMap, { wx: bestTarget.targetWx, wy: bestTarget.targetWy });
       }
     } else if (minTargetDist <= 8.5) {
       if (targetType === 'npc') pendingNpcTarget = bestTarget;
@@ -3992,7 +3998,9 @@
       if (!c) return;
       const card = document.createElement('div');
       card.className = 'creator-class-card' + (c.id === selectedCreatorClassId ? ' active' : '');
+      card.setAttribute('tabindex', '0');
       card.onclick = () => selectCreatorClass(c.id);
+      card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCreatorClass(c.id); } };
       card.innerHTML = `<div><strong>${c.name || 'Hero'}</strong><br><small style="color: #94a3b8;">${c.primaryWeapon || c.weapon || 'Weapon'}</small></div><span style="color: #ffd54f;">★</span>`;
       container.appendChild(card);
     });
