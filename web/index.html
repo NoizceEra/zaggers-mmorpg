@@ -1462,11 +1462,15 @@
 
     showDistrictBanner(`Entering ${currentMapName}`);
     if (window.ZaggersAudio) ZaggersAudio.playBgm(currentMapId);
-    const chatBox = document.getElementById('chat-messages');
-    if (chatBox) {
-      chatBox.innerHTML += `<div data-kind="zone"><span style="color: #ffd54f;">[System]:</span> Arrived at ${currentMapName}.</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      trimChatLog(chatBox);
+
+    if (window.lastLoggedZoneMapId !== currentMapId) {
+      window.lastLoggedZoneMapId = currentMapId;
+      const chatBox = document.getElementById('chat-messages');
+      if (chatBox) {
+        chatBox.innerHTML += `<div data-kind="zone"><span style="color: #ffd54f;">[System]:</span> Arrived at ${currentMapName}.</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        trimChatLog(chatBox);
+      }
     }
   }
 
@@ -1477,7 +1481,10 @@
     for (const exit of currentMapExits) {
       const dist = Math.hypot(player.wx - exit.wx, player.wy - exit.wy);
       if (dist <= (exit.radius || 1.5)) {
-        loadZoneMap(exit.targetMap, { wx: exit.targetWx, wy: exit.targetWy });
+        if (currentMapId !== exit.targetMap) {
+          exitCooldownFrames = 60;
+          loadZoneMap(exit.targetMap, { wx: exit.targetWx, wy: exit.targetWy });
+        }
         return;
       }
     }
@@ -3850,6 +3857,137 @@
     }
   }
 
+  const REALM_SKYBOX_COLORS = {
+    chasm: ['#050a14', '#0f243a'],
+    spire: ['#140807', '#2d0f0c'],
+    meadows: ['#08120b', '#122618'],
+    sanctum: ['#040f1a', '#0a2336'],
+    aethelgard: ['#0c1220', '#19263e'],
+    gatewatch: ['#0c1220', '#19263e'],
+    rootways: ['#0a0512', '#1b0d2a']
+  };
+
+  function drawSkyboxGradient() {
+    const colors = REALM_SKYBOX_COLORS[currentMapId] || REALM_SKYBOX_COLORS.aethelgard;
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, colors[0]);
+    grad.addColorStop(1, colors[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  const realmAtmosphereParticles = [];
+  const MAX_ATMOSPHERIC_PARTICLES = 60;
+
+  function initAtmosphericParticle(p) {
+    p.x = Math.random() * (canvas.width + 200) - 100;
+    p.y = Math.random() * (canvas.height + 200) - 100;
+    p.size = 1.5 + Math.random() * 2.5;
+    p.alpha = 0.2 + Math.random() * 0.7;
+    p.speedX = (Math.random() - 0.5) * 0.8;
+    p.speedY = 0.3 + Math.random() * 0.8;
+    p.phase = Math.random() * Math.PI * 2;
+  }
+
+  function updateAmbientParticles() {
+    while (realmAtmosphereParticles.length < MAX_ATMOSPHERIC_PARTICLES) {
+      const p = {};
+      initAtmosphericParticle(p);
+      realmAtmosphereParticles.push(p);
+    }
+
+    const mode = currentMapId || 'aethelgard';
+    for (let i = 0; i < realmAtmosphereParticles.length; i++) {
+      const p = realmAtmosphereParticles[i];
+      p.phase += 0.03;
+
+      if (mode === 'chasm') {
+        p.x += Math.sin(p.phase) * 0.5 + 0.6;
+        p.y += p.speedY * 0.9;
+        p.color = `rgba(224, 247, 250, ${p.alpha})`;
+      } else if (mode === 'spire') {
+        p.x += Math.sin(p.phase) * 0.6;
+        p.y -= p.speedY * 1.1;
+        p.color = `rgba(255, ${Math.floor(100 + Math.random() * 100)}, 40, ${p.alpha})`;
+      } else if (mode === 'meadows') {
+        p.x -= Math.sin(p.phase) * 0.7 + 0.4;
+        p.y += p.speedY * 0.7;
+        p.color = `rgba(165, 214, 167, ${p.alpha})`;
+      } else if (mode === 'sanctum') {
+        p.x += Math.sin(p.phase) * 0.4;
+        p.y -= p.speedY * 0.6;
+        p.color = `rgba(128, 222, 234, ${p.alpha})`;
+      } else {
+        p.x += Math.sin(p.phase) * 0.4;
+        p.y += Math.cos(p.phase) * 0.3;
+        p.color = `rgba(255, 213, 79, ${p.alpha})`;
+      }
+
+      if (p.y > canvas.height + 50 || p.y < -50 || p.x > canvas.width + 50 || p.x < -50) {
+        initAtmosphericParticle(p);
+        if (mode === 'spire' || mode === 'sanctum') p.y = canvas.height + 20;
+        else if (mode === 'chasm' || mode === 'meadows') p.y = -20;
+      }
+    }
+  }
+
+  function drawAmbientParticles() {
+    ctx.save();
+    for (let i = 0; i < realmAtmosphereParticles.length; i++) {
+      const p = realmAtmosphereParticles[i];
+      ctx.fillStyle = p.color || 'rgba(255,255,255,0.5)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function renderOverheadLabels(queue) {
+    if (!queue || queue.length === 0) return;
+    queue.sort((a, b) => a.y - b.y);
+
+    for (let i = 0; i < queue.length; i++) {
+      for (let j = i + 1; j < queue.length; j++) {
+        if (Math.abs(queue[i].x - queue[j].x) < 65 && Math.abs(queue[i].y - queue[j].y) < 18) {
+          queue[i].y -= (18 - Math.abs(queue[i].y - queue[j].y));
+        }
+      }
+    }
+
+    ctx.save();
+    queue.forEach(lbl => {
+      const fontSize = Math.max(9, Math.floor(10 * cameraZoom));
+      ctx.font = `bold ${fontSize}px 'Segoe UI', sans-serif`;
+      const textMetrics = ctx.measureText(lbl.title);
+      const padX = 6 * cameraZoom;
+      const padY = 2 * cameraZoom;
+      const w = textMetrics.width + padX * 2;
+      const h = fontSize + padY * 2;
+      const x = lbl.x - w / 2;
+      const y = lbl.y - h / 2;
+
+      ctx.fillStyle = 'rgba(10, 14, 22, 0.85)';
+      ctx.strokeStyle = lbl.borderColor || '#3d4b6c';
+      ctx.lineWidth = 1;
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 4 * cameraZoom);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeRect(x, y, w, h);
+      }
+
+      ctx.fillStyle = lbl.titleColor || '#ffd54f';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(lbl.title, lbl.x, lbl.y);
+    });
+    ctx.restore();
+  }
+
   // Render & Logic Loop
   let frameCount = 0;
   function render() {
@@ -3866,8 +4004,7 @@
     cameraY = Math.max(currentMapBounds.minWy, Math.min(currentMapBounds.maxWy, cameraY));
 
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#10141f';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawSkyboxGradient();
 
     // Parallax backdrop (screen-space, per-zone).
     if (window.ZaggersParallax) {
@@ -4166,8 +4303,9 @@
       if (r.alpha <= 0) clickRipples.splice(i, 1);
     }
 
-    // 5. Collect & Depth-Sort 2.5D Entities (Player, NPCs, Monsters, & Environment Structures)
+    // 5.    // Collect & Depth-Sort 2.5D Entities (Player, NPCs, Monsters, & Environment Structures)
     const drawList = [];
+    const overheadLabels = [];
 
     // Add Player
     const playerIso = worldToIso(player.wx, player.wy);
@@ -4250,17 +4388,14 @@
           const sx = e.colIndex * 64;
           const sy = e.dir * 64;
 
-          // Attack windup/impact: brief squash on windup, then a quick
-          // outward pop on impact - purely visual, hit-resolution timing in
-          // triggerAttack() is unchanged (ENGINE_INFRA_AUDIT.md animation pass).
           let atkScale = 1;
           if (playerAttackProgress >= 0) {
             const windupFrac = ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES;
             if (playerAttackProgress < windupFrac) {
-              atkScale = 1 - 0.08 * (playerAttackProgress / windupFrac); // pulled-back squash
+              atkScale = 1 - 0.08 * (playerAttackProgress / windupFrac);
             } else {
               const impactFrac = (playerAttackProgress - windupFrac) / (1 - windupFrac);
-              atkScale = 1 + 0.18 * Math.max(0, 1 - impactFrac * 3); // fast-decaying pop
+              atkScale = 1 + 0.18 * Math.max(0, 1 - impactFrac * 3);
             }
           }
 
@@ -4272,7 +4407,6 @@
           ctx.drawImage(playerImg, sx, sy, 64, 64, dx, dy, dw, dh);
           if (player.hitFlashTimer > 0) ctx.filter = 'none';
 
-          // Weapon swing arc through the impact half of the attack window.
           if (playerAttackProgress >= ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES) {
             const windupFrac = ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES;
             const impactFrac = (playerAttackProgress - windupFrac) / (1 - windupFrac);
@@ -4292,7 +4426,6 @@
         const npc = e.npc;
         const npcImg = sprites[npc.sprite];
 
-        // Turn towards player if player is nearby (< 3.0 tiles)
         const distToPlayer = Math.hypot(player.wx - npc.wx, player.wy - npc.wy);
         if (distToPlayer < 3.0) {
           const dwx = player.wx - npc.wx;
@@ -4315,37 +4448,29 @@
           ctx.drawImage(npcImg, nsx, nsy, 64, 64, e.isoX - 32 * cameraZoom, e.isoY - 52 * cameraZoom, sw, sh);
         }
 
-        // Gold Floating Name Tag above NPC
-        ctx.fillStyle = '#ffd54f';
-        ctx.font = `bold ${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
-        ctx.textAlign = 'center';
-        ctx.shadowColor = '#000000';
-        ctx.shadowBlur = 3;
-        ctx.fillText(npc.name, e.isoX, e.isoY - 58 * cameraZoom);
-        ctx.shadowBlur = 0;
+        // Queue NPC label
+        overheadLabels.push({
+          x: e.isoX,
+          y: e.isoY - 58 * cameraZoom,
+          title: `[NPC] ${npc.name}`,
+          titleColor: '#ffd54f',
+          borderColor: '#ffb300'
+        });
       } else if (e.type === 'monster') {
         const m = e.monster;
         const mImg = sprites[m.sprite];
 
-        // Death fade + sink instead of an instant vanish (ENGINE_INFRA_AUDIT.md §2.4).
         const deathAlpha = (m.dying) ? Math.max(0, m.deathTimer / DEATH_FADE_DURATION) : 1;
         const deathSinkY = (m.dying) ? (1 - deathAlpha) * 14 * cameraZoom : 0;
 
         if (mImg && mImg.complete && mImg.naturalWidth > 0) {
           let bounceY = 0;
           if (m.sprite === 'slime_green_ff' && !m.dying) {
-            // Slimes keep their signature exaggerated squash-bounce.
             bounceY = Math.abs(Math.sin(frameCount * 0.15)) * 4 * cameraZoom;
           } else if (!m.dying && m.frame === 1 && m.attackPoseTimer <= 0) {
-            // General idle bob/breathe for every other monster while standing
-            // still (frame 1 = idle) - small, slow, phase-offset per monster
-            // so a pack doesn't breathe in lockstep (SPRITE_ANIMATION_FIXES_REPORT.md bug #3).
             bounceY = (Math.sin((frameCount + m.wanderPhaseOffset) * 0.06) * 0.5 + 0.5) * 1.6 * cameraZoom;
           }
 
-          // Brief forward scale-pop on the attack frame so a strike reads as
-          // an impact rather than a static pose swap - mirrors the player's
-          // windup/impact treatment but simpler (monsters have no windup phase).
           let atkScale = 1;
           if (m.attackPoseTimer > 0) {
             const atkFrac = 1 - (m.attackPoseTimer / 16);
@@ -4362,7 +4487,6 @@
           ctx.restore();
         }
 
-        // HP bar & Name above monster - hidden once it's fading out (hp is already 0)
         if (!m.dying) {
           const barW = 40 * cameraZoom;
           const barH = 5 * cameraZoom;
@@ -4382,15 +4506,6 @@
           ctx.font = `${Math.max(8, Math.floor(8 * cameraZoom))}px Segoe UI`;
           ctx.fillStyle = elColor;
           ctx.fillText(elName, e.isoX, barY - 4 - Math.max(10, 11 * cameraZoom));
-          if (elName !== 'Neutral') {
-            ctx.save();
-            ctx.globalAlpha = 0.16;
-            ctx.fillStyle = elColor;
-            ctx.beginPath();
-            ctx.ellipse(e.isoX, barY + 2, 22 * cameraZoom, 6 * cameraZoom, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-          }
         }
       } else if (e.type === 'env') {
         const env = e.env;
@@ -4401,11 +4516,6 @@
           const renderX = e.isoX - (env.anchorX * cameraZoom);
           const renderY = e.isoY - (env.anchorY * cameraZoom);
 
-          // Ambient flicker glow for props marked animated:true whose art is
-          // a single static frame (campfire/lava - see ART_PIPELINE_REPORT.md
-          // §3, ENGINE_INFRA_AUDIT.md §2.3) rather than a 4-frame sheet like
-          // the torch brazier. Drawn additively behind the sprite so the
-          // "animated" flag does something visible without needing new art.
           if (env.animated && (env.type === 'env_campfire' || env.type === 'env_lava_channel')) {
             const phase = pseudoPhase(env.wx, env.wy);
             const flicker = 0.55 + 0.35 * Math.sin(frameCount * 0.18 + phase) + 0.12 * Math.sin(frameCount * 0.5 + phase * 2.3);
@@ -4431,23 +4541,27 @@
             const sx = animFrame * 64;
             ctx.drawImage(envImg, sx, 0, 64, 64, renderX, renderY, esw, esh);
           } else if (env.type === 'env_door') {
-            // 2-frame sheet: frame 0 = closed (solid), frame 1 = open
-            // (passable) - state flipped by updateDoors() on proximity.
             const sx = env.open ? env.width : 0;
             ctx.drawImage(envImg, sx, 0, env.width, env.height, renderX, renderY, esw, esh);
           } else {
             ctx.drawImage(envImg, 0, 0, env.width, env.height, renderX, renderY, esw, esh);
           }
 
-          if (env.name && cameraZoom > 0.8) {
-            ctx.fillStyle = 'rgba(255, 235, 150, 0.9)';
-            ctx.font = `bold ${Math.max(9, Math.floor(10 * cameraZoom))}px Segoe UI`;
-            ctx.textAlign = 'center';
-            ctx.fillText(env.name, e.isoX, renderY - 4);
+          if (env.name && cameraZoom > 0.75) {
+            overheadLabels.push({
+              x: e.isoX,
+              y: renderY - 8,
+              title: env.name,
+              titleColor: '#ffe082',
+              borderColor: '#4d5e85'
+            });
           }
         }
       }
     });
+
+    // Render Overhead Labels with De-Confliction & Dark Pill Backgrounds
+    renderOverheadLabels(overheadLabels);
 
     // 5b. Ambient zone particles + in-flight skill-impact bursts (cheap,
     // capped pool - see GFX/ZONE_ATMOSPHERE above / GRAPHICS_UPGRADE_REPORT.md)
