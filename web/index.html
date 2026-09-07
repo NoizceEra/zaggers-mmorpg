@@ -2980,10 +2980,6 @@
     }
   }
 
-  function getClassSkills(classId) {
-    return Object.values(getDbSkills()).filter(s => s.classId === classId);
-  }
-
   function canLearnSkill(skillId) {
     const sk = getSkill(skillId);
     if (!sk || sk.classId !== player.classId) return false;
