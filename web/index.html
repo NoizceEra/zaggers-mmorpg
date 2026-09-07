@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Zaggers MMORPG - Ragnarok Online Style 2.5D</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -3973,12 +3976,17 @@
     const container = document.getElementById('creator-class-cards');
     if (!container) return;
     container.innerHTML = '';
-    const classesMap = getDbClasses();
-    Object.values(classesMap).forEach(c => {
+    const classesMap = getDbClasses() || getFallbackClasses();
+    const classList = Object.values(classesMap);
+    if (!selectedCreatorClassId || !classesMap[selectedCreatorClassId]) {
+      selectedCreatorClassId = classList[0] ? classList[0].id : 'vanguard';
+    }
+    classList.forEach(c => {
+      if (!c) return;
       const card = document.createElement('div');
       card.className = 'creator-class-card' + (c.id === selectedCreatorClassId ? ' active' : '');
       card.onclick = () => selectCreatorClass(c.id);
-      card.innerHTML = `<div><strong>${c.name}</strong><br><small style="color: #94a3b8;">${c.primaryWeapon || c.weapon || 'Weapon'}</small></div><span style="color: #ffd54f;">★</span>`;
+      card.innerHTML = `<div><strong>${c.name || 'Hero'}</strong><br><small style="color: #94a3b8;">${c.primaryWeapon || c.weapon || 'Weapon'}</small></div><span style="color: #ffd54f;">★</span>`;
       container.appendChild(card);
     });
     updateCreatorClassDetails();
@@ -3991,14 +3999,16 @@
 
   function rotateCreatorPreview(dir) {
     creatorPreviewDir = (creatorPreviewDir + dir + 4) % 4;
+    updateCreatorPreviewCanvas();
   }
 
   function updateCreatorClassDetails() {
-    const classesMap = getDbClasses();
-    const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
+    const classesMap = getDbClasses() || getFallbackClasses();
+    const classList = Object.values(classesMap);
+    const c = classesMap[selectedCreatorClassId] || classList[0] || getFallbackClasses().vanguard;
     if (!c) return;
     const titleEl = document.getElementById('creator-class-title');
-    if (titleEl) titleEl.innerText = c.name;
+    if (titleEl) titleEl.innerText = c.name || 'Vanguard Titan';
 
     const stats = c.baseStats || c.stats || { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 };
     const statsEl = document.getElementById('creator-stats-list');
@@ -4072,11 +4082,12 @@
     pCtx.imageSmoothingEnabled = false;
     pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
 
-    const classesMap = getDbClasses();
-    const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
+    const classesMap = getDbClasses() || getFallbackClasses();
+    const classList = Object.values(classesMap);
+    const c = classesMap[selectedCreatorClassId] || classList[0] || getFallbackClasses().vanguard;
     if (!c) return;
     const spriteKey = normalizeSpriteKey(c.sprite || 'hero_knight');
-    const img = sprites[spriteKey];
+    const img = sprites[spriteKey] || sprites['hero_knight'];
 
     creatorPreviewAnimTimer++;
     if (creatorPreviewAnimTimer >= 10) {
@@ -5256,6 +5267,11 @@
 
     requestAnimationFrame(render);
   }
+
+  // Immediate synchronous render (0ms delay with fallback class data)
+  if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
+  if (typeof updateCreatorClassDetails === 'function') updateCreatorClassDetails();
+  if (typeof updateCreatorPreviewCanvas === 'function') updateCreatorPreviewCanvas();
 
   ensureGameDB().then(() => {
     if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
