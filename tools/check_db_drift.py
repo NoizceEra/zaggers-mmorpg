@@ -8,7 +8,7 @@ hardcoded duplicates in GDScript/JS/HTML and sprite files on disk.
 Checked:
   1. Schema version + top-level section counts
   2. Classes: DB `classes` vs HERO_DEFS in scripts/party_data.gd
-  3. Skills: DB `skills` count (expected baseline 66)
+  3. Skills: DB `skills` count (expected 132 after 66-skill expansion)
   4. Shop: DB `items` vs SHOP_CATALOG in scripts/shop_ui.gd
   5. Monsters: DB `monsters` vs initMonsters() in server/server.js
   6. Web spriteNames in web/index.html vs DB-referenced sprites
@@ -27,7 +27,7 @@ import sys
 
 EXPECTED_SCHEMA_VERSION = 2
 EXPECTED_CLASS_COUNT = 11
-EXPECTED_SKILL_COUNT = 66
+EXPECTED_SKILL_COUNT = 132
 EXPECTED_MONSTER_COUNT = 54
 
 SPRITE_DIRS = [
