@@ -732,11 +732,9 @@
   }
 
   function is3DVolumetricProp(type) {
-    return type === 'env_wall_curtain' || type === 'env_wall_corner' || type === 'env_gatehouse' ||
-           type === 'env_palisade_wall' || type === 'env_temple_pillar' || type === 'env_dungeon_pillar' ||
-           type === 'env_house_smithy' || type === 'env_house_guild' || type === 'env_house_inn' ||
-           type === 'env_house_row' || type === 'env_house_shop' || type === 'env_house_terrace' ||
-           type === 'env_chimney_stack' || type === 'env_fence_rail' || type === 'env_perimeter_wall';
+    if (!type) return false;
+    return type.startsWith('env_house_') || type.includes('wall') || type.includes('gatehouse') ||
+           type.includes('pillar') || type.includes('stack') || type.includes('fence');
   }
 
   function get3DPropHeight(type) {
@@ -4263,10 +4261,10 @@
     }
 
     // 1. Render 2.5D Isometric Diamond Grid Terrain (Visible range around camera)
-    const minWx = Math.max(currentMapBounds.minWx, Math.floor(cameraX - 20));
-    const maxWx = Math.min(currentMapBounds.maxWx, Math.ceil(cameraX + 20));
-    const minWy = Math.max(currentMapBounds.minWy, Math.floor(cameraY - 20));
-    const maxWy = Math.min(currentMapBounds.maxWy, Math.ceil(cameraY + 20));
+    const minWx = Math.max(currentMapBounds.minWx, Math.floor(cameraX - 35));
+    const maxWx = Math.min(currentMapBounds.maxWx, Math.ceil(cameraX + 35));
+    const minWy = Math.max(currentMapBounds.minWy, Math.floor(cameraY - 35));
+    const maxWy = Math.min(currentMapBounds.maxWy, Math.ceil(cameraY + 35));
 
     // Horizon clip: tiles above the parallax skyline are skipped so the
     // backdrop stays visible (otherwise the opaque tile grid paints over it).

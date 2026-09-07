@@ -4628,6 +4628,46 @@
       "animated": true,
       "name": "Barnacle Tavern Door",
       "collisionPass": true
+    },
+    {
+      "type": "env_house_smithy",
+      "wx": -18,
+      "wy": 12,
+      "width": 64,
+      "height": 64,
+      "anchorX": 32,
+      "anchorY": 48,
+      "name": "Blacksmith Forge"
+    },
+    {
+      "type": "env_house_inn",
+      "wx": 18,
+      "wy": -12,
+      "width": 64,
+      "height": 64,
+      "anchorX": 32,
+      "anchorY": 48,
+      "name": "Travelers Inn"
+    },
+    {
+      "type": "env_house_guild",
+      "wx": 18,
+      "wy": 0,
+      "width": 64,
+      "height": 64,
+      "anchorX": 32,
+      "anchorY": 48,
+      "name": "Adventurer Guild Hall"
+    },
+    {
+      "type": "env_house_temple",
+      "wx": 18,
+      "wy": 12,
+      "width": 64,
+      "height": 64,
+      "anchorX": 32,
+      "anchorY": 48,
+      "name": "Sanctuary Temple"
     }
   ],
   "npcs": [
@@ -4644,15 +4684,15 @@
       "dialogText": "Welcome to the Kestrel Consignment House! Storage, teleport service, and the world map are all here. How may I serve you, adventurer?",
       "options": [
         {
-          "text": "💾 Save Position & Heal",
+          "text": "\ud83d\udcbe Save Position & Heal",
           "action": "kafra_save"
         },
         {
-          "text": "🌀 Teleport to Wilderness Fields",
+          "text": "\ud83c\udf00 Teleport to Wilderness Fields",
           "action": "kafra_teleport"
         },
         {
-          "text": "❌ Cancel",
+          "text": "\u274c Cancel",
           "action": "close"
         }
       ]
@@ -4667,18 +4707,18 @@
       "frame": 1,
       "sprite": "npc_merchant",
       "dialogHeader": "Potion Row Merchant",
-      "dialogText": "Fresh potions and traveller’s gear, brewed this morning! What can I get you?",
+      "dialogText": "Fresh potions and traveller\u2019s gear, brewed this morning! What can I get you?",
       "options": [
         {
-          "text": "🧪 Open Item Shop",
+          "text": "\ud83e\uddea Open Item Shop",
           "action": "open_shop"
         },
         {
-          "text": "🍷 Buy Red Potion (50 z)",
+          "text": "\ud83c\udf77 Buy Red Potion (50 z)",
           "action": "buy_red_potion"
         },
         {
-          "text": "❌ Cancel",
+          "text": "\u274c Cancel",
           "action": "close"
         }
       ]
@@ -4693,18 +4733,18 @@
       "frame": 1,
       "sprite": "npc_blacksmith",
       "dialogHeader": "Master Blacksmith Ironhide",
-      "dialogText": "Clang! Welcome to the Obsidian Smithy. Bring me zeny and I’ll turn your gear into something the realms will remember.",
+      "dialogText": "Clang! Welcome to the Obsidian Smithy. Bring me zeny and I\u2019ll turn your gear into something the realms will remember.",
       "options": [
         {
-          "text": "⚔️ Refine Weapon (+2 STR) [100 z]",
+          "text": "\u2694\ufe0f Refine Weapon (+2 STR) [100 z]",
           "action": "upgrade_weapon"
         },
         {
-          "text": "🛡️ Reinforce Armor (+20 HP, +10 SP) [150 z]",
+          "text": "\ud83d\udee1\ufe0f Reinforce Armor (+20 HP, +10 SP) [150 z]",
           "action": "upgrade_armor"
         },
         {
-          "text": "❌ Cancel",
+          "text": "\u274c Cancel",
           "action": "close"
         }
       ]
@@ -4719,22 +4759,22 @@
       "frame": 1,
       "sprite": "npc_elder",
       "dialogHeader": "Elder Quest Guide",
-      "dialogText": "Welcome home, hero. The Whispering Meadows need clearing beyond the Rampart Gate — and Ordwin the Palisade Tyrant still holds the eastern tree line.",
+      "dialogText": "Welcome home, hero. The Whispering Meadows need clearing beyond the Rampart Gate \u2014 and Ordwin the Palisade Tyrant still holds the eastern tree line.",
       "options": [
         {
-          "text": "📜 Accept Quest: Defeat Ordwin the Palisade Tyrant",
+          "text": "\ud83d\udcdc Accept Quest: Defeat Ordwin the Palisade Tyrant",
           "action": "quest_accept"
         },
         {
-          "text": "🎁 Claim Quest Reward (500 z)",
+          "text": "\ud83c\udf81 Claim Quest Reward (500 z)",
           "action": "quest_claim"
         },
         {
-          "text": "💡 Seek Wisdom & Training Advice",
+          "text": "\ud83d\udca1 Seek Wisdom & Training Advice",
           "action": "elder_advice"
         },
         {
-          "text": "❌ Cancel",
+          "text": "\u274c Cancel",
           "action": "close"
         }
       ]
@@ -4749,14 +4789,14 @@
       "frame": 1,
       "sprite": "npc_merchant",
       "dialogHeader": "Barnacle Tavern Keeper",
-      "dialogText": "Ferry to the Sunken Sanctum leaves from the berth out back. Mind the Bilge Steps, too — some say they lead straight into the Silt Warrens if you know where to look.",
+      "dialogText": "Ferry to the Sunken Sanctum leaves from the berth out back. Mind the Bilge Steps, too \u2014 some say they lead straight into the Silt Warrens if you know where to look.",
       "options": [
         {
-          "text": "💬 Ask about the ferry",
+          "text": "\ud83d\udcac Ask about the ferry",
           "action": "close"
         },
         {
-          "text": "❌ Cancel",
+          "text": "\u274c Cancel",
           "action": "close"
         }
       ]
@@ -4840,7 +4880,7 @@
       "targetMap": "gatewatch",
       "targetWx": 0,
       "targetWy": 12,
-      "label": "Rampart Gate → Gatewatch Commons"
+      "label": "Rampart Gate \u2192 Gatewatch Commons"
     },
     {
       "id": "dockgate_ferry",
@@ -4850,7 +4890,7 @@
       "targetMap": "sanctum",
       "targetWx": 0,
       "targetWy": -28,
-      "label": "Dockgate Ferry → Sunken Sanctum",
+      "label": "Dockgate Ferry \u2192 Sunken Sanctum",
       "minLevel": 15
     },
     {
@@ -4861,7 +4901,7 @@
       "targetMap": "spire",
       "targetWx": 0,
       "targetWy": -28,
-      "label": "Ashroad Caravan → Obsidian Spire",
+      "label": "Ashroad Caravan \u2192 Obsidian Spire",
       "minLevel": 30
     },
     {
@@ -4872,7 +4912,7 @@
       "targetMap": "chasm",
       "targetWx": 0,
       "targetWy": -28,
-      "label": "Rimewind Tramway → Glacial Chasm",
+      "label": "Rimewind Tramway \u2192 Glacial Chasm",
       "minLevel": 50
     }
   ]
