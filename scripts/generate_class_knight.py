@@ -20,99 +20,110 @@ def save_sprite(img, filename, dirs):
 OUTLINE = (14, 18, 24, 255)
 
 # 5-Tone Color Ramps
-STEEL_SPEC    = (245, 250, 255, 255)
-STEEL_LIGHT   = (210, 222, 238, 255)
-STEEL_BASE    = (160, 175, 195, 255)
-STEEL_SHADOW  = (105, 118, 140, 255)
-STEEL_DARK    = (65, 75, 95, 255)
+STEEL_1 = (248, 252, 255, 255) # Specular Gleam
+STEEL_2 = (215, 228, 242, 255) # Light Tone
+STEEL_3 = (165, 180, 202, 255) # Midtone Base
+STEEL_4 = (110, 125, 148, 255) # Shadow Tone
+STEEL_5 = (68, 80, 102, 255)   # Deep Crevice
 
-CAPE_HI       = (90, 150, 245, 255)
-CAPE_LIGHT    = (60, 115, 215, 255)
-CAPE_BASE     = (35, 80, 175, 255)
-CAPE_SHADOW   = (20, 50, 125, 255)
-CAPE_DARK     = (12, 30, 80, 255)
+CAPE_1  = (110, 170, 255, 255) # Specular Peak
+CAPE_2  = (70, 130, 230, 255)  # Light Fold
+CAPE_3  = (38, 88, 185, 255)   # Midtone Base
+CAPE_4  = (22, 56, 135, 255)   # Shadow Crease
+CAPE_5  = (12, 34, 90, 255)    # Core Shadow
 
-GOLD_HI       = (255, 230, 110, 255)
-GOLD_LIGHT    = (245, 205, 60, 255)
-GOLD_BASE     = (215, 165, 30, 255)
-GOLD_SHADOW   = (165, 120, 15, 255)
-GOLD_DARK     = (100, 70, 5, 255)
+GOLD_1  = (255, 242, 160, 255)
+GOLD_2  = (250, 215, 75, 255)
+GOLD_3  = (218, 168, 30, 255)
+GOLD_4  = (165, 120, 15, 255)
+GOLD_5  = (102, 70, 6, 255)
 
-SKIN_HI       = (255, 225, 195, 255)
-SKIN_BASE     = (245, 200, 165, 255)
-SKIN_SHADOW   = (210, 160, 125, 255)
-SKIN_DARK     = (175, 125, 95, 255)
+SKIN_1  = (255, 235, 212, 255)
+SKIN_2  = (252, 212, 178, 255)
+SKIN_3  = (242, 188, 148, 255)
+SKIN_4  = (198, 142, 108, 255)
+SKIN_5  = (150, 98, 72, 255)
 
-EYE_COLOR     = (20, 30, 45, 255)
+EYE_PUPIL = (20, 28, 42, 255)
+WHITE_SPEC= (255, 255, 255, 255)
 
 def draw_knight_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
     leg = 3 if col == 1 else (-3 if col == 3 else 0)
     cy = bob
 
-    # Drop Shadow
-    draw.ellipse([18, 52 + cy, 46, 59 + cy], fill=(0, 0, 0, 90))
+    # Ground Drop Shadow
+    draw.ellipse([16, 52 + cy, 48, 59 + cy], fill=(0, 0, 0, 90))
 
-    if row == 3:  # UP (Back view)
+    if row == 3: # UP (Back view)
         # Flowing Cape Back
-        draw.polygon([(16, 24 + cy), (48, 24 + cy), (52, 54 + cy), (12, 54 + cy)], fill=CAPE_BASE, outline=OUTLINE)
-        draw.polygon([(16, 24 + cy), (32, 54 + cy), (12, 54 + cy)], fill=CAPE_SHADOW)
-        draw.polygon([(36, 28 + cy), (48, 24 + cy), (50, 52 + cy), (42, 54 + cy)], fill=CAPE_LIGHT)
+        draw.polygon([(14, 22 + cy), (50, 22 + cy), (54, 55 + cy), (10, 55 + cy)], fill=CAPE_3, outline=OUTLINE)
+        draw.polygon([(14, 22 + cy), (32, 55 + cy), (10, 55 + cy)], fill=CAPE_4)
+        draw.polygon([(10, 48 + cy), (20, 55 + cy), (10, 55 + cy)], fill=CAPE_5)
+        draw.polygon([(36, 26 + cy), (50, 22 + cy), (52, 53 + cy), (42, 55 + cy)], fill=CAPE_2)
 
-        # Legs (Back of boots)
-        lx1, lx2 = 23 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 46 + cy, lx2, 55 + cy], fill=STEEL_DARK, outline=OUTLINE)
-        draw.rectangle([rx1, 46 + cy, rx2, 55 + cy], fill=STEEL_DARK, outline=OUTLINE)
+        # Greaves & Boots (Back view)
+        lx1, lx2 = 22 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 42 - leg
+        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=STEEL_5)
+        draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=STEEL_5)
 
         # Helm (Back view)
-        draw.rectangle([21, 12 + cy, 43, 27 + cy], fill=STEEL_BASE, outline=OUTLINE)
-        draw.rectangle([23, 14 + cy, 41, 25 + cy], fill=STEEL_SHADOW)
-        draw.line([(32, 12 + cy), (32, 27 + cy)], fill=GOLD_BASE, width=2)
+        draw.rectangle([20, 11 + cy, 44, 27 + cy], fill=STEEL_3, outline=OUTLINE)
+        draw.rectangle([22, 13 + cy, 42, 25 + cy], fill=STEEL_4)
+        draw.line([(32, 11 + cy), (32, 27 + cy)], fill=GOLD_3, width=2)
+        draw.line([(32, 11 + cy), (32, 20 + cy)], fill=GOLD_1, width=1)
     else:
         # Cape Wings
-        draw.polygon([(14, 24 + cy), (48, 24 + cy), (52, 53 + cy), (12, 53 + cy)], fill=CAPE_BASE, outline=OUTLINE)
-        draw.polygon([(14, 24 + cy), (26, 53 + cy), (12, 53 + cy)], fill=CAPE_SHADOW)
+        draw.polygon([(14, 23 + cy), (48, 23 + cy), (52, 53 + cy), (12, 53 + cy)], fill=CAPE_3, outline=OUTLINE)
+        draw.polygon([(14, 23 + cy), (26, 53 + cy), (12, 53 + cy)], fill=CAPE_4)
+        draw.polygon([(38, 25 + cy), (48, 23 + cy), (50, 50 + cy), (42, 53 + cy)], fill=CAPE_2)
 
-        # Greaves & Legs
-        lx1, lx2 = 23 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=STEEL_DARK, outline=OUTLINE)
-        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=STEEL_DARK, outline=OUTLINE)
-        draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=STEEL_BASE)
-        draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=STEEL_BASE)
-        draw.line([(lx1 + 1, 46 + cy), (lx1 + 1, 52 + cy)], fill=STEEL_SPEC, width=1)
+        # Greaves & Boots
+        lx1, lx2 = 22 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 42 - leg
+        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 52 + cy], fill=STEEL_3)
+        draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 52 + cy], fill=STEEL_3)
+        draw.line([(lx1 + 1, 45 + cy), (lx1 + 1, 51 + cy)], fill=STEEL_1, width=1)
+        draw.line([(rx1 + 1, 45 + cy), (rx1 + 1, 51 + cy)], fill=STEEL_1, width=1)
 
-        # Cuirass (Plate Chestpiece)
-        draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=STEEL_BASE, outline=OUTLINE)
-        draw.rectangle([24, 28 + cy, 40, 42 + cy], fill=STEEL_LIGHT)
-        draw.rectangle([26, 29 + cy, 32, 39 + cy], fill=STEEL_SPEC)
-        draw.rectangle([21, 40 + cy, 43, 43 + cy], fill=GOLD_BASE, outline=OUTLINE)
+        # Torso & Chestplate
+        draw.rectangle([20, 25 + cy, 44, 44 + cy], fill=STEEL_3, outline=OUTLINE)
+        draw.rectangle([23, 27 + cy, 41, 42 + cy], fill=STEEL_2)
+        draw.rectangle([25, 28 + cy, 33, 38 + cy], fill=STEEL_1)
+        draw.rectangle([20, 40 + cy, 44, 43 + cy], fill=GOLD_3, outline=OUTLINE)
+        draw.line([(22, 41 + cy), (42, 41 + cy)], fill=GOLD_1, width=1)
 
-        # Pauldrons (Shoulders with Specular Highlights)
-        draw.polygon([(15, 25 + cy), (22, 27 + cy), (20, 36 + cy), (13, 32 + cy)], fill=STEEL_LIGHT, outline=OUTLINE)
-        draw.line([(16, 26 + cy), (20, 28 + cy)], fill=STEEL_SPEC, width=1)
-        draw.polygon([(49, 25 + cy), (42, 27 + cy), (44, 36 + cy), (51, 32 + cy)], fill=STEEL_LIGHT, outline=OUTLINE)
-        draw.line([(48, 26 + cy), (44, 28 + cy)], fill=STEEL_SPEC, width=1)
+        # Shoulder Pauldrons with Gold Trim
+        draw.polygon([(14, 24 + cy), (22, 26 + cy), (20, 36 + cy), (12, 32 + cy)], fill=STEEL_2, outline=OUTLINE)
+        draw.polygon([(15, 25 + cy), (21, 26 + cy), (19, 30 + cy)], fill=STEEL_1)
+        draw.line([(12, 32 + cy), (20, 36 + cy)], fill=GOLD_2, width=2)
 
-        # Helm & Visor
-        draw.rectangle([21, 12 + cy, 43, 27 + cy], fill=STEEL_BASE, outline=OUTLINE)
-        draw.rectangle([24, 14 + cy, 40, 25 + cy], fill=STEEL_LIGHT)
-        draw.line([(25, 14 + cy), (32, 14 + cy)], fill=STEEL_SPEC, width=2)
-        # Dark Visor Slit with metallic trim
-        draw.rectangle([24, 19 + cy, 40, 23 + cy], fill=OUTLINE)
-        draw.line([(26, 21 + cy), (38, 21 + cy)], fill=STEEL_SPEC, width=1)
+        draw.polygon([(50, 24 + cy), (42, 26 + cy), (44, 36 + cy), (52, 32 + cy)], fill=STEEL_3, outline=OUTLINE)
+        draw.polygon([(49, 25 + cy), (43, 26 + cy), (45, 30 + cy)], fill=STEEL_2)
+        draw.line([(52, 32 + cy), (44, 36 + cy)], fill=GOLD_3, width=2)
 
-        # Claymore Broadsword
-        wx = 50 if (row == 0 or row == 2) else 14
-        draw.line([(wx, 8 + cy), (wx, 48 + cy)], fill=STEEL_LIGHT, width=3)
-        draw.line([(wx - 1, 10 + cy), (wx - 1, 42 + cy)], fill=STEEL_SPEC, width=1)
-        draw.polygon([(wx, 4 + cy), (wx - 4, 12 + cy), (wx + 4, 12 + cy)], fill=STEEL_SPEC)
-        draw.rectangle([wx - 5, 38 + cy, wx + 5, 41 + cy], fill=GOLD_LIGHT, outline=OUTLINE)
-        draw.ellipse([wx - 2, 48 + cy, wx + 2, 52 + cy], fill=GOLD_BASE)
+        # Helmet with Visor & Specular Gleam
+        draw.rectangle([20, 11 + cy, 44, 27 + cy], fill=STEEL_3, outline=OUTLINE)
+        draw.rectangle([23, 13 + cy, 41, 25 + cy], fill=STEEL_2)
+        draw.rectangle([25, 14 + cy, 33, 20 + cy], fill=STEEL_1)
+        draw.rectangle([23, 19 + cy, 41, 23 + cy], fill=OUTLINE)
+        draw.line([(25, 21 + cy), (39, 21 + cy)], fill=STEEL_1, width=1)
+        draw.line([(32, 11 + cy), (32, 18 + cy)], fill=GOLD_2, width=2)
 
-def generate_knight_spritesheet():
-    dirs = ensure_dirs()
+        # Greatsword with Fuller & Guard
+        wx = 51 if (row == 0 or row == 2) else 13
+        draw.line([(wx, 6 + cy), (wx, 48 + cy)], fill=STEEL_2, width=3)
+        draw.line([(wx, 6 + cy), (wx, 46 + cy)], fill=STEEL_1, width=1)
+        draw.polygon([(wx, 2 + cy), (wx - 4, 10 + cy), (wx + 4, 10 + cy)], fill=STEEL_1)
+        draw.rectangle([wx - 5, 38 + cy, wx + 5, 41 + cy], fill=GOLD_3, outline=OUTLINE)
+        draw.ellipse([wx - 2, 47 + cy, wx + 2, 51 + cy], fill=GOLD_2, outline=OUTLINE)
+
+def create_knight_spritesheet():
     sheet = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
     for row in range(4):
         for col in range(4):
@@ -120,7 +131,12 @@ def generate_knight_spritesheet():
             draw = ImageDraw.Draw(frame)
             draw_knight_frame(draw, row, col)
             sheet.paste(frame, (col * 64, row * 64))
+    return sheet
+
+def main():
+    dirs = ensure_dirs()
+    sheet = create_knight_spritesheet()
     save_sprite(sheet, "hero_knight.png", dirs)
 
 if __name__ == "__main__":
-    generate_knight_spritesheet()
+    main()
