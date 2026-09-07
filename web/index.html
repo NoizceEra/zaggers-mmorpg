@@ -454,7 +454,7 @@
       <div class="stat-row"><span data-tip="VIT raises your Max HP and physical defense, so you can take more punishment before falling.">VIT (Max HP)</span><span id="stat-vit">10</span><button class="stat-btn" onclick="addStat('vit')">+</button></div>
       <div class="stat-row"><span data-tip="INT increases magic attack power (MATK) and your Max SP, fueling stronger and more frequent skills.">INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
       <div class="stat-row"><span data-tip="DEX improves your accuracy (HIT) and skill reliability, so fewer of your attacks miss.">DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
-      <div class="stat-row"><span data-tip="LUK raises your critical hit chance and nudges random effects (drop luck, minor evasion) in your favor.">LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button>
+      <div class="stat-row"><span data-tip="LUK raises your critical hit chance and nudges random effects (drop luck, minor evasion) in your favor.">LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button></div>
       <div style="border-top: 1px solid #3d4a68; margin-top: 10px; padding-top: 8px;">
         <div style="font-size: 11px; font-weight: bold; color: #81d4fa; margin-bottom: 4px;">🎨 Outfit Palette & Aura Tint</div>
         <div id="stat-color-swatches" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>
@@ -3098,17 +3098,20 @@
   }
 
   function getGameDB() {
-    if (gameDB && gameDB.classes) return gameDB;
+    if (gameDB && gameDB.classes && typeof gameDB.classes === 'object' && Object.keys(gameDB.classes).length > 0) {
+      return gameDB;
+    }
     const stored = readStoredDb();
-    if (stored && stored.classes) {
+    if (stored && stored.classes && typeof stored.classes === 'object' && Object.keys(stored.classes).length > 0) {
       gameDB = stored;
       return gameDB;
     }
-    return gameDB || { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
+    gameDB = { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
+    return gameDB;
   }
 
   async function ensureGameDB() {
-    if (gameDB && gameDB.skills && Object.keys(gameDB.skills).length) {
+    if (gameDB && gameDB.skills && Object.keys(gameDB.skills).length > 0 && gameDB.classes && Object.keys(gameDB.classes).length > 0) {
       rebuildMonsterIndexes();
       hideDbFailBanner();
       if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
@@ -3117,8 +3120,13 @@
     try {
       const res = await fetch('zaggers_database.json');
       if (!res.ok) throw new Error('DB fetch failed: ' + res.status);
-      gameDB = await res.json();
-      try { localStorage.setItem('zaggers_db', JSON.stringify(gameDB)); } catch (e) {}
+      const fetchedDB = await res.json();
+      if (fetchedDB && fetchedDB.classes && Object.keys(fetchedDB.classes).length > 0) {
+        gameDB = fetchedDB;
+        try { localStorage.setItem('zaggers_db', JSON.stringify(gameDB)); } catch (e) {}
+      } else {
+        gameDB = { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
+      }
       rebuildMonsterIndexes();
       hideDbFailBanner();
       if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
@@ -3126,15 +3134,11 @@
     } catch (err) {
       console.error('Failed to load zaggers_database.json', err);
       const stored = readStoredDb();
-      if (stored && stored.skills && Object.keys(stored.skills).length) {
-        console.warn('Falling back to cached zaggers_db from localStorage (may be stale).');
+      if (stored && stored.classes && Object.keys(stored.classes).length > 0) {
         gameDB = stored;
-        rebuildMonsterIndexes();
-        if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
-        return gameDB;
+      } else {
+        gameDB = { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
       }
-      showDbFailBanner('Failed to load zaggers_database.json (404 or network error). Serve from the web/ folder so the client can fetch the database.');
-      gameDB = stored && stored.classes ? stored : { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
       rebuildMonsterIndexes();
       if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
       return gameDB;
@@ -3143,7 +3147,10 @@
 
   function getDbClasses() {
     const db = getGameDB();
-    return (db && db.classes) ? db.classes : getFallbackClasses();
+    if (db && db.classes && typeof db.classes === 'object' && Object.keys(db.classes).length > 0) {
+      return db.classes;
+    }
+    return getFallbackClasses();
   }
 
   function getDbSkills() {
@@ -4107,73 +4114,81 @@
   }
 
   function confirmCharacterCreation() {
-    const input = document.getElementById('creator-name-input');
-    const heroName = input ? (input.value.trim() || 'Hero') : 'Hero';
-    const classesMap = getDbClasses();
-    const c = classesMap[selectedCreatorClassId] || Object.values(classesMap)[0];
+    try {
+      const input = document.getElementById('creator-name-input');
+      const heroName = input ? (input.value.trim() || 'Hero') : 'Hero';
+      const classesMap = getDbClasses() || getFallbackClasses();
+      const classList = Object.values(classesMap);
+      const c = classesMap[selectedCreatorClassId] || classList[0] || getFallbackClasses().vanguard;
 
-    const stats = c.baseStats || c.stats || { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 };
-    const baseHp = 100 + stats.vit * 15;
-    const baseSp = 30 + stats.int * 8;
-    const spriteKey = normalizeSpriteKey(c.sprite || 'hero_knight');
+      const stats = (c && (c.baseStats || c.stats)) ? (c.baseStats || c.stats) : { str: 10, agi: 10, vit: 10, int: 10, dex: 10, luk: 10 };
+      const baseHp = 100 + stats.vit * 15;
+      const baseSp = 30 + stats.int * 8;
+      const spriteKey = normalizeSpriteKey((c && c.sprite) ? c.sprite : 'hero_knight');
 
-    player.name = heroName;
-    player.classId = c.id || selectedCreatorClassId;
-    player.class = spriteKey;
-    player.sprite = spriteKey;
-    player.hueShift = selectedCreatorHueShift || 0;
-    localStorage.setItem('zaggers_player_hue', player.hueShift);
-    player.str = stats.str;
-    player.agi = stats.agi;
-    player.vit = stats.vit;
-    player.int = stats.int;
-    player.dex = stats.dex;
-    player.luk = stats.luk;
-    player.maxHp = baseHp;
-    player.hp = baseHp;
-    player.maxSp = baseSp;
-    player.sp = baseSp;
-    player.level = 1;
-    player.xp = 0;
-    player.xpToLevel = 100;
-    player.skillPoints = 1;
-    player.learnedSkills = {};
-    player.skillHotbar = [null, null, null, null, null, null, null, null, null];
-    player.skillCooldowns = {};
-    player.inventory = [];
-    player.equipment = { weapon: null, shield: null, armor: null, headgear: null, accessory: null };
-    player.buffs = [];
-    player.zeny = 500;
+      player.name = heroName;
+      player.classId = (c && c.id) ? c.id : (selectedCreatorClassId || 'vanguard');
+      player.class = spriteKey;
+      player.sprite = spriteKey;
+      player.hueShift = selectedCreatorHueShift || 0;
+      try { localStorage.setItem('zaggers_player_hue', player.hueShift); } catch (e) {}
+      player.str = stats.str;
+      player.agi = stats.agi;
+      player.vit = stats.vit;
+      player.int = stats.int;
+      player.dex = stats.dex;
+      player.luk = stats.luk;
+      player.maxHp = baseHp;
+      player.hp = baseHp;
+      player.maxSp = baseSp;
+      player.sp = baseSp;
+      player.level = 1;
+      player.xp = 0;
+      player.xpToLevel = 100;
+      player.skillPoints = 1;
+      player.learnedSkills = {};
+      player.skillHotbar = [null, null, null, null, null, null, null, null, null];
+      player.skillCooldowns = {};
+      player.inventory = [];
+      player.equipment = { weapon: null, shield: null, armor: null, headgear: null, accessory: null };
+      player.buffs = [];
+      player.zeny = 500;
 
-    // Seed reqLevel-1 class skills onto the hotbar so F1 works immediately.
-    getClassSkills(player.classId).filter(s => (s.reqLevel || 1) <= 1 && !s.requires).forEach((s, idx) => {
-      player.learnedSkills[s.id] = 1;
-      if (idx < player.skillHotbar.length) player.skillHotbar[idx] = s.id;
-    });
+      try {
+        getClassSkills(player.classId).filter(s => (s.reqLevel || 1) <= 1 && !s.requires).forEach((s, idx) => {
+          player.learnedSkills[s.id] = 1;
+          if (idx < player.skillHotbar.length) player.skillHotbar[idx] = s.id;
+        });
+      } catch (e) {}
 
-    ['str','agi','vit','int','dex','luk'].forEach(s => {
-      const el = document.getElementById(`stat-${s}`);
-      if (el) el.innerText = player[s];
-    });
+      ['str','agi','vit','int','dex','luk'].forEach(s => {
+        const el = document.getElementById(`stat-${s}`);
+        if (el) el.innerText = player[s];
+      });
 
-    const pNameEl = document.getElementById('player-name');
-    if (pNameEl) pNameEl.innerText = `${heroName} [${c.name}]`;
+      const pNameEl = document.getElementById('player-name');
+      if (pNameEl) pNameEl.innerText = `${heroName} [${c ? (c.name || 'Hero') : 'Hero'}]`;
 
-    updateHUD();
-    populateShopFromDB();
-    refreshSkillTree();
-    updateHotbarUI(true);
-    refreshEquipPanel();
-    savePlayerState();
+      try { updateHUD(); } catch (e) {}
+      try { populateShopFromDB(); } catch (e) {}
+      try { refreshSkillTree(); } catch (e) {}
+      try { updateHotbarUI(true); } catch (e) {}
+      try { refreshEquipPanel(); } catch (e) {}
+      try { savePlayerState(); } catch (e) {}
+    } catch (err) {
+      console.error('Error confirming character creation:', err);
+    }
+
     const hotbar = document.getElementById('skill-hotbar');
     if (hotbar) hotbar.style.display = 'flex';
 
+    // ALWAYS hide the modal so the player enters the game!
     const modal = document.getElementById('character-creator-modal');
     if (modal) modal.style.display = 'none';
 
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) {
-      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Welcome to Aethelgard Master Town, ${heroName}! Class set to <strong>${c.name}</strong>. Open Skills [K] and Equip [I].</div>`;
+      chatBox.innerHTML += `<div><span style="color: #ffd54f;">[System]:</span> Welcome to Aethelgard Master Town! Open Skills [K] and Equip [I].</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
       trimChatLog(chatBox);
     }
