@@ -49,11 +49,13 @@ def draw_alchemist_frame(draw, row, col):
     draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
     draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
-    # Trousers & Boots
-    lx1, lx2 = 23 + leg, 29 + leg
-    rx1, rx2 = 35 - leg, 41 - leg
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=BELT_DARK, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=BELT_DARK, outline=OUTLINE)
+    # Trousers & Boots Stride
+    lx1, lx2 = 20 + leg, 28 + leg
+    rx1, rx2 = 36 - leg, 44 - leg
+    draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=BELT_DARK, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=BELT_DARK, outline=OUTLINE)
+    draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=APRON_5)
+    draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=APRON_5)
     draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
@@ -61,6 +63,21 @@ def draw_alchemist_frame(draw, row, col):
     draw.rectangle([21, 27 + cy, 43, 45 + cy], fill=APRON_4, outline=OUTLINE)
     draw.rectangle([25, 29 + cy, 39, 43 + cy], fill=APRON_3)
     draw.line([(22, 28 + cy), (22, 44 + cy)], fill=APRON_1, width=1) # Rim light
+
+    # ARTICULATED ROLLED SLEEVES & POTION-HOLDING HANDS
+    # Left Arm & Flask Holding Hand
+    draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=APRON_3, outline=OUTLINE) # Rolled sleeve
+    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=APRON_5, outline=OUTLINE)
+    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=SKIN_BASE, outline=OUTLINE) # Bare hand holding potion flask
+    draw.ellipse([9, 44 + cy, 15, 51 + cy], fill=FLASK_CYAN, outline=OUTLINE)
+    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+
+    # Right Arm & Hand
+    draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=APRON_4, outline=OUTLINE)
+    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=APRON_5, outline=OUTLINE)
+    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=SKIN_BASE, outline=OUTLINE)
+    draw.ellipse([49, 44 + cy, 55, 51 + cy], fill=FLASK_RED, outline=OUTLINE)
+    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Potion Belt with Flasks
     draw.rectangle([19, 37 + cy, 45, 40 + cy], fill=BELT_DARK, outline=OUTLINE)

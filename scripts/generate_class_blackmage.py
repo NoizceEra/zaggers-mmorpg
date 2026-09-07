@@ -46,17 +46,27 @@ def draw_blackmage_frame(draw, row, col):
     BELT_GOLD = (240, 190, 40, 255)
 
     bob = 1 if (col == 1 or col == 3) else 0
+    leg = 4 if col == 1 else (-4 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
     draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
     draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
-    # Robe Skirt & 7-Tone Fold Shading
-    draw.polygon([(18, 30 + cy), (46, 30 + cy), (50, 55 + cy), (14, 55 + cy)], fill=ROBE_4, outline=OUTLINE)
-    draw.polygon([(18, 30 + cy), (32, 55 + cy), (14, 55 + cy)], fill=ROBE_5)
-    draw.polygon([(14, 50 + cy), (22, 55 + cy), (14, 55 + cy)], fill=ROBE_6)
+    # Robe Skirt & 7-Tone Fold Shading with Front Slit revealing articulated legs
+    lx1, lx2 = 20 + leg, 28 + leg
+    rx1, rx2 = 36 - leg, 44 - leg
+    draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=(30, 20, 15, 255), outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=(30, 20, 15, 255), outline=OUTLINE)
+    draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
+    draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
+
+    draw.polygon([(18, 30 + cy), (46, 30 + cy), (50, 54 + cy), (14, 54 + cy)], fill=ROBE_4, outline=OUTLINE)
+    draw.polygon([(18, 30 + cy), (32, 54 + cy), (14, 54 + cy)], fill=ROBE_5)
+    draw.polygon([(14, 50 + cy), (22, 54 + cy), (14, 54 + cy)], fill=ROBE_6)
     draw.polygon([(36, 32 + cy), (46, 30 + cy), (44, 48 + cy)], fill=ROBE_3)
+    # Front Robe Slit
+    draw.polygon([(29, 42 + cy), (35, 42 + cy), (38, 55 + cy), (26, 55 + cy)], fill=(12, 10, 20, 255))
     draw.line([(24, 30 + cy), (26, 52 + cy)], fill=ROBE_2, width=1)
     draw.line([(15, 31 + cy), (15, 54 + cy)], fill=ROBE_1, width=1) # Rim light left
 
@@ -64,6 +74,15 @@ def draw_blackmage_frame(draw, row, col):
     draw.rectangle([21, 38 + cy, 43, 41 + cy], fill=ROBE_6, outline=OUTLINE)
     draw.rectangle([29, 37 + cy, 35, 42 + cy], fill=BELT_GOLD, outline=OUTLINE)
     draw.line([(21, 38 + cy), (43, 38 + cy)], fill=AO_CREVICE, width=1)
+
+    # ARTICULATED SLEEVES & TAN GLOVED HANDS
+    draw.polygon([(11, 26 + cy), (19, 27 + cy), (17, 37 + cy), (9, 34 + cy)], fill=ROBE_3, outline=OUTLINE)
+    draw.rectangle([9, 35 + cy, 17, 44 + cy], fill=ROBE_5, outline=OUTLINE) # Bell sleeve
+    draw.rectangle([10, 42 + cy, 16, 47 + cy], fill=(185, 130, 70, 255), outline=OUTLINE) # Tan glove hand
+
+    draw.polygon([(53, 26 + cy), (45, 27 + cy), (47, 37 + cy), (55, 34 + cy)], fill=ROBE_4, outline=OUTLINE)
+    draw.rectangle([47, 35 + cy, 55, 44 + cy], fill=ROBE_6, outline=OUTLINE) # Bell sleeve
+    draw.rectangle([48, 42 + cy, 54, 47 + cy], fill=(185, 130, 70, 255), outline=OUTLINE) # Tan glove hand
 
     # Pitch-black shadow face & yellow pointed hat
     draw.rectangle([23, 16 + cy, 41, 28 + cy], fill=FACE_VOID)
@@ -97,7 +116,7 @@ def draw_blackmage_frame(draw, row, col):
 
     # Oak Staff with Glowing Arcane Orb & Outer Aura
     wx = 52 if (row == 0 or row == 2) else 12
-    draw.line([(wx, 10 + cy), (wx, 54 + cy)], fill=OAK_BASE, width=4)
+    draw.line([(wx, 10 + cy), (wx, 54 + cy)], fill=OAK_BASE, width=3)
     draw.line([(wx - 1, 12 + cy), (wx - 1, 52 + cy)], fill=OAK_DARK, width=1)
 
     # Orb Aura Rings

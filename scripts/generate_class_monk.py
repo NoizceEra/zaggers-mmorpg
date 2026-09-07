@@ -52,11 +52,15 @@ def draw_monk_frame(draw, row, col):
     draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
     draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
-    # Trousers & Boots
-    lx1, lx2 = 23 + leg, 29 + leg
-    rx1, rx2 = 35 - leg, 41 - leg
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=GI_5, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=GI_5, outline=OUTLINE)
+    # Trousers & Boots Stride
+    lx1, lx2 = 20 + leg, 28 + leg
+    rx1, rx2 = 36 - leg, 44 - leg
+    draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=GI_5, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=GI_5, outline=OUTLINE)
+    draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=GI_4)
+    draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=GI_4)
+    draw.rectangle([lx1, 48 + cy, lx2, 50 + cy], fill=RED_3) # Knee sash wrap
+    draw.rectangle([rx1, 48 + cy, rx2, 50 + cy], fill=RED_3)
     draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
@@ -72,6 +76,23 @@ def draw_monk_frame(draw, row, col):
     draw.polygon([(28, 41 + cy), (26, 51 + cy), (32, 51 + cy), (30, 41 + cy)], fill=RED_3, outline=OUTLINE)
     draw.polygon([(30, 41 + cy), (32, 49 + cy), (36, 49 + cy), (34, 41 + cy)], fill=RED_4, outline=OUTLINE)
     draw.line([(20, 39 + cy), (44, 39 + cy)], fill=AO_CREVICE, width=1)
+
+    # ARTICULATED MUSCULAR BARE ARMS & SPIKED IRON WRAPPED FISTS
+    # Left Arm & Iron Fist
+    draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=SKIN_BASE, outline=OUTLINE) # Muscular upper arm
+    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=WRAP_BASE, outline=OUTLINE) # Iron wraps
+    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=WRAP_DARK, outline=OUTLINE)
+    draw.point((13, 36 + cy), fill=GOLD_STUD)
+    draw.point((16, 42 + cy), fill=GOLD_STUD)
+    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+
+    # Right Arm & Iron Fist
+    draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=SKIN_BASE, outline=OUTLINE)
+    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=WRAP_BASE, outline=OUTLINE)
+    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=WRAP_DARK, outline=OUTLINE)
+    draw.point((49, 36 + cy), fill=GOLD_STUD)
+    draw.point((51, 42 + cy), fill=GOLD_STUD)
+    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Head, Hair & Red Headband
     draw.rectangle([23, 14 + cy, 41, 27 + cy], fill=SKIN_BASE, outline=OUTLINE)

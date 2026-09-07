@@ -72,15 +72,17 @@ def draw_thief_frame(draw, row, col):
         draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
         draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
     else:
-        # Legs / Trousers
-        lx1, lx2 = 23 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=LEATHER_5, outline=OUTLINE)
-        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=LEATHER_5, outline=OUTLINE)
+        # Legs / Trousers & Boot Stride
+        lx1, lx2 = 20 + leg, 28 + leg
+        rx1, rx2 = 36 - leg, 44 - leg
+        draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=LEATHER_5, outline=OUTLINE)
+        draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=LEATHER_5, outline=OUTLINE)
         draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=LEATHER_4)
         draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=LEATHER_4)
         draw.line([(lx1 + 1, 45 + cy), (lx1 + 1, 51 + cy)], fill=LEATHER_2, width=1)
         draw.line([(rx1 + 1, 45 + cy), (rx1 + 1, 51 + cy)], fill=LEATHER_2, width=1)
+        draw.rectangle([lx1, 48 + cy, lx2, 50 + cy], fill=LEATHER_3) # Knee wrap plate
+        draw.rectangle([rx1, 48 + cy, rx2, 50 + cy], fill=LEATHER_3)
         draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
         draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
@@ -96,6 +98,19 @@ def draw_thief_frame(draw, row, col):
         draw.rectangle([21, 41 + cy, 25, 45 + cy], fill=LEATHER_6)
         draw.rectangle([39, 41 + cy, 43, 45 + cy], fill=LEATHER_6)
         draw.line([(20, 40 + cy), (44, 40 + cy)], fill=AO_CREVICE, width=1)
+
+        # ARTICULATED ARMS, LEATHER BRACERS & GLOVED HANDS
+        # Left Arm & Bracer
+        draw.polygon([(13, 26 + cy), (21, 27 + cy), (18, 37 + cy), (10, 33 + cy)], fill=LEATHER_3, outline=OUTLINE)
+        draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=LEATHER_5, outline=OUTLINE) # Bracer
+        draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=LEATHER_2, outline=OUTLINE) # Assassin glove hand
+        draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+
+        # Right Arm & Bracer
+        draw.polygon([(51, 26 + cy), (43, 27 + cy), (46, 37 + cy), (54, 33 + cy)], fill=LEATHER_4, outline=OUTLINE)
+        draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=LEATHER_5, outline=OUTLINE)
+        draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=LEATHER_2, outline=OUTLINE)
+        draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
 
         # Emerald Assassin Hood & Cloak
         draw.polygon([(18, 12 + cy), (46, 12 + cy), (44, 28 + cy), (20, 28 + cy)], fill=EMERALD_4, outline=OUTLINE)
@@ -118,14 +133,14 @@ def draw_thief_frame(draw, row, col):
 
         # Dual Curved Daggers with Dual Bevels
         # Left Hand Dagger
-        draw.line([(12, 26 + cy), (12, 44 + cy)], fill=STEEL_2, width=2)
-        draw.line([(11, 26 + cy), (11, 42 + cy)], fill=STEEL_1, width=1)
-        draw.line([(13, 28 + cy), (13, 42 + cy)], fill=STEEL_4, width=1)
+        draw.line([(12, 24 + cy), (12, 44 + cy)], fill=STEEL_2, width=2)
+        draw.line([(11, 24 + cy), (11, 42 + cy)], fill=STEEL_1, width=1)
+        draw.line([(13, 26 + cy), (13, 42 + cy)], fill=STEEL_4, width=1)
         draw.rectangle([9, 41 + cy, 15, 43 + cy], fill=GOLD_BUCKLE)
         # Right Hand Dagger
-        draw.line([(52, 26 + cy), (52, 44 + cy)], fill=STEEL_2, width=2)
-        draw.line([(53, 26 + cy), (53, 42 + cy)], fill=STEEL_1, width=1)
-        draw.line([(51, 28 + cy), (51, 42 + cy)], fill=STEEL_4, width=1)
+        draw.line([(52, 24 + cy), (52, 44 + cy)], fill=STEEL_2, width=2)
+        draw.line([(53, 24 + cy), (53, 42 + cy)], fill=STEEL_1, width=1)
+        draw.line([(51, 26 + cy), (51, 42 + cy)], fill=STEEL_4, width=1)
         draw.rectangle([49, 41 + cy, 55, 43 + cy], fill=GOLD_BUCKLE)
 
 def generate_thief_spritesheet():

@@ -51,11 +51,13 @@ def draw_bard_frame(draw, row, col):
     draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
     draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
-    # Trousers & Boots
-    lx1, lx2 = 23 + leg, 29 + leg
-    rx1, rx2 = 35 - leg, 41 - leg
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=TROUSERS_DARK, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=TROUSERS_DARK, outline=OUTLINE)
+    # Trousers & Boots Stride
+    lx1, lx2 = 20 + leg, 28 + leg
+    rx1, rx2 = 36 - leg, 44 - leg
+    draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=TROUSERS_DARK, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=TROUSERS_DARK, outline=OUTLINE)
+    draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=TROUSERS_BASE)
+    draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=TROUSERS_BASE)
     draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
@@ -65,6 +67,19 @@ def draw_bard_frame(draw, row, col):
     draw.line([(22, 28 + cy), (22, 43 + cy)], fill=DOUBLET_1, width=1) # Rim light
     for button_y in range(30, 42, 4):
         draw.rectangle([31, button_y + cy, 33, button_y + 2 + cy], fill=(255, 220, 60, 255))
+
+    # ARTICULATED PUFFED SLEEVES & EXPOSED MINSTREL HANDS
+    # Left Arm & Hand holding Lute Neck
+    draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=DOUBLET_3, outline=OUTLINE) # Puffed sleeve
+    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=DOUBLET_5, outline=OUTLINE)
+    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=SKIN_BASE, outline=OUTLINE) # Skin hand
+    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+
+    # Right Arm & Hand plucking Lute Strings
+    draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=DOUBLET_4, outline=OUTLINE)
+    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=DOUBLET_5, outline=OUTLINE)
+    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=SKIN_BASE, outline=OUTLINE)
+    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Head & Feathered Minstrel Cap
     draw.rectangle([23, 14 + cy, 41, 28 + cy], fill=SKIN_BASE, outline=OUTLINE)

@@ -52,11 +52,13 @@ def draw_redmage_frame(draw, row, col):
     draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
     draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
-    # Trousers / Legs
-    lx1, lx2 = 23 + leg_step, 29 + leg_step
-    rx1, rx2 = 35 - leg_step, 41 - leg_step
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=CRIMSON_5, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    # Trousers / Legs & Cuffed Boot Stride
+    lx1, lx2 = 20 + leg_step, 28 + leg_step
+    rx1, rx2 = 36 - leg_step, 44 - leg_step
+    draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    draw.rectangle([lx1, 44 + cy, lx2, 47 + cy], fill=CRIMSON_3) # Boot cuff flap
+    draw.rectangle([rx1, 44 + cy, rx2, 47 + cy], fill=CRIMSON_3)
     draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
@@ -66,6 +68,17 @@ def draw_redmage_frame(draw, row, col):
     draw.line([(32, 26 + cy), (32, 44 + cy)], fill=GOLD_3, width=2)
     draw.line([(32, 26 + cy), (32, 44 + cy)], fill=GOLD_2, width=1)
     draw.line([(22, 27 + cy), (22, 43 + cy)], fill=CRIMSON_1, width=1) # Rim light left
+
+    # ARTICULATED SLEEVES & WHITE FENCER GLOVES
+    # Left Arm & Grimoire Hand
+    draw.polygon([(12, 26 + cy), (20, 27 + cy), (17, 37 + cy), (9, 33 + cy)], fill=CRIMSON_3, outline=OUTLINE)
+    draw.rectangle([9, 33 + cy, 17, 43 + cy], fill=CRIMSON_5, outline=OUTLINE) # Sleeve cuff
+    draw.rectangle([10, 40 + cy, 16, 46 + cy], fill=FEATHER_1, outline=OUTLINE) # Fencer glove
+
+    # Right Arm & Rapier Hand
+    draw.polygon([(52, 26 + cy), (44, 27 + cy), (47, 37 + cy), (55, 33 + cy)], fill=CRIMSON_4, outline=OUTLINE)
+    draw.rectangle([47, 33 + cy, 55, 43 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    draw.rectangle([48, 40 + cy, 54, 46 + cy], fill=FEATHER_1, outline=OUTLINE)
 
     # Head & Hair
     draw.rectangle([23, 14 + cy, 41, 28 + cy], fill=SKIN, outline=OUTLINE)

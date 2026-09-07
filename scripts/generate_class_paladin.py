@@ -52,13 +52,15 @@ def draw_paladin_frame(draw, row, col):
     draw.polygon([(16, 24 + cy), (32, 54 + cy), (13, 54 + cy)], fill=CAPE_4)
     draw.line([(50, 25 + cy), (52, 53 + cy)], fill=CAPE_1, width=1) # Rim light
 
-    # Golden Boots & Leg Plate
-    lx1, lx2 = 23 + leg, 29 + leg
-    rx1, rx2 = 35 - leg, 41 - leg
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=GOLD_5, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=GOLD_5, outline=OUTLINE)
+    # Golden Boots & Leg Plate Stride
+    lx1, lx2 = 20 + leg, 28 + leg
+    rx1, rx2 = 36 - leg, 44 - leg
+    draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=GOLD_5, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=GOLD_5, outline=OUTLINE)
     draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=GOLD_3)
     draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=GOLD_3)
+    draw.rectangle([lx1, 48 + cy, lx2, 50 + cy], fill=GOLD_1) # Knee joint plate
+    draw.rectangle([rx1, 48 + cy, rx2, 50 + cy], fill=GOLD_1)
     draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
@@ -67,6 +69,19 @@ def draw_paladin_frame(draw, row, col):
     draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=GOLD_3)
     draw.polygon([(32, 28 + cy), (28, 36 + cy), (36, 36 + cy)], fill=GOLD_6) # Cross emblem
     draw.line([(22, 27 + cy), (22, 43 + cy)], fill=GOLD_1, width=1) # Rim light
+
+    # ARTICULATED ARMS & GOLDEN GAUNTLETS
+    # Left Arm & Golden Gauntlet
+    draw.polygon([(13, 25 + cy), (21, 26 + cy), (18, 36 + cy), (10, 32 + cy)], fill=GOLD_3, outline=OUTLINE)
+    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=GOLD_4, outline=OUTLINE)
+    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=GOLD_2, outline=OUTLINE)
+    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+
+    # Right Arm & Golden Gauntlet
+    draw.polygon([(51, 25 + cy), (43, 26 + cy), (46, 36 + cy), (54, 32 + cy)], fill=GOLD_4, outline=OUTLINE)
+    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=GOLD_5, outline=OUTLINE)
+    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=GOLD_3, outline=OUTLINE)
+    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Winged Templar Helmet
     draw.rectangle([21, 12 + cy, 43, 27 + cy], fill=GOLD_4, outline=OUTLINE)
