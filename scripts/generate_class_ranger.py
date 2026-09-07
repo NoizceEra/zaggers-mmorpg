@@ -45,41 +45,41 @@ EYE_GREEN = (30, 150, 75, 255)
 
 def draw_ranger_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
-    leg = 3 if col == 1 else (-3 if col == 3 else 0)
+    leg = 2 if col == 1 else (-2 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
-    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
-    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
+    draw.ellipse([16, 51 + cy, 48, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([20, 53 + cy, 44, 58 + cy], fill=(0, 0, 0, 140))
 
     if row == 3: # UP (Back view)
         # Flowing Hood Cloak Back
-        draw.polygon([(18, 12 + cy), (46, 12 + cy), (50, 52 + cy), (14, 52 + cy)], fill=FOREST_4, outline=OUTLINE)
-        draw.polygon([(22, 16 + cy), (42, 16 + cy), (46, 50 + cy), (18, 50 + cy)], fill=FOREST_5)
-        draw.polygon([(18, 44 + cy), (28, 52 + cy), (14, 52 + cy)], fill=FOREST_6)
-        draw.line([(49, 13 + cy), (49, 51 + cy)], fill=FOREST_1, width=1) # Rim light
+        draw.polygon([(18, 12 + cy), (46, 12 + cy), (48, 52 + cy), (16, 52 + cy)], fill=FOREST_4, outline=OUTLINE)
+        draw.polygon([(22, 16 + cy), (42, 16 + cy), (44, 50 + cy), (20, 50 + cy)], fill=FOREST_5)
+        draw.polygon([(18, 44 + cy), (28, 52 + cy), (16, 52 + cy)], fill=FOREST_6)
+        draw.line([(47, 13 + cy), (47, 51 + cy)], fill=FOREST_1, width=1) # Rim light
 
         # Quiver on Back
-        draw.rectangle([38, 22 + cy, 46, 42 + cy], fill=LEATHER_4, outline=OUTLINE)
-        draw.polygon([(39, 14 + cy), (42, 14 + cy), (40, 22 + cy)], fill=FLETCH_RED)
-        draw.polygon([(42, 12 + cy), (45, 12 + cy), (43, 22 + cy)], fill=FLETCH_WHITE)
+        draw.rectangle([37, 22 + cy, 44, 42 + cy], fill=LEATHER_4, outline=OUTLINE)
+        draw.polygon([(38, 14 + cy), (41, 14 + cy), (39, 22 + cy)], fill=FLETCH_RED)
+        draw.polygon([(41, 12 + cy), (44, 12 + cy), (42, 22 + cy)], fill=FLETCH_WHITE)
 
         # Boots
-        lx1, lx2 = 23 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 41 - leg
+        lx1, lx2 = 22 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 42 - leg
         draw.rectangle([lx1, 45 + cy, lx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
         draw.rectangle([rx1, 45 + cy, rx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
         draw.line([(lx1, 45 + cy), (lx2, 45 + cy)], fill=AO_CREVICE, width=1)
         draw.line([(rx1, 45 + cy), (rx2, 45 + cy)], fill=AO_CREVICE, width=1)
     else:
         # Quiver behind shoulder
-        draw.rectangle([40, 22 + cy, 47, 40 + cy], fill=LEATHER_4, outline=OUTLINE)
-        draw.polygon([(41, 14 + cy), (44, 14 + cy), (42, 22 + cy)], fill=FLETCH_RED)
-        draw.polygon([(44, 12 + cy), (47, 12 + cy), (45, 22 + cy)], fill=FLETCH_WHITE)
+        draw.rectangle([39, 22 + cy, 45, 40 + cy], fill=LEATHER_4, outline=OUTLINE)
+        draw.polygon([(40, 14 + cy), (43, 14 + cy), (41, 22 + cy)], fill=FLETCH_RED)
+        draw.polygon([(43, 12 + cy), (46, 12 + cy), (44, 22 + cy)], fill=FLETCH_WHITE)
 
         # Boots & Legs Stride
-        lx1, lx2 = 20 + leg, 28 + leg
-        rx1, rx2 = 36 - leg, 44 - leg
+        lx1, lx2 = 22 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 42 - leg
         draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
         draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
         draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=LEATHER_5)
@@ -89,23 +89,23 @@ def draw_ranger_frame(draw, row, col):
 
         # Leather Archer Armor & Harness
         draw.rectangle([23, 30 + cy, 41, 44 + cy], fill=LEATHER_4, outline=OUTLINE)
-        draw.rectangle([26, 32 + cy, 38, 42 + cy], fill=LEATHER_3)
+        draw.rectangle([25, 32 + cy, 39, 42 + cy], fill=LEATHER_3)
         draw.line([(24, 33 + cy), (40, 41 + cy)], fill=LEATHER_6, width=2)
         draw.line([(40, 33 + cy), (24, 41 + cy)], fill=LEATHER_6, width=2)
         draw.rectangle([30, 35 + cy, 34, 39 + cy], fill=GOLD_BUCKLE, outline=OUTLINE)
 
-        # ARTICULATED ARCHER ARMS, BRACERS & HANDS
+        # TIGHT ARTICULATED ARCHER ARMS, BRACERS & HANDS
         # Left Arm & Bow Holding Hand
-        draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=FOREST_4, outline=OUTLINE)
-        draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=LEATHER_5, outline=OUTLINE) # Archer bracer
-        draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=LEATHER_3, outline=OUTLINE) # Archer glove hand
-        draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+        draw.polygon([(16, 27 + cy), (23, 28 + cy), (20, 37 + cy), (14, 33 + cy)], fill=FOREST_4, outline=OUTLINE)
+        draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=LEATHER_5, outline=OUTLINE) # Archer bracer
+        draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=LEATHER_3, outline=OUTLINE) # Archer glove hand
+        draw.line([(14, 33 + cy), (21, 33 + cy)], fill=AO_CREVICE, width=1)
 
         # Right Arm & Arrow Drawing Hand
-        draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=FOREST_4, outline=OUTLINE)
-        draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=LEATHER_5, outline=OUTLINE)
-        draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=LEATHER_3, outline=OUTLINE)
-        draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
+        draw.polygon([(48, 27 + cy), (41, 28 + cy), (44, 37 + cy), (50, 33 + cy)], fill=FOREST_4, outline=OUTLINE)
+        draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=LEATHER_5, outline=OUTLINE)
+        draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=LEATHER_3, outline=OUTLINE)
+        draw.line([(43, 33 + cy), (50, 33 + cy)], fill=AO_CREVICE, width=1)
 
         # Green Hooded Cloak & Face
         draw.rectangle([22, 16 + cy, 42, 31 + cy], fill=FOREST_4, outline=OUTLINE)
@@ -126,7 +126,7 @@ def draw_ranger_frame(draw, row, col):
             draw.point((38, 25 + cy), fill=FLETCH_WHITE)
 
         # Longbow with Drawn String
-        wx = 10 if (row == 0 or row == 1) else 50
+        wx = 15 if (row == 0 or row == 1) else 48
         draw.arc([wx - 6, 16 + cy, wx + 10, 52 + cy], 260, 100, fill=BOW_BASE, width=3)
         draw.arc([wx - 6, 16 + cy, wx + 10, 52 + cy], 260, 100, fill=BOW_LIGHT, width=1)
         draw.line([(wx + 2, 18 + cy), (wx + 2, 50 + cy)], fill=STRING_COLOR, width=1)

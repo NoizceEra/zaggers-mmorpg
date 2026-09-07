@@ -46,34 +46,34 @@ RIBBON_RED = (235, 45, 55, 255)
 
 def draw_dragoon_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
-    leg = 3 if col == 1 else (-3 if col == 3 else 0)
+    leg = 2 if col == 1 else (-2 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
-    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
-    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
+    draw.ellipse([16, 51 + cy, 48, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([20, 53 + cy, 44, 58 + cy], fill=(0, 0, 0, 140))
 
     if row == 3: # UP (Back view)
         # Legs & Greaves
-        lx1, lx2 = 23 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 41 - leg
+        lx1, lx2 = 22 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 42 - leg
         draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=PURPLE_6, outline=OUTLINE)
         draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=PURPLE_6, outline=OUTLINE)
         draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
         draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
         # Spiked Dragoon Back Armor
-        draw.rectangle([20, 25 + cy, 44, 44 + cy], fill=PURPLE_5, outline=OUTLINE)
+        draw.rectangle([21, 25 + cy, 43, 44 + cy], fill=PURPLE_5, outline=OUTLINE)
         draw.polygon([(26, 25 + cy), (38, 25 + cy), (32, 40 + cy)], fill=PURPLE_4)
 
         # Dragon Helmet Back & Gold Horns
         draw.rectangle([21, 10 + cy, 43, 26 + cy], fill=PURPLE_4, outline=OUTLINE)
-        draw.polygon([(10, 2 + cy), (22, 10 + cy), (18, 18 + cy)], fill=GOLD_3, outline=OUTLINE)
-        draw.polygon([(54, 2 + cy), (42, 10 + cy), (46, 18 + cy)], fill=GOLD_4, outline=OUTLINE)
+        draw.polygon([(12, 2 + cy), (22, 10 + cy), (18, 18 + cy)], fill=GOLD_3, outline=OUTLINE)
+        draw.polygon([(52, 2 + cy), (42, 10 + cy), (46, 18 + cy)], fill=GOLD_4, outline=OUTLINE)
     else:
         # Greaves & Boots
-        lx1, lx2 = 20 + leg, 28 + leg
-        rx1, rx2 = 36 - leg, 44 - leg
+        lx1, lx2 = 22 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 42 - leg
         draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=PURPLE_5, outline=OUTLINE)
         draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=PURPLE_5, outline=OUTLINE)
         draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 52 + cy], fill=PURPLE_4)
@@ -86,27 +86,27 @@ def draw_dragoon_frame(draw, row, col):
         draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
         # Spiked Dragon Scale Cuirass
-        draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=PURPLE_4, outline=OUTLINE)
+        draw.rectangle([23, 26 + cy, 41, 44 + cy], fill=PURPLE_4, outline=OUTLINE)
         draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=PURPLE_3)
         draw.polygon([(32, 28 + cy), (28, 36 + cy), (36, 36 + cy)], fill=GOLD_3) # Chest emblem
 
-        # ARTICULATED ARMS, SPIKED GAUNTLETS & HANDS
+        # TIGHT ARTICULATED ARMS, SPIKED GAUNTLETS & HANDS
         # Left Arm & Spiked Gauntlet
-        draw.polygon([(13, 25 + cy), (21, 26 + cy), (18, 36 + cy), (10, 32 + cy)], fill=PURPLE_3, outline=OUTLINE)
-        draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=PURPLE_5, outline=OUTLINE) # Forearm gauntlet
-        draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=PURPLE_2, outline=OUTLINE) # Steel glove hand
-        draw.polygon([(8, 35 + cy), (10, 33 + cy), (10, 37 + cy)], fill=GOLD_2) # Spike
+        draw.polygon([(16, 25 + cy), (23, 26 + cy), (20, 36 + cy), (14, 32 + cy)], fill=PURPLE_3, outline=OUTLINE)
+        draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=PURPLE_5, outline=OUTLINE) # Forearm gauntlet
+        draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=PURPLE_2, outline=OUTLINE) # Steel glove hand
+        draw.polygon([(12, 35 + cy), (14, 33 + cy), (14, 37 + cy)], fill=GOLD_2) # Spike
 
         # Right Arm & Spiked Gauntlet holding Dragon Lance
-        draw.polygon([(51, 25 + cy), (43, 26 + cy), (46, 36 + cy), (54, 32 + cy)], fill=PURPLE_4, outline=OUTLINE)
-        draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=PURPLE_6, outline=OUTLINE)
-        draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=PURPLE_3, outline=OUTLINE)
-        draw.polygon([(56, 35 + cy), (54, 33 + cy), (54, 37 + cy)], fill=GOLD_2) # Spike
+        draw.polygon([(48, 25 + cy), (41, 26 + cy), (44, 36 + cy), (50, 32 + cy)], fill=PURPLE_4, outline=OUTLINE)
+        draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=PURPLE_6, outline=OUTLINE)
+        draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=PURPLE_3, outline=OUTLINE)
+        draw.polygon([(52, 35 + cy), (50, 33 + cy), (50, 37 + cy)], fill=GOLD_2) # Spike
 
         # Dragon Helmet Front
         draw.rectangle([21, 10 + cy, 43, 26 + cy], fill=PURPLE_4, outline=OUTLINE)
-        draw.polygon([(10, 2 + cy), (22, 10 + cy), (18, 18 + cy)], fill=GOLD_3, outline=OUTLINE)
-        draw.polygon([(54, 2 + cy), (42, 10 + cy), (46, 18 + cy)], fill=GOLD_4, outline=OUTLINE)
+        draw.polygon([(12, 2 + cy), (22, 10 + cy), (18, 18 + cy)], fill=GOLD_3, outline=OUTLINE)
+        draw.polygon([(52, 2 + cy), (42, 10 + cy), (46, 18 + cy)], fill=GOLD_4, outline=OUTLINE)
 
         # Cyan Visor Glow
         if row == 0: # Down
@@ -123,7 +123,7 @@ def draw_dragoon_frame(draw, row, col):
             draw.line([(34, 22 + cy), (39, 22 + cy)], fill=CYAN_1, width=1)
 
     # Dragon Lance Weapon
-    wx = 50 if (row == 0 or row == 2) else 14
+    wx = 48 if (row == 0 or row == 2) else 16
     draw.line([(wx, 4 + cy), (wx, 56 + cy)], fill=LANCE_WOOD, width=3)
     draw.polygon([(wx, -2 + cy), (wx - 5, 12 + cy), (wx + 5, 12 + cy)], fill=SILVER_2, outline=OUTLINE)
     draw.polygon([(wx - 2, 0 + cy), (wx, -4 + cy), (wx + 2, 0 + cy)], fill=(255, 255, 255, 255))

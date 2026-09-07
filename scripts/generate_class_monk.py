@@ -45,16 +45,16 @@ EYE_PUPIL = (20, 28, 42, 255)
 
 def draw_monk_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
-    leg = 3 if col == 1 else (-3 if col == 3 else 0)
+    leg = 2 if col == 1 else (-2 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
-    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
-    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
+    draw.ellipse([16, 51 + cy, 48, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([20, 53 + cy, 44, 58 + cy], fill=(0, 0, 0, 140))
 
     # Trousers & Boots Stride
-    lx1, lx2 = 20 + leg, 28 + leg
-    rx1, rx2 = 36 - leg, 44 - leg
+    lx1, lx2 = 22 + leg, 29 + leg
+    rx1, rx2 = 35 - leg, 42 - leg
     draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=GI_5, outline=OUTLINE)
     draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=GI_5, outline=OUTLINE)
     draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=GI_4)
@@ -65,34 +65,34 @@ def draw_monk_frame(draw, row, col):
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
     # Martial Gi Body & Folded Lapels
-    draw.rectangle([21, 27 + cy, 43, 44 + cy], fill=GI_3, outline=OUTLINE)
-    draw.polygon([(21, 27 + cy), (32, 38 + cy), (21, 38 + cy)], fill=GI_5)
-    draw.polygon([(43, 27 + cy), (32, 38 + cy), (43, 38 + cy)], fill=GI_4)
-    draw.line([(22, 28 + cy), (22, 43 + cy)], fill=GI_1, width=1) # Rim light
+    draw.rectangle([23, 27 + cy, 41, 44 + cy], fill=GI_3, outline=OUTLINE)
+    draw.polygon([(23, 27 + cy), (32, 38 + cy), (23, 38 + cy)], fill=GI_5)
+    draw.polygon([(41, 27 + cy), (32, 38 + cy), (41, 38 + cy)], fill=GI_4)
+    draw.line([(24, 28 + cy), (24, 43 + cy)], fill=GI_1, width=1) # Rim light
 
     # Red Sash Belt & Knot
-    draw.rectangle([20, 39 + cy, 44, 43 + cy], fill=RED_3, outline=OUTLINE)
-    draw.line([(21, 40 + cy), (43, 40 + cy)], fill=RED_1, width=1)
+    draw.rectangle([22, 39 + cy, 42, 43 + cy], fill=RED_3, outline=OUTLINE)
+    draw.line([(23, 40 + cy), (41, 40 + cy)], fill=RED_1, width=1)
     draw.polygon([(28, 41 + cy), (26, 51 + cy), (32, 51 + cy), (30, 41 + cy)], fill=RED_3, outline=OUTLINE)
     draw.polygon([(30, 41 + cy), (32, 49 + cy), (36, 49 + cy), (34, 41 + cy)], fill=RED_4, outline=OUTLINE)
-    draw.line([(20, 39 + cy), (44, 39 + cy)], fill=AO_CREVICE, width=1)
+    draw.line([(22, 39 + cy), (42, 39 + cy)], fill=AO_CREVICE, width=1)
 
-    # ARTICULATED MUSCULAR BARE ARMS & SPIKED IRON WRAPPED FISTS
+    # TIGHT ARTICULATED MUSCULAR BARE ARMS & SPIKED IRON WRAPPED FISTS
     # Left Arm & Iron Fist
-    draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=SKIN_BASE, outline=OUTLINE) # Muscular upper arm
-    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=WRAP_BASE, outline=OUTLINE) # Iron wraps
-    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=WRAP_DARK, outline=OUTLINE)
-    draw.point((13, 36 + cy), fill=GOLD_STUD)
-    draw.point((16, 42 + cy), fill=GOLD_STUD)
-    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+    draw.polygon([(16, 27 + cy), (23, 28 + cy), (20, 37 + cy), (14, 33 + cy)], fill=SKIN_BASE, outline=OUTLINE) # Muscular upper arm
+    draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=WRAP_BASE, outline=OUTLINE) # Iron wraps
+    draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=WRAP_DARK, outline=OUTLINE)
+    draw.point((16, 36 + cy), fill=GOLD_STUD)
+    draw.point((18, 42 + cy), fill=GOLD_STUD)
+    draw.line([(14, 33 + cy), (21, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Right Arm & Iron Fist
-    draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=SKIN_BASE, outline=OUTLINE)
-    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=WRAP_BASE, outline=OUTLINE)
-    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=WRAP_DARK, outline=OUTLINE)
-    draw.point((49, 36 + cy), fill=GOLD_STUD)
-    draw.point((51, 42 + cy), fill=GOLD_STUD)
-    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
+    draw.polygon([(48, 27 + cy), (41, 28 + cy), (44, 37 + cy), (50, 33 + cy)], fill=SKIN_BASE, outline=OUTLINE)
+    draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=WRAP_BASE, outline=OUTLINE)
+    draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=WRAP_DARK, outline=OUTLINE)
+    draw.point((46, 36 + cy), fill=GOLD_STUD)
+    draw.point((48, 42 + cy), fill=GOLD_STUD)
+    draw.line([(43, 33 + cy), (50, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Head, Hair & Red Headband
     draw.rectangle([23, 14 + cy, 41, 27 + cy], fill=SKIN_BASE, outline=OUTLINE)

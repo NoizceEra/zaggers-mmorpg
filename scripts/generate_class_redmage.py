@@ -45,16 +45,16 @@ def draw_redmage_frame(draw, row, col):
     BOOK_PAGES = (245, 240, 220, 255)
 
     bob = 1 if (col == 1 or col == 3) else 0
-    leg_step = 3 if col == 1 else (-3 if col == 3 else 0)
+    leg_step = 2 if col == 1 else (-2 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
-    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
-    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
+    draw.ellipse([16, 51 + cy, 48, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([20, 53 + cy, 44, 58 + cy], fill=(0, 0, 0, 140))
 
     # Trousers / Legs & Cuffed Boot Stride
-    lx1, lx2 = 20 + leg_step, 28 + leg_step
-    rx1, rx2 = 36 - leg_step, 44 - leg_step
+    lx1, lx2 = 22 + leg_step, 29 + leg_step
+    rx1, rx2 = 35 - leg_step, 42 - leg_step
     draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=CRIMSON_5, outline=OUTLINE)
     draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=CRIMSON_5, outline=OUTLINE)
     draw.rectangle([lx1, 44 + cy, lx2, 47 + cy], fill=CRIMSON_3) # Boot cuff flap
@@ -63,22 +63,22 @@ def draw_redmage_frame(draw, row, col):
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
     # Crimson Doublet & Gold Embroidery
-    draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=CRIMSON_4, outline=OUTLINE)
+    draw.rectangle([23, 26 + cy, 41, 44 + cy], fill=CRIMSON_4, outline=OUTLINE)
     draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=CRIMSON_3)
     draw.line([(32, 26 + cy), (32, 44 + cy)], fill=GOLD_3, width=2)
     draw.line([(32, 26 + cy), (32, 44 + cy)], fill=GOLD_2, width=1)
-    draw.line([(22, 27 + cy), (22, 43 + cy)], fill=CRIMSON_1, width=1) # Rim light left
+    draw.line([(24, 27 + cy), (24, 43 + cy)], fill=CRIMSON_1, width=1) # Rim light left
 
-    # ARTICULATED SLEEVES & WHITE FENCER GLOVES
+    # TIGHT ARTICULATED SLEEVES & WHITE FENCER GLOVES
     # Left Arm & Grimoire Hand
-    draw.polygon([(12, 26 + cy), (20, 27 + cy), (17, 37 + cy), (9, 33 + cy)], fill=CRIMSON_3, outline=OUTLINE)
-    draw.rectangle([9, 33 + cy, 17, 43 + cy], fill=CRIMSON_5, outline=OUTLINE) # Sleeve cuff
-    draw.rectangle([10, 40 + cy, 16, 46 + cy], fill=FEATHER_1, outline=OUTLINE) # Fencer glove
+    draw.polygon([(15, 26 + cy), (22, 27 + cy), (20, 37 + cy), (14, 33 + cy)], fill=CRIMSON_3, outline=OUTLINE)
+    draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=CRIMSON_5, outline=OUTLINE) # Sleeve cuff
+    draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=FEATHER_1, outline=OUTLINE) # Fencer glove
 
     # Right Arm & Rapier Hand
-    draw.polygon([(52, 26 + cy), (44, 27 + cy), (47, 37 + cy), (55, 33 + cy)], fill=CRIMSON_4, outline=OUTLINE)
-    draw.rectangle([47, 33 + cy, 55, 43 + cy], fill=CRIMSON_5, outline=OUTLINE)
-    draw.rectangle([48, 40 + cy, 54, 46 + cy], fill=FEATHER_1, outline=OUTLINE)
+    draw.polygon([(49, 26 + cy), (42, 27 + cy), (44, 37 + cy), (50, 33 + cy)], fill=CRIMSON_4, outline=OUTLINE)
+    draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=FEATHER_1, outline=OUTLINE)
 
     # Head & Hair
     draw.rectangle([23, 14 + cy, 41, 28 + cy], fill=SKIN, outline=OUTLINE)
@@ -104,15 +104,15 @@ def draw_redmage_frame(draw, row, col):
         draw.rectangle([38, 21 + cy, 40, 24 + cy], fill=OUTLINE)
 
     # Rapier Blade with Basket Hilt (Right hand)
-    draw.line([(50, 12 + cy), (50, 48 + cy)], fill=STEEL_2, width=2)
-    draw.line([(51, 14 + cy), (51, 46 + cy)], fill=STEEL_1, width=1)
-    draw.ellipse([45, 36 + cy, 55, 43 + cy], fill=GOLD_3, outline=OUTLINE)
-    draw.ellipse([47, 38 + cy, 53, 41 + cy], fill=GOLD_2)
+    draw.line([(48, 12 + cy), (48, 48 + cy)], fill=STEEL_2, width=2)
+    draw.line([(49, 14 + cy), (49, 46 + cy)], fill=STEEL_1, width=1)
+    draw.ellipse([43, 36 + cy, 53, 43 + cy], fill=GOLD_3, outline=OUTLINE)
+    draw.ellipse([45, 38 + cy, 51, 41 + cy], fill=GOLD_2)
 
     # Spellbook Grimoire (Left hip / hand)
-    draw.rectangle([10, 32 + cy, 20, 44 + cy], fill=BOOK_COVER, outline=OUTLINE)
-    draw.rectangle([12, 34 + cy, 18, 42 + cy], fill=BOOK_PAGES)
-    draw.line([(15, 34 + cy), (15, 42 + cy)], fill=GOLD_3, width=1)
+    draw.rectangle([13, 32 + cy, 23, 44 + cy], fill=BOOK_COVER, outline=OUTLINE)
+    draw.rectangle([15, 34 + cy, 21, 42 + cy], fill=BOOK_PAGES)
+    draw.line([(18, 34 + cy), (18, 42 + cy)], fill=GOLD_3, width=1)
 
 def create_redmage_spritesheet():
     sheet = Image.new("RGBA", (256, 256), (0, 0, 0, 0))

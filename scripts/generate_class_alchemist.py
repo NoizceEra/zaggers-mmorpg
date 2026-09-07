@@ -42,16 +42,16 @@ EYE_PUPIL     = (20, 28, 42, 255)
 
 def draw_alchemist_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
-    leg = 3 if col == 1 else (-3 if col == 3 else 0)
+    leg = 2 if col == 1 else (-2 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
-    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
-    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
+    draw.ellipse([16, 51 + cy, 48, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([20, 53 + cy, 44, 58 + cy], fill=(0, 0, 0, 140))
 
     # Trousers & Boots Stride
-    lx1, lx2 = 20 + leg, 28 + leg
-    rx1, rx2 = 36 - leg, 44 - leg
+    lx1, lx2 = 22 + leg, 29 + leg
+    rx1, rx2 = 35 - leg, 42 - leg
     draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=BELT_DARK, outline=OUTLINE)
     draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=BELT_DARK, outline=OUTLINE)
     draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=APRON_5)
@@ -60,36 +60,36 @@ def draw_alchemist_frame(draw, row, col):
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
     # Leather Apron & Pocket Stitching
-    draw.rectangle([21, 27 + cy, 43, 45 + cy], fill=APRON_4, outline=OUTLINE)
+    draw.rectangle([23, 27 + cy, 41, 45 + cy], fill=APRON_4, outline=OUTLINE)
     draw.rectangle([25, 29 + cy, 39, 43 + cy], fill=APRON_3)
-    draw.line([(22, 28 + cy), (22, 44 + cy)], fill=APRON_1, width=1) # Rim light
+    draw.line([(24, 28 + cy), (24, 44 + cy)], fill=APRON_1, width=1) # Rim light
 
-    # ARTICULATED ROLLED SLEEVES & POTION-HOLDING HANDS
+    # TIGHT ARTICULATED ROLLED SLEEVES & POTION-HOLDING HANDS
     # Left Arm & Flask Holding Hand
-    draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=APRON_3, outline=OUTLINE) # Rolled sleeve
-    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=APRON_5, outline=OUTLINE)
-    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=SKIN_BASE, outline=OUTLINE) # Bare hand holding potion flask
-    draw.ellipse([9, 44 + cy, 15, 51 + cy], fill=FLASK_CYAN, outline=OUTLINE)
-    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+    draw.polygon([(16, 27 + cy), (23, 28 + cy), (20, 37 + cy), (14, 33 + cy)], fill=APRON_3, outline=OUTLINE) # Rolled sleeve
+    draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=APRON_5, outline=OUTLINE)
+    draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=SKIN_BASE, outline=OUTLINE) # Bare hand holding potion flask
+    draw.ellipse([12, 44 + cy, 18, 51 + cy], fill=FLASK_CYAN, outline=OUTLINE)
+    draw.line([(14, 33 + cy), (21, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Right Arm & Hand
-    draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=APRON_4, outline=OUTLINE)
-    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=APRON_5, outline=OUTLINE)
-    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=SKIN_BASE, outline=OUTLINE)
-    draw.ellipse([49, 44 + cy, 55, 51 + cy], fill=FLASK_RED, outline=OUTLINE)
-    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
+    draw.polygon([(48, 27 + cy), (41, 28 + cy), (44, 37 + cy), (50, 33 + cy)], fill=APRON_4, outline=OUTLINE)
+    draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=APRON_5, outline=OUTLINE)
+    draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=SKIN_BASE, outline=OUTLINE)
+    draw.ellipse([46, 44 + cy, 52, 51 + cy], fill=FLASK_RED, outline=OUTLINE)
+    draw.line([(43, 33 + cy), (50, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Potion Belt with Flasks
-    draw.rectangle([19, 37 + cy, 45, 40 + cy], fill=BELT_DARK, outline=OUTLINE)
-    draw.ellipse([22, 39 + cy, 27, 46 + cy], fill=FLASK_CYAN, outline=OUTLINE)
-    draw.point((23, 40 + cy), fill=LENS_SPEC)
+    draw.rectangle([21, 37 + cy, 43, 40 + cy], fill=BELT_DARK, outline=OUTLINE)
+    draw.ellipse([23, 39 + cy, 28, 46 + cy], fill=FLASK_CYAN, outline=OUTLINE)
+    draw.point((24, 40 + cy), fill=LENS_SPEC)
 
-    draw.ellipse([30, 39 + cy, 35, 46 + cy], fill=FLASK_RED, outline=OUTLINE)
-    draw.point((31, 40 + cy), fill=LENS_SPEC)
+    draw.ellipse([29, 39 + cy, 34, 46 + cy], fill=FLASK_RED, outline=OUTLINE)
+    draw.point((30, 40 + cy), fill=LENS_SPEC)
 
-    draw.ellipse([38, 39 + cy, 43, 46 + cy], fill=FLASK_GREEN, outline=OUTLINE)
-    draw.point((39, 40 + cy), fill=LENS_SPEC)
-    draw.line([(19, 37 + cy), (45, 37 + cy)], fill=AO_CREVICE, width=1)
+    draw.ellipse([35, 39 + cy, 40, 46 + cy], fill=FLASK_GREEN, outline=OUTLINE)
+    draw.point((36, 40 + cy), fill=LENS_SPEC)
+    draw.line([(21, 37 + cy), (43, 37 + cy)], fill=AO_CREVICE, width=1)
 
     # Head & Brass Tinker Goggles
     draw.rectangle([23, 14 + cy, 41, 28 + cy], fill=SKIN_BASE, outline=OUTLINE)

@@ -44,16 +44,16 @@ EYE_PUPIL = (20, 28, 42, 255)
 
 def draw_bard_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
-    leg = 3 if col == 1 else (-3 if col == 3 else 0)
+    leg = 2 if col == 1 else (-2 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow with Dual-Layer Occlusion
-    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
-    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
+    draw.ellipse([16, 51 + cy, 48, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([20, 53 + cy, 44, 58 + cy], fill=(0, 0, 0, 140))
 
     # Trousers & Boots Stride
-    lx1, lx2 = 20 + leg, 28 + leg
-    rx1, rx2 = 36 - leg, 44 - leg
+    lx1, lx2 = 22 + leg, 29 + leg
+    rx1, rx2 = 35 - leg, 42 - leg
     draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=TROUSERS_DARK, outline=OUTLINE)
     draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=TROUSERS_DARK, outline=OUTLINE)
     draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=TROUSERS_BASE)
@@ -62,24 +62,24 @@ def draw_bard_frame(draw, row, col):
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
     # Crimson Doublet & Gold Buttons
-    draw.rectangle([21, 27 + cy, 43, 44 + cy], fill=DOUBLET_4, outline=OUTLINE)
+    draw.rectangle([23, 27 + cy, 41, 44 + cy], fill=DOUBLET_4, outline=OUTLINE)
     draw.rectangle([25, 29 + cy, 39, 42 + cy], fill=DOUBLET_3)
-    draw.line([(22, 28 + cy), (22, 43 + cy)], fill=DOUBLET_1, width=1) # Rim light
+    draw.line([(24, 28 + cy), (24, 43 + cy)], fill=DOUBLET_1, width=1) # Rim light
     for button_y in range(30, 42, 4):
         draw.rectangle([31, button_y + cy, 33, button_y + 2 + cy], fill=(255, 220, 60, 255))
 
-    # ARTICULATED PUFFED SLEEVES & EXPOSED MINSTREL HANDS
+    # TIGHT ARTICULATED PUFFED SLEEVES & EXPOSED MINSTREL HANDS
     # Left Arm & Hand holding Lute Neck
-    draw.polygon([(13, 27 + cy), (21, 28 + cy), (18, 37 + cy), (10, 33 + cy)], fill=DOUBLET_3, outline=OUTLINE) # Puffed sleeve
-    draw.rectangle([10, 33 + cy, 18, 43 + cy], fill=DOUBLET_5, outline=OUTLINE)
-    draw.rectangle([11, 40 + cy, 17, 46 + cy], fill=SKIN_BASE, outline=OUTLINE) # Skin hand
-    draw.line([(10, 33 + cy), (18, 33 + cy)], fill=AO_CREVICE, width=1)
+    draw.polygon([(16, 27 + cy), (23, 28 + cy), (20, 37 + cy), (14, 33 + cy)], fill=DOUBLET_3, outline=OUTLINE) # Puffed sleeve
+    draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=DOUBLET_5, outline=OUTLINE)
+    draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=SKIN_BASE, outline=OUTLINE) # Skin hand
+    draw.line([(14, 33 + cy), (21, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Right Arm & Hand plucking Lute Strings
-    draw.polygon([(51, 27 + cy), (43, 28 + cy), (46, 37 + cy), (54, 33 + cy)], fill=DOUBLET_4, outline=OUTLINE)
-    draw.rectangle([46, 33 + cy, 54, 43 + cy], fill=DOUBLET_5, outline=OUTLINE)
-    draw.rectangle([47, 40 + cy, 53, 46 + cy], fill=SKIN_BASE, outline=OUTLINE)
-    draw.line([(46, 33 + cy), (54, 33 + cy)], fill=AO_CREVICE, width=1)
+    draw.polygon([(48, 27 + cy), (41, 28 + cy), (44, 37 + cy), (50, 33 + cy)], fill=DOUBLET_4, outline=OUTLINE)
+    draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=DOUBLET_5, outline=OUTLINE)
+    draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=SKIN_BASE, outline=OUTLINE)
+    draw.line([(43, 33 + cy), (50, 33 + cy)], fill=AO_CREVICE, width=1)
 
     # Head & Feathered Minstrel Cap
     draw.rectangle([23, 14 + cy, 41, 28 + cy], fill=SKIN_BASE, outline=OUTLINE)
@@ -102,12 +102,12 @@ def draw_bard_frame(draw, row, col):
         draw.point((39, 21 + cy), fill=FEATHER_WHITE)
 
     # Acoustic Carved Lute with Silver Strings
-    draw.ellipse([8, 28 + cy, 22, 46 + cy], fill=LUTE_2, outline=OUTLINE)
-    draw.ellipse([11, 31 + cy, 19, 43 + cy], fill=LUTE_1)
-    draw.ellipse([13, 35 + cy, 17, 39 + cy], fill=LUTE_3) # Soundhole
-    draw.line([(15, 18 + cy), (15, 35 + cy)], fill=LUTE_3, width=3) # Neck
-    draw.line([(14, 18 + cy), (14, 45 + cy)], fill=STRING_SILVER, width=1) # Strings
-    draw.line([(16, 18 + cy), (16, 45 + cy)], fill=STRING_SILVER, width=1)
+    draw.ellipse([11, 28 + cy, 23, 46 + cy], fill=LUTE_2, outline=OUTLINE)
+    draw.ellipse([13, 31 + cy, 21, 43 + cy], fill=LUTE_1)
+    draw.ellipse([15, 35 + cy, 19, 39 + cy], fill=LUTE_3) # Soundhole
+    draw.line([(17, 18 + cy), (17, 35 + cy)], fill=LUTE_3, width=3) # Neck
+    draw.line([(16, 18 + cy), (16, 45 + cy)], fill=STRING_SILVER, width=1) # Strings
+    draw.line([(18, 18 + cy), (18, 45 + cy)], fill=STRING_SILVER, width=1)
 
 def create_bard_spritesheet():
     sheet = Image.new("RGBA", (256, 256), (0, 0, 0, 0))

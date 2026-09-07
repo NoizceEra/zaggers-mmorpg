@@ -53,31 +53,31 @@ def draw_sage_frame(draw, row, col):
     draw.ellipse([25, 4 + cy, 39, 12 + cy], fill=(0, 0, 0, 0), outline=HALO_1, width=1)
 
     # Emerald Robe Skirt & 7-Tone Fold Shading with Front Slit
-    leg = 4 if col == 1 else (-4 if col == 3 else 0)
-    lx1, lx2 = 20 + leg, 28 + leg
-    rx1, rx2 = 36 - leg, 44 - leg
+    leg = 2 if col == 1 else (-2 if col == 3 else 0)
+    lx1, lx2 = 22 + leg, 29 + leg
+    rx1, rx2 = 35 - leg, 42 - leg
     draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=(20, 30, 25, 255), outline=OUTLINE)
     draw.rectangle([rx1, 44 + cy, rx2, 56 + cy], fill=(20, 30, 25, 255), outline=OUTLINE)
     draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
     draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
-    draw.polygon([(18, 30 + cy), (46, 30 + cy), (50, 54 + cy), (14, 54 + cy)], fill=EMERALD_4, outline=OUTLINE)
-    draw.polygon([(18, 30 + cy), (32, 54 + cy), (14, 54 + cy)], fill=EMERALD_5)
-    draw.polygon([(14, 50 + cy), (22, 54 + cy), (14, 54 + cy)], fill=EMERALD_6)
+    draw.polygon([(18, 30 + cy), (46, 30 + cy), (48, 54 + cy), (16, 54 + cy)], fill=EMERALD_4, outline=OUTLINE)
+    draw.polygon([(18, 30 + cy), (32, 54 + cy), (16, 54 + cy)], fill=EMERALD_5)
+    draw.polygon([(16, 50 + cy), (22, 54 + cy), (16, 54 + cy)], fill=EMERALD_6)
     draw.polygon([(36, 32 + cy), (46, 30 + cy), (44, 48 + cy)], fill=EMERALD_3)
     # Front Robe Slit
-    draw.polygon([(29, 42 + cy), (35, 42 + cy), (38, 55 + cy), (26, 55 + cy)], fill=(8, 20, 15, 255))
-    draw.line([(15, 31 + cy), (15, 54 + cy)], fill=EMERALD_1, width=1) # Rim light
-    draw.line([(16, 53 + cy), (48, 53 + cy)], fill=HALO_3, width=2)
+    draw.polygon([(29, 42 + cy), (35, 42 + cy), (37, 55 + cy), (27, 55 + cy)], fill=(8, 20, 15, 255))
+    draw.line([(17, 31 + cy), (17, 54 + cy)], fill=EMERALD_1, width=1) # Rim light
+    draw.line([(18, 53 + cy), (46, 53 + cy)], fill=HALO_3, width=2)
 
-    # ARTICULATED SCHOLASTIC SLEEVES & WHITE GLOVED HANDS
-    draw.polygon([(11, 26 + cy), (19, 27 + cy), (17, 37 + cy), (9, 34 + cy)], fill=EMERALD_3, outline=OUTLINE)
-    draw.rectangle([9, 35 + cy, 17, 44 + cy], fill=EMERALD_5, outline=OUTLINE) # Scholastic sleeve
-    draw.rectangle([10, 42 + cy, 16, 47 + cy], fill=WHITE_3, outline=OUTLINE) # Gloved hand
+    # TIGHT ARTICULATED SCHOLASTIC SLEEVES & WHITE GLOVED HANDS
+    draw.polygon([(15, 26 + cy), (22, 27 + cy), (20, 37 + cy), (14, 34 + cy)], fill=EMERALD_3, outline=OUTLINE)
+    draw.rectangle([14, 35 + cy, 21, 44 + cy], fill=EMERALD_5, outline=OUTLINE) # Scholastic sleeve
+    draw.rectangle([14, 42 + cy, 20, 47 + cy], fill=WHITE_3, outline=OUTLINE) # Gloved hand
 
-    draw.polygon([(53, 26 + cy), (45, 27 + cy), (47, 37 + cy), (55, 34 + cy)], fill=EMERALD_4, outline=OUTLINE)
-    draw.rectangle([47, 35 + cy, 55, 44 + cy], fill=EMERALD_6, outline=OUTLINE) # Scholastic sleeve
-    draw.rectangle([48, 42 + cy, 54, 47 + cy], fill=WHITE_3, outline=OUTLINE) # Gloved hand
+    draw.polygon([(49, 26 + cy), (42, 27 + cy), (44, 37 + cy), (50, 34 + cy)], fill=EMERALD_4, outline=OUTLINE)
+    draw.rectangle([43, 35 + cy, 50, 44 + cy], fill=EMERALD_6, outline=OUTLINE) # Scholastic sleeve
+    draw.rectangle([44, 42 + cy, 50, 47 + cy], fill=WHITE_3, outline=OUTLINE) # Gloved hand
 
     # White Hood Cowl & Head
     draw.polygon([(18, 12 + cy), (46, 12 + cy), (44, 27 + cy), (20, 27 + cy)], fill=WHITE_4, outline=OUTLINE)
@@ -92,13 +92,13 @@ def draw_sage_frame(draw, row, col):
         draw.point((37, 20 + cy), fill=CRYSTAL_1)
 
     # Spellbook Grimoire (Held in left hand)
-    draw.rectangle([10, 30 + cy, 22, 46 + cy], fill=BOOK_BROWN, outline=OUTLINE)
-    draw.rectangle([12, 32 + cy, 20, 44 + cy], fill=PAGE_CREAM)
-    draw.line([(16, 32 + cy), (16, 44 + cy)], fill=OUTLINE, width=1)
-    draw.rectangle([13, 36 + cy, 15, 38 + cy], fill=CRYSTAL_3)
+    draw.rectangle([12, 30 + cy, 22, 46 + cy], fill=BOOK_BROWN, outline=OUTLINE)
+    draw.rectangle([14, 32 + cy, 20, 44 + cy], fill=PAGE_CREAM)
+    draw.line([(17, 32 + cy), (17, 44 + cy)], fill=OUTLINE, width=1)
+    draw.rectangle([15, 36 + cy, 17, 38 + cy], fill=CRYSTAL_3)
 
     # Crystal Staff (Right hand)
-    wx = 52 if (row == 0 or row == 2) else 12
+    wx = 48 if (row == 0 or row == 2) else 16
     draw.line([(wx, 12 + cy), (wx, 54 + cy)], fill=STAFF_WOOD, width=3)
     draw.polygon([(wx, 2 + cy), (wx - 5, 10 + cy), (wx, 18 + cy), (wx + 5, 10 + cy)], fill=CRYSTAL_3, outline=OUTLINE)
     draw.polygon([(wx, 2 + cy), (wx - 5, 10 + cy), (wx, 10 + cy)], fill=CRYSTAL_2)
