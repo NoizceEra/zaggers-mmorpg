@@ -101,7 +101,7 @@
       "id": "ranger",
       "name": "Ranger",
       "role": "Marksman / Trapper",
-      "sprite": "hero_redmage.png",
+      "sprite": "hero_ranger.png",
       "baseStats": {
         "str": 10,
         "agi": 14,
@@ -258,6 +258,30 @@
         "luk": 25,
         "int": 20
       }
+    },
+    "redmage": {
+      "id": "redmage",
+      "name": "Red Mage",
+      "role": "Fencer / Arcanist",
+      "sprite": "hero_redmage.png",
+      "baseStats": {
+        "str": 11,
+        "agi": 13,
+        "vit": 10,
+        "int": 14,
+        "dex": 14,
+        "luk": 10
+      },
+      "hpGrowth": 14,
+      "spGrowth": 8,
+      "primaryWeapon": "Rapier & Grimoire",
+      "description": "Versatile spell-blade combining rapier techniques with dual white and black magic.",
+      "affinity": "Hybrid",
+      "advancementRequirements": {
+        "int": 20,
+        "dex": 20
+      },
+      "lore": "Masters of arcane balance who wield rapier blades alongside black and white sorcery."
     }
   },
   "skills": {
@@ -2240,6 +2264,96 @@
       "spCost": 59,
       "targetType": "aoe_enemy",
       "tier": 3
+    },
+    "fleche": {
+      "id": "fleche",
+      "name": "Fleche",
+      "classId": "redmage",
+      "spCost": 10,
+      "cooldownMs": 1200,
+      "multiplier": 2.4,
+      "targetType": "single_enemy",
+      "description": "A swift, lunging rapier thrust infused with elemental mana.",
+      "element": "Hybrid",
+      "reqLevel": 1,
+      "tier": 1,
+      "requires": null,
+      "damageType": "physical"
+    },
+    "dual_cast": {
+      "id": "dual_cast",
+      "name": "Dual Cast",
+      "classId": "redmage",
+      "spCost": 16,
+      "cooldownMs": 2000,
+      "multiplier": 2.8,
+      "targetType": "single_enemy",
+      "description": "Cast fire and ice sorcery in rapid succession at a single enemy.",
+      "element": "Hybrid",
+      "reqLevel": 8,
+      "tier": 1,
+      "requires": null,
+      "damageType": "magic"
+    },
+    "refresh": {
+      "id": "refresh",
+      "name": "Refresh",
+      "classId": "redmage",
+      "spCost": 20,
+      "cooldownMs": 15000,
+      "multiplier": 0.0,
+      "targetType": "party_buff",
+      "description": "Channels restorative aura, continuously regenerating SP for party members.",
+      "element": "Holy",
+      "reqLevel": 18,
+      "tier": 2,
+      "requires": "fleche",
+      "damageType": "none"
+    },
+    "phantasm": {
+      "id": "phantasm",
+      "name": "Phantasm",
+      "classId": "redmage",
+      "spCost": 24,
+      "cooldownMs": 4000,
+      "multiplier": 3.2,
+      "targetType": "aoe_enemy",
+      "description": "Creates illusions while delivering a sweeping spellblade slash across enemies.",
+      "element": "Hybrid",
+      "reqLevel": 28,
+      "tier": 2,
+      "requires": "dual_cast",
+      "damageType": "physical"
+    },
+    "chain_spell": {
+      "id": "chain_spell",
+      "name": "Chain Spell",
+      "classId": "redmage",
+      "spCost": 35,
+      "cooldownMs": 20000,
+      "multiplier": 0.0,
+      "targetType": "self_buff",
+      "description": "Temporarily reduces cast time and allows spellblade strikes to trigger follow-up magic.",
+      "element": "Neutral",
+      "reqLevel": 40,
+      "tier": 3,
+      "requires": "refresh",
+      "damageType": "none"
+    },
+    "red_evocation": {
+      "id": "red_evocation",
+      "name": "Red Evocation",
+      "classId": "redmage",
+      "spCost": 55,
+      "cooldownMs": 25000,
+      "multiplier": 6.5,
+      "targetType": "aoe_enemy",
+      "description": "Unleashes the ultimate balance of elemental and sacred magic in a devastating explosion.",
+      "element": "Hybrid",
+      "reqLevel": 55,
+      "tier": 3,
+      "requires": "phantasm",
+      "damageType": "magic"
     }
   },
   "items": {

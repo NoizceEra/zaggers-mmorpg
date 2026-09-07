@@ -581,7 +581,8 @@
   const sprites = {};
   const spriteNames = [
     'hero_knight', 'hero_blackmage', 'hero_whitemage', 'hero_dragoon',
-    'hero_redmage', 'hero_thief', 'hero_monk', 'slime_green_ff',
+    'hero_redmage', 'hero_ranger', 'hero_thief', 'hero_monk', 'hero_paladin',
+    'hero_sage', 'hero_bard', 'hero_alchemist', 'slime_green_ff',
     'goblin_ff', 'skeleton_ff', 'boss_baphomet_ff', 'cactuar_ff', 'bomb_ff', 'tileset_town_ff',
     'npc_kafra', 'npc_blacksmith', 'npc_merchant', 'npc_elder', 'npc_militia', 'npc_smuggler',
     // World Map Expansion (Phase 3) monster sprites - see vault/BESTIARY_EXPANSION.md
@@ -2534,7 +2535,8 @@
       spellweaver: { id: 'spellweaver', name: 'Spellweaver', sprite: 'hero_blackmage', baseStats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 }, hpGrowth: 10, spGrowth: 12, primaryWeapon: 'Archmage Staff', description: 'Master of arcane storm and flame.' },
       shadowblade: { id: 'shadowblade', name: 'Shadowblade', sprite: 'hero_thief', baseStats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 }, hpGrowth: 12, spGrowth: 5, primaryWeapon: 'Dual Daggers', description: 'Lethal rogue specializing in rapid critical hits.' },
       cleric: { id: 'cleric', name: 'Cleric Priest', sprite: 'hero_whitemage', baseStats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 }, hpGrowth: 13, spGrowth: 10, primaryWeapon: 'Holy Mace', description: 'Devout guardian granting holy protection and healing.' },
-      ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_redmage', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' },
+      ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_ranger', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' },
+      redmage: { id: 'redmage', name: 'Red Mage', sprite: 'hero_redmage', baseStats: { str: 11, agi: 13, vit: 10, int: 14, dex: 14, luk: 10 }, hpGrowth: 14, spGrowth: 8, primaryWeapon: 'Rapier & Grimoire', description: 'Versatile spell-blade combining rapier techniques with dual white and black magic.' },
       dragoon: { id: 'dragoon', name: 'Dragoon Lancer', sprite: 'hero_dragoon', baseStats: { str: 16, agi: 12, vit: 12, int: 5, dex: 15, luk: 8 }, hpGrowth: 16, spGrowth: 5, primaryWeapon: 'Dragon Lance', description: 'High-flying lancer raining jump strikes.' },
       monk: { id: 'monk', name: 'Brawler Monk', sprite: 'hero_monk', baseStats: { str: 15, agi: 16, vit: 10, int: 8, dex: 12, luk: 10 }, hpGrowth: 15, spGrowth: 7, primaryWeapon: 'Iron Fists', description: 'Fist-fighting brawler with rapid strikes.' },
       paladin: { id: 'paladin', name: 'Paladin Templar', sprite: 'hero_paladin', baseStats: { str: 12, agi: 8, vit: 18, int: 12, dex: 10, luk: 10 }, hpGrowth: 20, spGrowth: 6, primaryWeapon: 'Holy Aegis', description: 'Golden holy guardian shielding allies.' },
