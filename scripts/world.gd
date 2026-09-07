@@ -12,6 +12,7 @@ var _monsters: Dictionary = {}       # id -> ZaggersMonster
 
 var _entities_node: Node2D
 var _camera: Camera2D
+var _parallax: ZaggersParallax
 
 
 func _ready() -> void:
@@ -19,6 +20,7 @@ func _ready() -> void:
 	_entities_node.name = "Entities"
 	add_child(_entities_node)
 
+	_setup_parallax()
 	_build_isometric_terrain()
 	_spawn_local_player()
 	_setup_camera()
@@ -63,6 +65,14 @@ func _setup_camera() -> void:
 	_camera.zoom = Vector2(1.75, 1.75)
 	_camera.position_smoothing_enabled = true
 	_player.add_child(_camera)
+
+
+func _setup_parallax() -> void:
+	_parallax = ZaggersParallax.new()
+	_parallax.name = "ParallaxBackground"
+	add_child(_parallax)
+	move_child(_parallax, 0)
+	_parallax.set_zone("aethelgard")
 
 
 func _setup_ui() -> void:

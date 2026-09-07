@@ -536,6 +536,7 @@
   </div>
 </div>
 
+<script src="parallax/ParallaxBackgrounds.js"></script>
 <script>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
@@ -596,7 +597,17 @@
     'the_vault_keeper_ff', 'sylveth_silent_thaw_ff',
     'nethergate_creeper_ff', 'umbral_houndkin_ff', 'weeping_bough_ff', 'rootfang_devourer_ff',
     'hollow_penitent_choir_ff', 'sanguine_thorncaller_ff', 'abyssal_heraldon_ff',
-    'thorncradle_warden_ff', 'the_pale_apostate_ff', 'verrocaine_sovereign_ff'
+    'thorncradle_warden_ff', 'the_pale_apostate_ff', 'verrocaine_sovereign_ff',
+    // DB-parity heroes + item icons (drift check web-spritenames-vs-db)
+    'hero_alchemist', 'hero_bard', 'hero_paladin', 'hero_sage',
+    'acc_charm_ff', 'acc_pendant_ff', 'acc_signet_ff',
+    'arm_jerkin_ff', 'arm_mythril_ff', 'arm_shroud_ff', 'arm_slagplate_ff',
+    'food_bread_ff', 'hat_circlet_ff', 'hat_diadem_ff', 'hat_kettle_ff',
+    'key_thawstone_ff', 'potion_aetherite_ff', 'potion_mana_ff',
+    'shd_aegis_ff', 'shd_bulwark_ff', 'shd_targe_ff',
+    'wpn_cleaver_ff', 'wpn_emberglass_ff', 'wpn_lance_dragon_ff',
+    'wpn_longbow_ff', 'wpn_shortsword_ff', 'wpn_staff_root_ff', 'wpn_trident_ff',
+    'potion_health_ff'
   ];
 
   const envSpriteNames = [
@@ -3832,6 +3843,13 @@
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#10141f';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Parallax backdrop (screen-space, per-zone; 0-cost on town hubs).
+    if (window.ZaggersParallax) {
+      ZaggersParallax.drawParallax(ctx, canvas, {
+        cameraX, cameraY, cameraAngle, cameraZoom, currentMapId, GFX, frameCount
+      });
+    }
 
     // 1. Render 2.5D Isometric Diamond Grid Terrain (Visible range around camera)
     const minWx = Math.max(currentMapBounds.minWx, Math.floor(cameraX - 20));

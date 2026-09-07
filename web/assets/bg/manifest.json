@@ -1,0 +1,200 @@
+{
+  "zones": {
+    "aethelgard": {
+      "layers": [
+        {
+          "file": "bg_aethelgard_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_aethelgard_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_aethelgard_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    },
+    "gatewatch": {
+      "layers": [
+        {
+          "file": "bg_gatewatch_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_gatewatch_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_gatewatch_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    },
+    "meadows": {
+      "layers": [
+        {
+          "file": "bg_meadows_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_meadows_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_meadows_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    },
+    "sanctum": {
+      "layers": [
+        {
+          "file": "bg_sanctum_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_sanctum_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_sanctum_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    },
+    "spire": {
+      "layers": [
+        {
+          "file": "bg_spire_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_spire_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_spire_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    },
+    "chasm": {
+      "layers": [
+        {
+          "file": "bg_chasm_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_chasm_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_chasm_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    },
+    "rootways": {
+      "layers": [
+        {
+          "file": "bg_rootways_far.png",
+          "parallax_factor": 0.15,
+          "size": [
+            640,
+            180
+          ]
+        },
+        {
+          "file": "bg_rootways_mid.png",
+          "parallax_factor": 0.35,
+          "size": [
+            640,
+            140
+          ]
+        },
+        {
+          "file": "bg_rootways_near.png",
+          "parallax_factor": 0.6,
+          "size": [
+            640,
+            120
+          ]
+        }
+      ]
+    }
+  }
+}

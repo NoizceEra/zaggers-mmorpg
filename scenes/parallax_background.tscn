@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://zaggers_parallax_001"]
+
+[ext_resource type="Script" path="res://scripts/parallax_background.gd" id="1_parallax"]
+
+[node name="ParallaxBackground" type="ParallaxBackground"]
+layer = -100
+scroll_ignore_camera_zoom = false
+script = ExtResource("1_parallax")

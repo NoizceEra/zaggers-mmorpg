@@ -5,6 +5,8 @@
 
 const http = require('http');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = 8080;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
@@ -15,8 +17,29 @@ const monsters = new Map(); // id -> { id, name, type, x, y, hp, max_hp, target_
 let nextPlayerId = 100;
 let nextMonsterId = 500;
 
-// Initialize World Monsters (Poring, Goblin, Skeleton, Baphomet)
+// Initialize World Monsters from web/zaggers_database.json (54) with legacy fallback.
 function initMonsters() {
+  try {
+    const dbPath = path.join(__dirname, '..', 'web', 'zaggers_database.json');
+    const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+    const entries = Object.values(db.monsters || {}).slice(0, 54);
+    if (entries.length > 0) {
+      entries.forEach((e, i) => {
+        const id = `m_${nextMonsterId++}`;
+        const hp = Number(e.hp) > 0 ? Number(e.hp) : 50;
+        monsters.set(id, {
+          id, key: e.id || id, name: String(e.name || e.id || 'Monster'),
+          x: 120 + ((i * 173) % 1760), y: 100 + ((i * 211) % 900),
+          hp, max_hp: hp, atk: Number(e.atk) || 5,
+          zeny: Number(e.zeny) || 50, level: Number(e.level) || 1,
+        });
+      });
+      console.log(`[Server] Loaded ${monsters.size} monsters from database.`);
+      return;
+    }
+  } catch (err) {
+    console.log('[Server] DB monster load failed, using fallback:', err.message);
+  }
   const types = [
     { name: 'Poring', hp: 50, x: 200, y: 150 },
     { name: 'Poring', hp: 50, x: 280, y: 220 },
@@ -136,7 +159,7 @@ function handleClientPacket(socket, player, data) {
         m.hp = Math.max(0, m.hp - dmg);
         broadcast({ type: 'monster_hit', id: m.id, hp: m.hp, max_hp: m.max_hp, dmg, attacker_id: player.id });
         if (m.hp <= 0) {
-          player.zeny += 50;
+          player.zeny += (m.zeny || 50);
           sendPacket(socket, { type: 'zeny_update', zeny: player.zeny });
           setTimeout(() => {
             m.hp = m.max_hp;
