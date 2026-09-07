@@ -724,6 +724,108 @@
     return { x: isoX, y: isoY };
   }
 
+  function worldToIso3D(wx, wy, wz) {
+    wz = wz || 0;
+    const base = worldToIso(wx, wy);
+    const zOffset = wz * TILE_H * cameraZoom * 1.6;
+    return { x: base.x, y: base.y - zOffset };
+  }
+
+  function is3DVolumetricProp(type) {
+    return type === 'env_wall_curtain' || type === 'env_wall_corner' || type === 'env_gatehouse' ||
+           type === 'env_palisade_wall' || type === 'env_temple_pillar' || type === 'env_dungeon_pillar' ||
+           type === 'env_house_smithy' || type === 'env_house_guild' || type === 'env_house_inn' ||
+           type === 'env_house_row' || type === 'env_house_shop' || type === 'env_house_terrace' ||
+           type === 'env_chimney_stack';
+  }
+
+  function get3DWallPalette(mapId, wallType) {
+    if (mapId === 'chasm') {
+      return { roofFace: '#5c7a9c', frontFace: '#344e68', sideFace: '#223447', backFace: '#172433', stroke: '#1a2938' };
+    }
+    if (mapId === 'spire') {
+      return { roofFace: '#4a221d', frontFace: '#331613', sideFace: '#240e0c', backFace: '#170807', stroke: '#1a0908' };
+    }
+    if (mapId === 'sanctum') {
+      return { roofFace: '#2c5e69', frontFace: '#1a3e47', sideFace: '#102b32', backFace: '#0a1d22', stroke: '#0e2329' };
+    }
+    if (mapId === 'meadows') {
+      return { roofFace: '#476332', frontFace: '#2e4220', sideFace: '#1f2e16', backFace: '#141f0e', stroke: '#172410' };
+    }
+    return { roofFace: '#4a5b80', frontFace: '#33415c', sideFace: '#242f44', backFace: '#182030', stroke: '#1c2638' };
+  }
+
+  function draw3DWallBox(wx, wy, widthW, depthW, heightW, wallType) {
+    widthW = widthW || 1.2;
+    depthW = depthW || 1.2;
+    heightW = heightW || 1.8;
+
+    const p00 = worldToIso3D(wx - widthW / 2, wy - depthW / 2, 0);
+    const p10 = worldToIso3D(wx + widthW / 2, wy - depthW / 2, 0);
+    const p11 = worldToIso3D(wx + widthW / 2, wy + depthW / 2, 0);
+    const p01 = worldToIso3D(wx - widthW / 2, wy + depthW / 2, 0);
+
+    const u00 = worldToIso3D(wx - widthW / 2, wy - depthW / 2, heightW);
+    const u10 = worldToIso3D(wx + widthW / 2, wy - depthW / 2, heightW);
+    const u11 = worldToIso3D(wx + widthW / 2, wy + depthW / 2, heightW);
+    const u01 = worldToIso3D(wx - widthW / 2, wy + depthW / 2, heightW);
+
+    const palette = get3DWallPalette(currentMapId, wallType);
+
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = palette.stroke;
+
+    function drawQuad(a, b, c, d, fillStyle, hasBrickPattern) {
+      ctx.fillStyle = fillStyle;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.lineTo(c.x, c.y);
+      ctx.lineTo(d.x, d.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      if (hasBrickPattern) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.beginPath();
+        const midY1 = (a.y + c.y) / 2;
+        const midY2 = (b.y + d.y) / 2;
+        ctx.moveTo((a.x + b.x) / 2, (a.y + b.y) / 2);
+        ctx.lineTo((c.x + d.x) / 2, (c.y + d.y) / 2);
+        ctx.stroke();
+        ctx.strokeStyle = palette.stroke;
+      }
+    }
+
+    if (cameraAngle === 0) {
+      drawQuad(p00, p10, u10, u00, palette.backFace);
+      drawQuad(p00, p01, u01, u00, palette.sideFace);
+      drawQuad(p10, p11, u11, u10, palette.sideFace);
+      drawQuad(p01, p11, u11, u01, palette.frontFace, true);
+    } else if (cameraAngle === 1) {
+      drawQuad(p01, p11, u11, u01, palette.backFace);
+      drawQuad(p00, p01, u01, u00, palette.sideFace);
+      drawQuad(p10, p11, u11, u10, palette.frontFace, true);
+      drawQuad(p00, p10, u10, u00, palette.sideFace);
+    } else if (cameraAngle === 2) {
+      drawQuad(p01, p11, u11, u01, palette.backFace);
+      drawQuad(p10, p11, u11, u10, palette.sideFace);
+      drawQuad(p00, p01, u01, u00, palette.frontFace, true);
+      drawQuad(p00, p10, u10, u00, palette.sideFace);
+    } else {
+      drawQuad(p10, p11, u11, u10, palette.backFace);
+      drawQuad(p01, p11, u11, u01, palette.sideFace);
+      drawQuad(p00, p10, u10, u00, palette.frontFace, true);
+      drawQuad(p00, p01, u01, u00, palette.sideFace);
+    }
+
+    // Top Roof Face
+    drawQuad(u00, u10, u11, u01, palette.roofFace);
+    ctx.restore();
+  }
+
   function isoToWorld(screenX, screenY) {
     const tw = TILE_W * cameraZoom;
     const th = TILE_H * cameraZoom;
@@ -4536,7 +4638,12 @@
             ctx.restore();
           }
 
-          if (env.animated && env.type === 'env_torch_brazier') {
+          if (is3DVolumetricProp(env.type)) {
+            const wW = Math.max(1.0, (env.width || 64) / 48);
+            const dW = Math.max(1.0, (env.height || 64) / 48);
+            const hW = (env.type.startsWith('env_house_') || env.type === 'env_gatehouse') ? 2.2 : 1.6;
+            draw3DWallBox(env.wx, env.wy, wW, dW, hW, env.type);
+          } else if (env.animated && env.type === 'env_torch_brazier') {
             const animFrame = Math.floor(frameCount / 8) % 4;
             const sx = animFrame * 64;
             ctx.drawImage(envImg, sx, 0, 64, 64, renderX, renderY, esw, esh);
