@@ -3108,13 +3108,9 @@
     if (gameDB && gameDB.skills && Object.keys(gameDB.skills).length) {
       rebuildMonsterIndexes();
       hideDbFailBanner();
+      if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
       return gameDB;
     }
-    // Always try the on-disk DB first so newly-added classes/monsters/etc. show up
-    // immediately - a stale localStorage snapshot from an earlier build (fewer
-    // classes, missing sprite fields, etc.) must never shadow a fresher DB file
-    // (SPRITE_ANIMATION_FIXES_REPORT.md bug #2: "we don't have full classes showing").
-    // The cache is now only a fallback for offline/network-failure cases.
     try {
       const res = await fetch('zaggers_database.json');
       if (!res.ok) throw new Error('DB fetch failed: ' + res.status);
@@ -3122,6 +3118,7 @@
       try { localStorage.setItem('zaggers_db', JSON.stringify(gameDB)); } catch (e) {}
       rebuildMonsterIndexes();
       hideDbFailBanner();
+      if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
       return gameDB;
     } catch (err) {
       console.error('Failed to load zaggers_database.json', err);
@@ -3130,11 +3127,13 @@
         console.warn('Falling back to cached zaggers_db from localStorage (may be stale).');
         gameDB = stored;
         rebuildMonsterIndexes();
+        if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
         return gameDB;
       }
       showDbFailBanner('Failed to load zaggers_database.json (404 or network error). Serve from the web/ folder so the client can fetch the database.');
       gameDB = stored && stored.classes ? stored : { classes: getFallbackClasses(), skills: {}, items: {}, equipSlots: { list: EQUIP_SLOT_ORDER.slice() } };
       rebuildMonsterIndexes();
+      if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
       return gameDB;
     }
   }
@@ -5247,12 +5246,22 @@
       if (ft.life <= 0) floatingTexts.splice(i, 1);
     }
 
-    // 7. Render Mini-Map Overlay
+    // 7. Render Mini-Map Overlay & Character Creator Preview Loop
     renderMinimap();
+
+    const creatorModal = document.getElementById('character-creator-modal');
+    if (creatorModal && creatorModal.style.display !== 'none') {
+      updateCreatorPreviewCanvas();
+    }
 
     requestAnimationFrame(render);
   }
 
+  ensureGameDB().then(() => {
+    if (typeof renderCreatorClassCards === 'function') renderCreatorClassCards();
+    if (typeof updateCreatorClassDetails === 'function') updateCreatorClassDetails();
+    if (typeof updateCreatorPreviewCanvas === 'function') updateCreatorPreviewCanvas();
+  });
   requestAnimationFrame(render);
 </script>
 </body>
