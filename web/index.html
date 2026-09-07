@@ -537,6 +537,8 @@
 </div>
 
 <script src="parallax/ParallaxBackgrounds.js"></script>
+<script src="tutorial/StarterQuests.js"></script>
+<script src="audio/ZaggersAudio.js"></script>
 <script>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
@@ -929,6 +931,7 @@
     m.hitFlashTimer = HIT_FLASH_DURATION;
     pushDamageFloat(m, result);
     spawnSkillImpact(m.wx, m.wy, getElementColor(result.atkEl));
+    if (window.ZaggersAudio) ZaggersAudio.play(result && result.crit ? 'crit' : 'hit');
     if (m.hp === 0) {
       grantKillRewards(m);
       m.dying = true;
@@ -1456,6 +1459,7 @@
     exitCooldownFrames = 60; // grace period so re-entering an exit doesn't immediately bounce back
 
     showDistrictBanner(`Entering ${currentMapName}`);
+    if (window.ZaggersAudio) ZaggersAudio.playBgm(currentMapId);
     const chatBox = document.getElementById('chat-messages');
     if (chatBox) {
       chatBox.innerHTML += `<div data-kind="zone"><span style="color: #ffd54f;">[System]:</span> Arrived at ${currentMapName}.</div>`;
@@ -2954,6 +2958,7 @@
     addToInventory(itemId, 1);
     updateHUD();
     chatSystem(`Purchased ${it.name}! Open Equip [I] to use or equip.`, '#81c784');
+    if (window.ZaggersAudio) ZaggersAudio.play('coin');
     savePlayerState();
     populateShopFromDB();
     // Brief confirmation flash on the row the player just bought from, if
@@ -3558,6 +3563,7 @@
     }
     showDistrictBanner("Entering Aethelgard Grand Plaza");
     showOnboardingHint();
+    if (typeof StarterQuests !== 'undefined' && StarterQuests.start) StarterQuests.start();
   }
 
   // Death & Respawn System
