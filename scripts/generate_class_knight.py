@@ -44,7 +44,7 @@ SKIN_BASE = (245, 195, 155, 255)
 
 def draw_knight_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
-    leg = 2 if col == 1 else (-2 if col == 3 else 0)
+    leg = 1 if col == 1 else (-1 if col == 3 else 0)
     cy = bob
 
     # Ground Drop Shadow
@@ -53,28 +53,28 @@ def draw_knight_frame(draw, row, col):
 
     if row == 3: # UP (Back view)
         # Flowing Cape Back
-        draw.polygon([(16, 22 + cy), (48, 22 + cy), (52, 55 + cy), (12, 55 + cy)], fill=CAPE_4, outline=OUTLINE)
-        draw.polygon([(16, 22 + cy), (32, 55 + cy), (12, 55 + cy)], fill=CAPE_5)
+        draw.polygon([(17, 22 + cy), (47, 22 + cy), (50, 55 + cy), (14, 55 + cy)], fill=CAPE_4, outline=OUTLINE)
+        draw.polygon([(17, 22 + cy), (32, 55 + cy), (14, 55 + cy)], fill=CAPE_5)
 
         # Articulated Legs & Steel Greaves (Back)
-        lx1, lx2 = 22 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 42 - leg
+        lx1, lx2 = 23 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 41 - leg
         draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=STEEL_5, outline=OUTLINE)
         draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=STEEL_5, outline=OUTLINE)
         draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
         draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
         # Back Armor & Helm
-        draw.rectangle([21, 11 + cy, 43, 27 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([22, 11 + cy, 42, 27 + cy], fill=STEEL_4, outline=OUTLINE)
         draw.line([(32, 11 + cy), (32, 27 + cy)], fill=GOLD_3, width=2)
     else:
         # Cape Wings behind shoulders
-        draw.polygon([(16, 23 + cy), (46, 23 + cy), (50, 53 + cy), (14, 53 + cy)], fill=CAPE_4, outline=OUTLINE)
-        draw.polygon([(16, 23 + cy), (28, 53 + cy), (14, 53 + cy)], fill=CAPE_5)
+        draw.polygon([(17, 23 + cy), (45, 23 + cy), (48, 53 + cy), (16, 53 + cy)], fill=CAPE_4, outline=OUTLINE)
+        draw.polygon([(17, 23 + cy), (28, 53 + cy), (16, 53 + cy)], fill=CAPE_5)
 
         # Articulated Tight Legs & Steel Greaves
-        lx1, lx2 = 22 + leg, 29 + leg
-        rx1, rx2 = 35 - leg, 42 - leg
+        lx1, lx2 = 23 + leg, 29 + leg
+        rx1, rx2 = 35 - leg, 41 - leg
 
         # Left Leg
         draw.rectangle([lx1, 44 + cy, lx2, 56 + cy], fill=STEEL_5, outline=OUTLINE)
@@ -92,38 +92,38 @@ def draw_knight_frame(draw, row, col):
         draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
         # Torso & Chestplate
-        draw.rectangle([23, 25 + cy, 41, 44 + cy], fill=STEEL_4, outline=OUTLINE)
-        draw.rectangle([25, 26 + cy, 39, 42 + cy], fill=STEEL_3)
-        draw.line([(23, 25 + cy), (41, 25 + cy)], fill=AO_CREVICE, width=1)
+        draw.rectangle([24, 25 + cy, 40, 44 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([26, 26 + cy, 38, 42 + cy], fill=STEEL_3)
+        draw.line([(24, 25 + cy), (40, 25 + cy)], fill=AO_CREVICE, width=1)
 
         # Gold Belt & Buckle
-        draw.rectangle([22, 40 + cy, 42, 43 + cy], fill=GOLD_4, outline=OUTLINE)
+        draw.rectangle([23, 40 + cy, 41, 43 + cy], fill=GOLD_4, outline=OUTLINE)
         draw.rectangle([29, 39 + cy, 35, 44 + cy], fill=GOLD_3, outline=OUTLINE)
         draw.rectangle([30, 40 + cy, 34, 43 + cy], fill=GOLD_1)
 
-        # TIGHT ARTICULATED ARMS, GAUNTLETS & HANDS
+        # ULTRA-TIGHT ARTICULATED ARMS, GAUNTLETS & HANDS
         # Left Arm & Steel Gauntlet
-        draw.polygon([(16, 25 + cy), (23, 26 + cy), (20, 36 + cy), (14, 32 + cy)], fill=STEEL_3, outline=OUTLINE) # Pauldron
-        draw.rectangle([14, 33 + cy, 21, 43 + cy], fill=STEEL_4, outline=OUTLINE) # Forearm gauntlet
-        draw.rectangle([14, 40 + cy, 20, 46 + cy], fill=STEEL_2, outline=OUTLINE) # Steel glove hand
-        draw.line([(14, 33 + cy), (21, 33 + cy)], fill=AO_CREVICE, width=1)
+        draw.polygon([(17, 25 + cy), (24, 26 + cy), (21, 36 + cy), (15, 32 + cy)], fill=STEEL_3, outline=OUTLINE) # Pauldron
+        draw.rectangle([15, 33 + cy, 22, 43 + cy], fill=STEEL_4, outline=OUTLINE) # Forearm gauntlet
+        draw.rectangle([15, 40 + cy, 21, 46 + cy], fill=STEEL_2, outline=OUTLINE) # Steel glove hand
+        draw.line([(15, 33 + cy), (22, 33 + cy)], fill=AO_CREVICE, width=1)
 
         # Right Arm & Steel Gauntlet
-        draw.polygon([(48, 25 + cy), (41, 26 + cy), (44, 36 + cy), (50, 32 + cy)], fill=STEEL_4, outline=OUTLINE) # Pauldron
-        draw.rectangle([43, 33 + cy, 50, 43 + cy], fill=STEEL_5, outline=OUTLINE) # Forearm gauntlet
-        draw.rectangle([44, 40 + cy, 50, 46 + cy], fill=STEEL_3, outline=OUTLINE) # Steel glove hand
-        draw.line([(43, 33 + cy), (50, 33 + cy)], fill=AO_CREVICE, width=1)
+        draw.polygon([(47, 25 + cy), (40, 26 + cy), (43, 36 + cy), (49, 32 + cy)], fill=STEEL_4, outline=OUTLINE) # Pauldron
+        draw.rectangle([42, 33 + cy, 49, 43 + cy], fill=STEEL_5, outline=OUTLINE) # Forearm gauntlet
+        draw.rectangle([43, 40 + cy, 49, 46 + cy], fill=STEEL_3, outline=OUTLINE) # Steel glove hand
+        draw.line([(42, 33 + cy), (49, 33 + cy)], fill=AO_CREVICE, width=1)
 
         # Helmet with Visor & Super Specular Glint
-        draw.rectangle([21, 11 + cy, 43, 27 + cy], fill=STEEL_4, outline=OUTLINE)
-        draw.rectangle([23, 13 + cy, 41, 25 + cy], fill=STEEL_3)
-        draw.rectangle([23, 19 + cy, 41, 23 + cy], fill=OUTLINE)
-        draw.line([(25, 21 + cy), (39, 21 + cy)], fill=STEEL_2, width=1)
+        draw.rectangle([22, 11 + cy, 42, 27 + cy], fill=STEEL_4, outline=OUTLINE)
+        draw.rectangle([24, 13 + cy, 40, 25 + cy], fill=STEEL_3)
+        draw.rectangle([24, 19 + cy, 40, 23 + cy], fill=OUTLINE)
+        draw.line([(26, 21 + cy), (38, 21 + cy)], fill=STEEL_2, width=1)
         draw.line([(32, 11 + cy), (32, 18 + cy)], fill=GOLD_3, width=2)
         draw.line([(32, 11 + cy), (32, 15 + cy)], fill=GOLD_1, width=1)
 
         # Greatsword with Dual Bevels
-        wx = 48 if (row == 0 or row == 2) else 16
+        wx = 47 if (row == 0 or row == 2) else 17
         draw.line([(wx, 6 + cy), (wx, 48 + cy)], fill=STEEL_3, width=3)
         draw.line([(wx, 6 + cy), (wx, 46 + cy)], fill=STEEL_1, width=1)
         draw.polygon([(wx, 2 + cy), (wx - 4, 10 + cy), (wx + 4, 10 + cy)], fill=STEEL_1)

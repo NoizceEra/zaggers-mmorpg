@@ -350,11 +350,18 @@
         <div id="creator-class-cards" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;"></div>
       </div>
 
-      <!-- Center Column: 2.5D Animated Sprite Preview Canvas -->
-      <div style="flex: 1; background: rgba(12, 16, 26, 0.95); border: 2px solid #4a5c84; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">
-        <div style="position: absolute; top: 12px; font-size: 15px; font-weight: bold; color: #81d4fa;" id="creator-class-title">Vanguard Titan</div>
-        <canvas id="creator-preview-canvas" width="160" height="160" style="image-rendering: pixelated; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));"></canvas>
-        <div style="position: absolute; bottom: 12px; display: flex; gap: 8px;">
+      <!-- Center Column: 2.5D Animated Sprite Preview Canvas & Outfit Customization -->
+      <div style="flex: 1; background: rgba(12, 16, 26, 0.95); border: 2px solid #4a5c84; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); padding: 10px 0;">
+        <div style="position: absolute; top: 10px; font-size: 15px; font-weight: bold; color: #81d4fa;" id="creator-class-title">Vanguard Titan</div>
+        <canvas id="creator-preview-canvas" width="160" height="160" style="image-rendering: pixelated; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8)); margin-top: 14px;"></canvas>
+        
+        <!-- Outfit & Armor Color Customization -->
+        <div style="margin-top: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+          <div style="font-size: 11px; font-weight: bold; color: #ffd54f; text-transform: uppercase; letter-spacing: 0.5px;">🎨 Outfit Palette & Aura Tint</div>
+          <div id="creator-color-swatches" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
           <button class="btn-icon" onclick="rotateCreatorPreview(-1)">Rotate Left ↺</button>
           <button class="btn-icon" onclick="rotateCreatorPreview(1)">Rotate Right ↻</button>
         </div>
@@ -445,6 +452,10 @@
       <div class="stat-row"><span data-tip="INT increases magic attack power (MATK) and your Max SP, fueling stronger and more frequent skills.">INT (MATK/SP)</span><span id="stat-int">10</span><button class="stat-btn" onclick="addStat('int')">+</button></div>
       <div class="stat-row"><span data-tip="DEX improves your accuracy (HIT) and skill reliability, so fewer of your attacks miss.">DEX (Hit Speed)</span><span id="stat-dex">10</span><button class="stat-btn" onclick="addStat('dex')">+</button></div>
       <div class="stat-row"><span data-tip="LUK raises your critical hit chance and nudges random effects (drop luck, minor evasion) in your favor.">LUK (Critical)</span><span id="stat-luk">10</span><button class="stat-btn" onclick="addStat('luk')">+</button>
+      <div style="border-top: 1px solid #3d4a68; margin-top: 10px; padding-top: 8px;">
+        <div style="font-size: 11px; font-weight: bold; color: #81d4fa; margin-bottom: 4px;">🎨 Outfit Palette & Aura Tint</div>
+        <div id="stat-color-swatches" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>
+      </div>
       <div style="border-top: 1px solid #3d4a68; margin-top: 10px; padding-top: 8px;">
         <div style="font-size: 11px; font-weight: bold; color: #ffd54f; margin-bottom: 4px;">Class Advancement & Branching</div>
         <div id="job-branch-list" style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;"></div>
@@ -3739,6 +3750,50 @@
 
     const loreEl = document.getElementById('creator-lore-text');
     if (loreEl) loreEl.innerText = c.description || c.lore || 'Hero class in Midgard.';
+    renderPaletteSwatches();
+  }
+
+  const PALETTE_PRESETS = [
+    { id: 'orig', label: 'Default', hue: 0, color: '#64b5f6' },
+    { id: 'ruby', label: 'Crimson Ruby', hue: 320, color: '#ef5350' },
+    { id: 'gold', label: 'Golden Sun', hue: 50, color: '#ffee58' },
+    { id: 'emerald', label: 'Emerald Leaf', hue: 120, color: '#66bb6a' },
+    { id: 'azure', label: 'Royal Azure', hue: 200, color: '#29b6f6' },
+    { id: 'amethyst', label: 'Amethyst', hue: 270, color: '#ab47bc' },
+    { id: 'shadow', label: 'Shadow Obsidian', hue: 180, color: '#8d6e63' },
+    { id: 'silver', label: 'Silver Platinum', hue: 90, color: '#e0e0e0' }
+  ];
+
+  let selectedCreatorHueShift = parseInt(localStorage.getItem('zaggers_player_hue') || '0', 10);
+
+  function setPlayerOutfitHue(hueDeg) {
+    selectedCreatorHueShift = hueDeg;
+    if (typeof player !== 'undefined') player.hueShift = hueDeg;
+    localStorage.setItem('zaggers_player_hue', hueDeg);
+    updateCreatorPreviewCanvas();
+    renderPaletteSwatches();
+  }
+
+  function renderPaletteSwatches() {
+    const creatorCnt = document.getElementById('creator-color-swatches');
+    const statCnt = document.getElementById('stat-color-swatches');
+    const activeHue = (typeof player !== 'undefined' && player.hueShift !== undefined) ? player.hueShift : selectedCreatorHueShift;
+
+    [creatorCnt, statCnt].forEach(cnt => {
+      if (!cnt) return;
+      cnt.innerHTML = '';
+      PALETTE_PRESETS.forEach(p => {
+        const btn = document.createElement('button');
+        const isSel = (activeHue === p.hue);
+        btn.style.cssText = `width: 22px; height: 22px; border-radius: 50%; background: ${p.color}; border: ${isSel ? '2px solid #ffffff' : '1px solid #111824'}; cursor: pointer; transform: ${isSel ? 'scale(1.2)' : 'scale(1.0)'}; transition: transform 0.15s; box-shadow: 0 2px 5px rgba(0,0,0,0.6); outline: none;`;
+        btn.title = `${p.label} Palette`;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          setPlayerOutfitHue(p.hue);
+        };
+        cnt.appendChild(btn);
+      });
+    });
   }
 
   function updateCreatorPreviewCanvas() {
@@ -3761,7 +3816,13 @@
     }
 
     if (img && img.complete && img.naturalWidth > 0) {
+      pCtx.save();
+      const activeHue = (typeof player !== 'undefined' && player.hueShift !== undefined) ? player.hueShift : selectedCreatorHueShift;
+      if (activeHue) {
+        pCtx.filter = `hue-rotate(${activeHue}deg) saturate(1.25)`;
+      }
       pCtx.drawImage(img, creatorPreviewFrame * 64, creatorPreviewDir * 64, 64, 64, 16, 16, 128, 128);
+      pCtx.restore();
     }
   }
 
@@ -3780,6 +3841,8 @@
     player.classId = c.id || selectedCreatorClassId;
     player.class = spriteKey;
     player.sprite = spriteKey;
+    player.hueShift = selectedCreatorHueShift || 0;
+    localStorage.setItem('zaggers_player_hue', player.hueShift);
     player.str = stats.str;
     player.agi = stats.agi;
     player.vit = stats.vit;
@@ -4650,21 +4713,74 @@
           const dx = e.isoX - dw / 2;
           const dy = e.isoY - 52 * cameraZoom - (dh - sh);
 
-          if (player.hitFlashTimer > 0) ctx.filter = 'brightness(2.4) saturate(0.3)';
+          let playerFilter = 'none';
+          if (player.hitFlashTimer > 0) {
+            playerFilter = 'brightness(2.4) saturate(0.3)';
+          } else if (player.hueShift) {
+            playerFilter = `hue-rotate(${player.hueShift}deg) saturate(1.25)`;
+          }
+          if (playerFilter !== 'none') ctx.filter = playerFilter;
           ctx.drawImage(playerImg, sx, sy, 64, 64, dx, dy, dw, dh);
-          if (player.hitFlashTimer > 0) ctx.filter = 'none';
+          if (playerFilter !== 'none') ctx.filter = 'none';
 
+          // DYNAMIC CLASS-UNIQUE BATTLE ANIMATION EFFECTS & SLASH ARCS
           if (playerAttackProgress >= ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES) {
             const windupFrac = ATTACK_WINDUP_FRAMES / ATTACK_TOTAL_FRAMES;
             const impactFrac = (playerAttackProgress - windupFrac) / (1 - windupFrac);
-            if (impactFrac < 0.6) {
+            if (impactFrac < 0.85) {
               ctx.save();
-              ctx.globalAlpha = 0.55 * (1 - impactFrac / 0.6);
-              ctx.strokeStyle = '#e8f4ff';
-              ctx.lineWidth = 3 * cameraZoom;
+              ctx.globalAlpha = Math.max(0, 0.9 * (1 - impactFrac / 0.85));
+
+              let slashColor = '#ffe082';
+              let ringColor = '#fff59d';
+              const pSprite = player.sprite || player.class || 'hero_knight';
+
+              if (pSprite.includes('knight') || pSprite.includes('paladin')) {
+                slashColor = '#ffee58'; ringColor = '#fff176';
+              } else if (pSprite.includes('blackmage') || pSprite.includes('sage')) {
+                slashColor = '#7c4dff'; ringColor = '#00e5ff';
+              } else if (pSprite.includes('whitemage')) {
+                slashColor = '#ffffff'; ringColor = '#80deea';
+              } else if (pSprite.includes('thief')) {
+                slashColor = '#00e676'; ringColor = '#b9f6ca';
+              } else if (pSprite.includes('redmage')) {
+                slashColor = '#ff1744'; ringColor = '#ff8a80';
+              } else if (pSprite.includes('ranger')) {
+                slashColor = '#76ff03'; ringColor = '#ccff90';
+              } else if (pSprite.includes('dragoon')) {
+                slashColor = '#e040fb'; ringColor = '#ea80fc';
+              } else if (pSprite.includes('monk')) {
+                slashColor = '#ff9100'; ringColor = '#ffd180';
+              } else if (pSprite.includes('bard')) {
+                slashColor = '#ffd740'; ringColor = '#ffe57f';
+              } else if (pSprite.includes('alchemist')) {
+                slashColor = '#00e5ff'; ringColor = '#84ffff';
+              }
+
+              // Casting / Impact Shockwave Ring
+              ctx.strokeStyle = ringColor;
+              ctx.lineWidth = (4 + (1 - impactFrac) * 3) * cameraZoom;
               ctx.beginPath();
-              ctx.arc(e.isoX, e.isoY - 28 * cameraZoom, 22 * cameraZoom, Math.PI * 0.15, Math.PI * 0.85);
+              ctx.arc(e.isoX, e.isoY - 26 * cameraZoom, (16 + impactFrac * 18) * cameraZoom, 0, Math.PI * 2);
               ctx.stroke();
+
+              // Weapon Slash Arc Swing
+              const startAngle = Math.PI * (0.1 - impactFrac * 0.5);
+              const endAngle = Math.PI * (1.1 + impactFrac * 0.4);
+              ctx.strokeStyle = slashColor;
+              ctx.lineWidth = (5 - impactFrac * 3) * cameraZoom;
+              ctx.beginPath();
+              ctx.arc(e.isoX, e.isoY - 28 * cameraZoom, 28 * cameraZoom, startAngle, endAngle);
+              ctx.stroke();
+
+              // Impact Glint Sparkles
+              for (let sp = 0; sp < 3; sp++) {
+                const spAng = startAngle + (sp / 2) * (endAngle - startAngle);
+                const spX = e.isoX + Math.cos(spAng) * 28 * cameraZoom;
+                const spY = (e.isoY - 28 * cameraZoom) + Math.sin(spAng) * 28 * cameraZoom;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(spX - 2 * cameraZoom, spY - 2 * cameraZoom, 4 * cameraZoom, 4 * cameraZoom);
+              }
               ctx.restore();
             }
           }
