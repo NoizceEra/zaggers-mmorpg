@@ -1407,8 +1407,13 @@
       window.addEventListener('keydown', e => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         keys[e.code] = true;
-        if (e.code === 'KeyQ') rotateCamera(-1);
-        if (e.code === 'KeyE') rotateCamera(1);
+        if (e.code === 'KeyQ') {
+          if (e.shiftKey) rotateCamera(1);
+          else rotateCamera(-1);
+        }
+        if (e.code === 'KeyE') {
+          if (isPlaytest && typeof interactWithNearest === 'function') interactWithNearest();
+        }
         if (e.code === 'KeyR') resetCamera();
         if (e.code === 'Digit1') setBrushSize(1);
         if (e.code === 'Digit3') setBrushSize(3);

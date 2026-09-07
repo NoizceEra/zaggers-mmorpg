@@ -418,15 +418,15 @@
   <div id="chat-window" class="hud-panel">
     <div id="chat-messages">
       <div><span style="color: #ffd54f;">[System]:</span> Welcome to Zaggers 2.5D MMORPG World Map!</div>
-      <div><span style="color: #81c784;">[Guide]:</span> WASD move, click attack, Q/E cam, R reset. Skills [K], Equip [I], Shop [S], Stats [C]. F1–F9 cast hotbar skills. Kill monsters for XP/skill points.</div>
+      <div><span style="color: #81c784;">[Guide]:</span> WASD move, click attack, Q cam, E interact, R reset. Skills [K], Equip [I], Shop [S], Stats [C]. F1–F9 cast hotbar skills. Kill monsters for XP/skill points.</div>
     </div>
     <input type="text" id="chat-input" placeholder="Press Enter to chat..." />
   </div>
 
   <!-- Action Controls -->
   <div id="controls-hint">
-    <button class="btn-icon" onclick="rotateCamera(-1)" title="Rotate Counter-Clockwise (Q)">Cam ↺ [Q]</button>
-    <button class="btn-icon" onclick="rotateCamera(1)" title="Rotate Clockwise (E)">Cam ↻ [E]</button>
+    <button class="btn-icon" onclick="rotateCamera(-1)" title="Rotate Camera Angle (Q / Shift+Q)">Cam ↺ [Q]</button>
+    <button class="btn-icon" onclick="interactWithNearest()" title="Interact with Nearby NPC / Building / Door (E)">Interact 💬 [E]</button>
     <button class="btn-icon" id="cam-angle-btn" onclick="resetCamera()" title="Reset Camera View (R)">0°</button>
     <button class="btn-icon" onclick="toggleWindow('stat-window')">Stats [C]</button>
     <button class="btn-icon" onclick="toggleSkillWindow()">Skills [K]</button>
@@ -768,6 +768,195 @@
       return { roofFace: '#476332', frontFace: '#2e4220', sideFace: '#1f2e16', backFace: '#141f0e', stroke: '#172410' };
     }
     return { roofFace: '#4a5b80', frontFace: '#33415c', sideFace: '#242f44', backFace: '#182030', stroke: '#1c2638' };
+  }
+
+  function adjustColorLum(hex, percent) {
+    if (!hex) return '#333333';
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16);
+    let r = (num >> 16) + Math.round(255 * percent);
+    let g = ((num >> 8) & 0x00FF) + Math.round(255 * percent);
+    let b = (num & 0x0000FF) + Math.round(255 * percent);
+    r = Math.min(255, Math.max(0, r));
+    g = Math.min(255, Math.max(0, g));
+    b = Math.min(255, Math.max(0, b));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  }
+
+  function drawDecorated3DBuilding(wx, wy, widthW, depthW, heightW, buildingType, name) {
+    widthW = widthW || 2.2;
+    depthW = depthW || 2.2;
+    heightW = heightW || 2.4;
+    const roofH = 1.3;
+
+    let roofColor = '#c62828';
+    let wallColor = '#d7ccc8';
+    let doorColor = '#3e2723';
+    let iconChar = '🏠';
+
+    if (buildingType === 'env_house_smithy') {
+      roofColor = '#b71c1c'; wallColor = '#cfd8dc'; iconChar = '🔨';
+    } else if (buildingType === 'env_house_inn') {
+      roofColor = '#1565c0'; wallColor = '#ffe0b2'; iconChar = '🍺';
+    } else if (buildingType === 'env_house_temple') {
+      roofColor = '#fbc02d'; wallColor = '#fff9c4'; iconChar = '✨';
+    } else if (buildingType === 'env_house_guild') {
+      roofColor = '#512da8'; wallColor = '#d1c4e9'; iconChar = '📜';
+    } else if (buildingType === 'env_house_shop') {
+      roofColor = '#00695c'; wallColor = '#b2dfdb'; iconChar = '🛍️';
+    } else if (buildingType === 'env_house_row' || buildingType === 'env_house_terrace') {
+      roofColor = '#5d4037'; wallColor = '#e0e0e0'; iconChar = '🏘️';
+    }
+
+    const p00 = worldToIso3D(wx - widthW / 2, wy - depthW / 2, 0);
+    const p10 = worldToIso3D(wx + widthW / 2, wy - depthW / 2, 0);
+    const p11 = worldToIso3D(wx + widthW / 2, wy + depthW / 2, 0);
+    const p01 = worldToIso3D(wx - widthW / 2, wy + depthW / 2, 0);
+
+    const u00 = worldToIso3D(wx - widthW / 2, wy - depthW / 2, heightW);
+    const u10 = worldToIso3D(wx + widthW / 2, wy - depthW / 2, heightW);
+    const u11 = worldToIso3D(wx + widthW / 2, wy + depthW / 2, heightW);
+    const u01 = worldToIso3D(wx - widthW / 2, wy + depthW / 2, heightW);
+
+    const oh = 0.25;
+    const r00 = worldToIso3D(wx - widthW / 2 - oh, wy - depthW / 2 - oh, heightW);
+    const r10 = worldToIso3D(wx + widthW / 2 + oh, wy - depthW / 2 - oh, heightW);
+    const r11 = worldToIso3D(wx + widthW / 2 + oh, wy + depthW / 2 + oh, heightW);
+    const r01 = worldToIso3D(wx - widthW / 2 - oh, wy + depthW / 2 + oh, heightW);
+
+    const peak0 = worldToIso3D(wx - widthW / 2 - oh, wy, heightW + roofH);
+    const peak1 = worldToIso3D(wx + widthW / 2 + oh, wy, heightW + roofH);
+
+    ctx.save();
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = '#1a1a24';
+
+    function fillPoly(pts, fillStyle, strokeColor) {
+      ctx.fillStyle = fillStyle;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.closePath();
+      ctx.fill();
+      if (strokeColor) {
+        ctx.strokeStyle = strokeColor;
+        ctx.stroke();
+      }
+    }
+
+    // Foundation
+    fillPoly([p00, p10, p11, p01], '#37474f');
+
+    // Wall Faces
+    const wallBack = '#263238';
+    const wallSide = '#37474f';
+    const wallFront = wallColor;
+
+    if (cameraAngle === 0) {
+      fillPoly([p00, p10, u10, u00], wallBack);
+      fillPoly([p00, p01, u01, u00], wallSide);
+      fillPoly([p10, p11, u11, u10], wallSide);
+      fillPoly([p01, p11, u11, u01], wallFront, '#1a1a24');
+    } else if (cameraAngle === 1) {
+      fillPoly([p01, p11, u11, u01], wallBack);
+      fillPoly([p00, p01, u01, u00], wallSide);
+      fillPoly([p10, p11, u11, u10], wallFront, '#1a1a24');
+      fillPoly([p00, p10, u10, u00], wallSide);
+    } else if (cameraAngle === 2) {
+      fillPoly([p01, p11, u11, u01], wallBack);
+      fillPoly([p10, p11, u11, u10], wallSide);
+      fillPoly([p00, p01, u01, u00], wallFront, '#1a1a24');
+      fillPoly([p00, p10, u10, u00], wallSide);
+    } else {
+      fillPoly([p10, p11, u11, u10], wallBack);
+      fillPoly([p01, p11, u11, u01], wallSide);
+      fillPoly([p00, p10, u10, u00], wallFront, '#1a1a24');
+      fillPoly([p00, p01, u01, u00], wallSide);
+    }
+
+    // Front Door
+    const doorIso = worldToIso3D(wx, wy + depthW / 2 + 0.02, 0);
+    const doorW = 18 * cameraZoom;
+    const doorH = 26 * cameraZoom;
+
+    ctx.fillStyle = doorColor;
+    ctx.fillRect(doorIso.x - doorW / 2, doorIso.y - doorH, doorW, doorH);
+    ctx.strokeStyle = '#ffb300';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(doorIso.x - doorW / 2, doorIso.y - doorH, doorW, doorH);
+
+    ctx.fillStyle = '#ffb300';
+    ctx.beginPath();
+    ctx.arc(doorIso.x + doorW / 3, doorIso.y - doorH / 2, Math.max(1, 2 * cameraZoom), 0, Math.PI * 2);
+    ctx.fill();
+
+    // Glowing Windows
+    const windowIsoL = worldToIso3D(wx - widthW / 3, wy + depthW / 2 + 0.02, 1.2);
+    const windowIsoR = worldToIso3D(wx + widthW / 3, wy + depthW / 2 + 0.02, 1.2);
+    const winW = 12 * cameraZoom;
+    const winH = 14 * cameraZoom;
+
+    [windowIsoL, windowIsoR].forEach(wIso => {
+      ctx.fillStyle = 'rgba(255, 204, 128, 0.9)';
+      ctx.fillRect(wIso.x - winW / 2, wIso.y - winH, winW, winH);
+      ctx.strokeStyle = '#3e2723';
+      ctx.strokeRect(wIso.x - winW / 2, wIso.y - winH, winW, winH);
+      ctx.beginPath();
+      ctx.moveTo(wIso.x, wIso.y - winH); ctx.lineTo(wIso.x, wIso.y);
+      ctx.moveTo(wIso.x - winW / 2, wIso.y - winH / 2); ctx.lineTo(wIso.x + winW / 2, wIso.y - winH / 2);
+      ctx.stroke();
+    });
+
+    // 3D Roof Slopes & Pitched Gables
+    const roofShadeLit = roofColor;
+    const roofShadeDark = adjustColorLum(roofColor, -0.25);
+    const roofShadeBack = adjustColorLum(roofColor, -0.45);
+
+    fillPoly([r01, r00, peak0], roofShadeDark, '#101018');
+    fillPoly([r11, r10, peak1], roofShadeDark, '#101018');
+    fillPoly([r01, r11, peak1, peak0], roofShadeLit, '#101018');
+    fillPoly([r00, r10, peak1, peak0], roofShadeBack, '#101018');
+
+    // Roof Ridge Specular Line
+    ctx.strokeStyle = '#ffffff';
+    ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.moveTo(peak0.x, peak0.y);
+    ctx.lineTo(peak1.x, peak1.y);
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // Chimney Stack & Smoke
+    const chimIsoBase = worldToIso3D(wx + widthW / 3, wy - depthW / 3, heightW + 0.4);
+    const chimIsoTop = worldToIso3D(wx + widthW / 3, wy - depthW / 3, heightW + roofH + 0.6);
+    const chimW = 10 * cameraZoom;
+
+    ctx.fillStyle = '#424242';
+    ctx.fillRect(chimIsoTop.x - chimW / 2, chimIsoTop.y, chimW, chimIsoBase.y - chimIsoTop.y);
+    ctx.strokeStyle = '#212121';
+    ctx.strokeRect(chimIsoTop.x - chimW / 2, chimIsoTop.y, chimW, chimIsoBase.y - chimIsoTop.y);
+
+    const smokePhase = (frameCount * 0.05 + wx) % (Math.PI * 2);
+    const smokeY = chimIsoTop.y - 10 - Math.sin(smokePhase) * 5;
+    const smokeX = chimIsoTop.x + Math.cos(smokePhase) * 3;
+    ctx.fillStyle = 'rgba(230, 230, 240, 0.45)';
+    ctx.beginPath();
+    ctx.arc(smokeX, smokeY, Math.max(2, (5 + Math.sin(smokePhase) * 2) * cameraZoom), 0, Math.PI * 2);
+    ctx.fill();
+
+    // Signboard Icon
+    const signIso = worldToIso3D(wx, wy + depthW / 2 + 0.1, 1.8);
+    ctx.fillStyle = '#3e2723';
+    ctx.fillRect(signIso.x - 14 * cameraZoom, signIso.y - 18 * cameraZoom, 28 * cameraZoom, 20 * cameraZoom);
+    ctx.strokeStyle = '#ffb300';
+    ctx.strokeRect(signIso.x - 14 * cameraZoom, signIso.y - 18 * cameraZoom, 28 * cameraZoom, 20 * cameraZoom);
+    ctx.font = `${Math.max(10, Math.floor(12 * cameraZoom))}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(iconChar, signIso.x, signIso.y - 8 * cameraZoom);
+
+    ctx.restore();
   }
 
   function draw3DWallBox(wx, wy, widthW, depthW, heightW, wallType) {
@@ -1938,13 +2127,94 @@
       if (e.code === 'Enter') handleChatInput();
       return;
     }
+  function interactWithNearest() {
+    let bestTarget = null;
+    let minTargetDist = 999;
+    let targetType = null;
+
+    if (npcs && npcs.length) {
+      npcs.forEach(npc => {
+        const d = Math.hypot(player.wx - npc.wx, player.wy - npc.wy);
+        if (d < minTargetDist) {
+          minTargetDist = d;
+          bestTarget = npc;
+          targetType = 'npc';
+        }
+      });
+    }
+
+    if (envStructures && envStructures.length) {
+      envStructures.forEach(env => {
+        const isCrystal = env.type === 'env_crystal';
+        const isBuilding = env.type.startsWith('env_house_');
+        const isDoor = env.type === 'env_door';
+        if (isCrystal || isBuilding || isDoor) {
+          const d = Math.hypot(player.wx - env.wx, player.wy - env.wy);
+          if (d < minTargetDist) {
+            minTargetDist = d;
+            bestTarget = env;
+            targetType = isCrystal ? 'crystal' : (isBuilding ? 'building' : 'door');
+          }
+        }
+      });
+    }
+
+    if (currentMapExits && currentMapExits.length) {
+      currentMapExits.forEach(ex => {
+        const d = Math.hypot(player.wx - ex.wx, player.wy - ex.wy);
+        if (d < minTargetDist) {
+          minTargetDist = d;
+          bestTarget = ex;
+          targetType = 'portal';
+        }
+      });
+    }
+
+    if (!bestTarget) {
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: '❓ Nothing nearby to interact with', color: '#ffb74d', life: 45 });
+      return;
+    }
+
+    if (minTargetDist <= 3.2) {
+      if (targetType === 'npc') {
+        openNpcDialog(bestTarget);
+      } else if (targetType === 'crystal') {
+        openCrystalDialog(bestTarget);
+      } else if (targetType === 'building') {
+        triggerBuildingPortalAction(bestTarget);
+      } else if (targetType === 'door') {
+        bestTarget.open = !bestTarget.open;
+        floatingTexts.push({ wx: bestTarget.wx, wy: bestTarget.wy, offsetY: 20, text: bestTarget.open ? '🚪 Door Opened' : '🚪 Door Closed', color: '#81d4fa', life: 40 });
+      } else if (targetType === 'portal') {
+        changeMap(bestTarget.targetMap, bestTarget.targetWx, bestTarget.targetWy);
+      }
+    } else if (minTargetDist <= 8.5) {
+      if (targetType === 'npc') pendingNpcTarget = bestTarget;
+      else if (targetType === 'crystal') pendingCrystalTarget = bestTarget;
+      const dest = setMovementTarget(bestTarget.wx, bestTarget.wy);
+      clickRipples.push({ wx: dest.wx, wy: dest.wy, radius: 4, alpha: 1.0 });
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: `🏃 Moving to ${bestTarget.name || targetType}...`, color: '#81d4fa', life: 40 });
+    } else {
+      floatingTexts.push({ wx: player.wx, wy: player.wy, offsetY: 25, text: `❓ ${bestTarget.name || 'Target'} is too far away [E]`, color: '#ffb74d', life: 45 });
+    }
+  }
+
+  // Input Listeners
+  window.addEventListener('keydown', e => {
+    if (document.activeElement === document.getElementById('chat-input')) {
+      if (e.code === 'Enter') handleChatInput();
+      return;
+    }
     keys[e.code] = true;
     if (e.code === 'KeyC') toggleWindow('stat-window');
     if (e.code === 'KeyK') toggleSkillWindow();
     if (e.code === 'KeyI') toggleEquipWindow();
     if (e.code === 'KeyS') toggleWindow('shop-window');
-    if (e.code === 'KeyQ') rotateCamera(-1);
-    if (e.code === 'KeyE') rotateCamera(1);
+    if (e.code === 'KeyQ') {
+      if (e.shiftKey) rotateCamera(1);
+      else rotateCamera(-1);
+    }
+    if (e.code === 'KeyE') interactWithNearest();
     if (e.code === 'KeyR') resetCamera();
     if (e.code === 'Space' || e.code === 'KeyJ') triggerAttack();
     if (e.code === 'Enter') handleChatInput();
@@ -4903,7 +5173,11 @@
             const wW = Math.max(1.0, (env.width || 64) / 48);
             const dW = Math.max(1.0, (env.height || 64) / 48);
             const hW = get3DPropHeight(env.type);
-            draw3DWallBox(env.wx, env.wy, wW, dW, hW, env.type);
+            if (env.type.startsWith('env_house_')) {
+              drawDecorated3DBuilding(env.wx, env.wy, wW * 1.25, dW * 1.25, hW, env.type, env.name);
+            } else {
+              draw3DWallBox(env.wx, env.wy, wW, dW, hW, env.type);
+            }
           } else if (env.animated && env.type === 'env_torch_brazier') {
             const animFrame = Math.floor(frameCount / 8) % 4;
             const sx = animFrame * 64;
