@@ -12,31 +12,34 @@ def ensure_dirs():
     return dirs
 
 def draw_redmage_frame(draw, row, col):
-    OUTLINE = (14, 18, 24, 255)
+    OUTLINE = (12, 16, 24, 255)
+    AO_CREVICE = (6, 8, 14, 255)
 
-    CRIMSON_5 = (95, 5, 18, 255)
-    CRIMSON_4 = (145, 15, 30, 255)
-    CRIMSON_3 = (195, 30, 50, 255)
-    CRIMSON_2 = (225, 55, 75, 255)
-    CRIMSON_1 = (245, 90, 105, 255)
+    # Crimson Doublet 7-tone ramp
+    CRIMSON_7 = (28, 2, 8, 255)      # Core AO Crevice
+    CRIMSON_6 = (70, 6, 16, 255)     # Deep Crease
+    CRIMSON_5 = (115, 14, 28, 255)   # Shadow
+    CRIMSON_4 = (165, 25, 42, 255)   # Midtone Base
+    CRIMSON_3 = (215, 45, 65, 255)   # Light Tone
+    CRIMSON_2 = (245, 95, 110, 255)  # Highlight
+    CRIMSON_1 = (255, 160, 170, 255) # Rim Light Peak
 
-    FEATHER_5 = (130, 138, 165, 255)
-    FEATHER_4 = (175, 182, 205, 255)
-    FEATHER_3 = (215, 220, 235, 255)
-    FEATHER_2 = (240, 242, 248, 255)
     FEATHER_1 = (255, 255, 255, 255)
+    FEATHER_2 = (240, 242, 248, 255)
+    FEATHER_3 = (215, 220, 235, 255)
+    FEATHER_4 = (175, 182, 205, 255)
 
-    STEEL_5 = (80, 90, 110, 255)
-    STEEL_4 = (125, 138, 160, 255)
-    STEEL_3 = (175, 188, 208, 255)
-    STEEL_2 = (220, 230, 245, 255)
     STEEL_1 = (255, 255, 255, 255)
+    STEEL_2 = (220, 230, 245, 255)
+    STEEL_3 = (175, 188, 208, 255)
+    STEEL_4 = (125, 138, 160, 255)
 
-    GOLD_3 = (235, 190, 50, 255)
     GOLD_2 = (250, 215, 80, 255)
+    GOLD_3 = (235, 190, 50, 255)
+    GOLD_4 = (180, 140, 30, 255)
 
-    SKIN = (245, 200, 165, 255)
-    HAIR_DARK = (45, 35, 40, 255)
+    SKIN = (245, 195, 155, 255)
+    HAIR_DARK = (40, 30, 35, 255)
 
     BOOK_COVER = (140, 20, 30, 255)
     BOOK_PAGES = (245, 240, 220, 255)
@@ -45,27 +48,33 @@ def draw_redmage_frame(draw, row, col):
     leg_step = 3 if col == 1 else (-3 if col == 3 else 0)
     cy = bob
 
-    # Drop Shadow
-    draw.ellipse([18, 52 + cy, 46, 59 + cy], fill=(0, 0, 0, 90))
+    # Ground Drop Shadow with Dual-Layer Occlusion
+    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
     # Trousers / Legs
     lx1, lx2 = 23 + leg_step, 29 + leg_step
     rx1, rx2 = 35 - leg_step, 41 - leg_step
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=CRIMSON_4, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=CRIMSON_4, outline=OUTLINE)
+    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=CRIMSON_5, outline=OUTLINE)
+    draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
+    draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
-    # Crimson Doublet
-    draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=CRIMSON_3, outline=OUTLINE)
-    draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=CRIMSON_2)
+    # Crimson Doublet & Gold Embroidery
+    draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=CRIMSON_4, outline=OUTLINE)
+    draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=CRIMSON_3)
     draw.line([(32, 26 + cy), (32, 44 + cy)], fill=GOLD_3, width=2)
+    draw.line([(32, 26 + cy), (32, 44 + cy)], fill=GOLD_2, width=1)
+    draw.line([(22, 27 + cy), (22, 43 + cy)], fill=CRIMSON_1, width=1) # Rim light left
 
     # Head & Hair
     draw.rectangle([23, 14 + cy, 41, 28 + cy], fill=SKIN, outline=OUTLINE)
     draw.rectangle([22, 14 + cy, 42, 18 + cy], fill=HAIR_DARK)
 
-    # Feathered Chapeau Cap
-    draw.polygon([(16, 10 + cy), (48, 10 + cy), (42, 17 + cy), (22, 17 + cy)], fill=CRIMSON_4, outline=OUTLINE)
-    draw.polygon([(18, 11 + cy), (34, 11 + cy), (32, 16 + cy)], fill=CRIMSON_3)
+    # Feathered Chapeau Cap & AO Line
+    draw.polygon([(16, 10 + cy), (48, 10 + cy), (42, 17 + cy), (22, 17 + cy)], fill=CRIMSON_5, outline=OUTLINE)
+    draw.polygon([(18, 11 + cy), (34, 11 + cy), (32, 16 + cy)], fill=CRIMSON_4)
+    draw.line([(17, 17 + cy), (47, 17 + cy)], fill=AO_CREVICE, width=1) # Cap AO
 
     # Large White Plume / Feather on Hat
     draw.polygon([(10, 0 + cy), (22, 8 + cy), (16, 16 + cy)], fill=FEATHER_3, outline=OUTLINE)
@@ -112,6 +121,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
     for d in dirs:
         out_path = os.path.join(d, "hero_redmage.png")

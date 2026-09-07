@@ -17,68 +17,78 @@ def save_sprite(img, filename, dirs):
         img.save(path, "PNG")
         print(f"Saved: {path} ({img.size[0]}x{img.size[1]})")
 
-OUTLINE = (14, 18, 24, 255)
+OUTLINE = (12, 16, 24, 255)
+AO_CREVICE = (6, 8, 14, 255)
 
-# 5-Tone Color Ramps
-GOLD_SPEC     = (255, 250, 180, 255)
-GOLD_HI       = (255, 230, 110, 255)
-GOLD_LIGHT    = (245, 205, 60, 255)
-GOLD_BASE     = (215, 165, 30, 255)
-GOLD_SHADOW   = (165, 120, 15, 255)
+# 7-Tone Color Ramps
+GOLD_1 = (255, 255, 210, 255) # Super Glint
+GOLD_2 = (255, 235, 130, 255) # Specular
+GOLD_3 = (245, 195, 45, 255)  # Light Tone
+GOLD_4 = (215, 165, 30, 255)  # Midtone Base
+GOLD_5 = (165, 120, 15, 255)  # Form Shadow
+GOLD_6 = (105, 70, 5, 255)    # Deep Shadow
+GOLD_7 = (32, 20, 4, 255)     # Core AO
 
-CAPE_BLUE     = (35, 95, 195, 255)
-CAPE_DARK     = (20, 60, 135, 255)
-SHIELD_BLUE   = (30, 80, 170, 255)
-STEEL_SWORD   = (230, 235, 245, 255)
+CAPE_1 = (165, 210, 255, 255)
+CAPE_2 = (95, 155, 250, 255)
+CAPE_3 = (50, 110, 215, 255)
+CAPE_4 = (28, 72, 170, 255)
+CAPE_5 = (16, 44, 120, 255)
+
+SHIELD_BLUE = (30, 80, 170, 255)
+STEEL_SWORD = (245, 250, 255, 255)
 
 def draw_paladin_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
     leg = 3 if col == 1 else (-3 if col == 3 else 0)
     cy = bob
 
-    # Drop Shadow
-    draw.ellipse([18, 52 + cy, 46, 59 + cy], fill=(0, 0, 0, 90))
+    # Ground Drop Shadow with Dual-Layer Occlusion
+    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
     # Royal Blue Cape
-    draw.polygon([(16, 24 + cy), (48, 24 + cy), (51, 54 + cy), (13, 54 + cy)], fill=CAPE_BLUE, outline=OUTLINE)
-    draw.polygon([(16, 24 + cy), (32, 54 + cy), (13, 54 + cy)], fill=CAPE_DARK)
+    draw.polygon([(16, 24 + cy), (48, 24 + cy), (51, 54 + cy), (13, 54 + cy)], fill=CAPE_3, outline=OUTLINE)
+    draw.polygon([(16, 24 + cy), (32, 54 + cy), (13, 54 + cy)], fill=CAPE_4)
+    draw.line([(50, 25 + cy), (52, 53 + cy)], fill=CAPE_1, width=1) # Rim light
 
     # Golden Boots & Leg Plate
     lx1, lx2 = 23 + leg, 29 + leg
     rx1, rx2 = 35 - leg, 41 - leg
-    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=GOLD_BASE, outline=OUTLINE)
-    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=GOLD_BASE, outline=OUTLINE)
-    draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=GOLD_LIGHT)
-    draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=GOLD_LIGHT)
+    draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=GOLD_5, outline=OUTLINE)
+    draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=GOLD_5, outline=OUTLINE)
+    draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 53 + cy], fill=GOLD_3)
+    draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 53 + cy], fill=GOLD_3)
+    draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
+    draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
     # Holy Golden Cuirass
-    draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=GOLD_BASE, outline=OUTLINE)
-    draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=GOLD_LIGHT)
-    draw.polygon([(32, 28 + cy), (28, 36 + cy), (36, 36 + cy)], fill=GOLD_SHADOW) # Cross emblem
+    draw.rectangle([21, 26 + cy, 43, 44 + cy], fill=GOLD_4, outline=OUTLINE)
+    draw.rectangle([25, 28 + cy, 39, 42 + cy], fill=GOLD_3)
+    draw.polygon([(32, 28 + cy), (28, 36 + cy), (36, 36 + cy)], fill=GOLD_6) # Cross emblem
+    draw.line([(22, 27 + cy), (22, 43 + cy)], fill=GOLD_1, width=1) # Rim light
 
     # Winged Templar Helmet
-    draw.rectangle([21, 12 + cy, 43, 27 + cy], fill=GOLD_BASE, outline=OUTLINE)
-    draw.rectangle([24, 14 + cy, 40, 25 + cy], fill=GOLD_LIGHT)
-    # Golden Wings on Helm
-    draw.polygon([(14, 8 + cy), (21, 12 + cy), (18, 22 + cy)], fill=GOLD_SPEC, outline=OUTLINE)
-    draw.polygon([(50, 8 + cy), (43, 12 + cy), (46, 22 + cy)], fill=GOLD_SPEC, outline=OUTLINE)
+    draw.rectangle([21, 12 + cy, 43, 27 + cy], fill=GOLD_4, outline=OUTLINE)
+    draw.rectangle([23, 14 + cy, 41, 25 + cy], fill=GOLD_3)
+    draw.polygon([(11, 4 + cy), (22, 12 + cy), (18, 20 + cy)], fill=GOLD_1, outline=OUTLINE) # Left wing
+    draw.polygon([(53, 4 + cy), (42, 12 + cy), (46, 20 + cy)], fill=GOLD_2, outline=OUTLINE) # Right wing
+    draw.rectangle([24, 19 + cy, 40, 23 + cy], fill=OUTLINE) # Visor slot
+    draw.line([(26, 21 + cy), (38, 21 + cy)], fill=GOLD_1, width=1)
 
-    if row != 3: # Visor
-        draw.rectangle([24, 19 + cy, 40, 23 + cy], fill=OUTLINE)
-        draw.line([(26, 21 + cy), (38, 21 + cy)], fill=GOLD_SPEC, width=1)
-
-    # Holy Winged Tower Shield (Left hand)
-    draw.polygon([(6, 22 + cy), (20, 22 + cy), (18, 48 + cy), (8, 48 + cy)], fill=SHIELD_BLUE, outline=OUTLINE)
-    draw.polygon([(13, 24 + cy), (13, 46 + cy), (8, 35 + cy), (18, 35 + cy)], fill=GOLD_BASE, outline=OUTLINE)
+    # Tower Shield with Golden Cross (Left hand)
+    if row == 0 or row == 1:
+        draw.rectangle([8, 24 + cy, 20, 48 + cy], fill=SHIELD_BLUE, outline=OUTLINE)
+        draw.line([(14, 24 + cy), (14, 48 + cy)], fill=GOLD_3, width=2)
+        draw.line([(8, 36 + cy), (20, 36 + cy)], fill=GOLD_3, width=2)
 
     # Holy Longsword (Right hand)
-    if row == 0 or row == 2:
-        draw.line([(48, 14 + cy), (48, 48 + cy)], fill=STEEL_SWORD, width=3)
-        draw.polygon([(48, 8 + cy), (45, 16 + cy), (51, 16 + cy)], fill=(255, 255, 255, 255))
-        draw.rectangle([44, 38 + cy, 52, 41 + cy], fill=GOLD_BASE, outline=OUTLINE)
+    wx = 51 if (row == 0 or row == 2) else 13
+    draw.line([(wx, 8 + cy), (wx, 48 + cy)], fill=STEEL_SWORD, width=3)
+    draw.line([(wx, 8 + cy), (wx, 46 + cy)], fill=GOLD_1, width=1)
+    draw.rectangle([wx - 5, 38 + cy, wx + 5, 41 + cy], fill=GOLD_3, outline=OUTLINE)
 
-def generate_paladin_spritesheet():
-    dirs = ensure_dirs()
+def create_paladin_spritesheet():
     sheet = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
     for row in range(4):
         for col in range(4):
@@ -86,7 +96,12 @@ def generate_paladin_spritesheet():
             draw = ImageDraw.Draw(frame)
             draw_paladin_frame(draw, row, col)
             sheet.paste(frame, (col * 64, row * 64))
+    return sheet
+
+def main():
+    dirs = ensure_dirs()
+    sheet = create_paladin_spritesheet()
     save_sprite(sheet, "hero_paladin.png", dirs)
 
 if __name__ == "__main__":
-    generate_paladin_spritesheet()
+    main()

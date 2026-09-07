@@ -17,100 +17,91 @@ def save_sprite(img, filename, dirs):
         img.save(path, "PNG")
         print(f"Saved: {path} ({img.size[0]}x{img.size[1]})")
 
-OUTLINE = (14, 18, 24, 255)
+OUTLINE = (12, 16, 24, 255)
+AO_CREVICE = (6, 8, 14, 255)
 
-# 5-Tone Color Ramps
-PURPLE_HI     = (160, 110, 220, 255)
-PURPLE_LIGHT  = (125, 75, 180, 255)
-PURPLE_BASE   = (90, 48, 138, 255)
-PURPLE_SHADOW = (58, 28, 92, 255)
-PURPLE_DARK   = (34, 14, 56, 255)
+# 7-Tone Color Ramps
+PURPLE_1 = (220, 180, 255, 255) # Rim Light Peak
+PURPLE_2 = (175, 120, 235, 255) # Specular
+PURPLE_3 = (130, 70, 190, 255)  # Light Tone
+PURPLE_4 = (92, 42, 145, 255)   # Midtone Base
+PURPLE_5 = (60, 24, 98, 255)    # Form Shadow
+PURPLE_6 = (36, 12, 62, 255)    # Deep Crease
+PURPLE_7 = (16, 4, 30, 255)     # Core AO
 
-GOLD_HI       = (255, 235, 120, 255)
-GOLD_LIGHT    = (245, 200, 60, 255)
-GOLD_BASE     = (215, 160, 25, 255)
-GOLD_SHADOW   = (160, 112, 12, 255)
-GOLD_DARK     = (98, 65, 4, 255)
+GOLD_1 = (255, 255, 210, 255)
+GOLD_2 = (245, 200, 60, 255)
+GOLD_3 = (215, 160, 25, 255)
+GOLD_4 = (160, 112, 12, 255)
 
-CYAN_HI       = (220, 255, 255, 255)
-CYAN_LIGHT    = (110, 245, 255, 255)
-CYAN_BASE     = (30, 210, 230, 255)
-CYAN_SHADOW   = (10, 150, 175, 255)
-CYAN_DARK     = (4, 90, 110, 255)
+CYAN_1 = (220, 255, 255, 255)
+CYAN_2 = (110, 245, 255, 255)
+CYAN_3 = (30, 210, 230, 255)
 
-SILVER_LIGHT  = (215, 225, 238, 255)
-SILVER_SHADOW = (135, 145, 160, 255)
-LANCE_WOOD    = (120, 75, 40, 255)
-RIBBON_RED    = (220, 45, 55, 255)
+SILVER_1 = (245, 250, 255, 255)
+SILVER_2 = (215, 225, 238, 255)
+SILVER_3 = (135, 145, 160, 255)
+LANCE_WOOD = (120, 75, 40, 255)
+RIBBON_RED = (235, 45, 55, 255)
 
 def draw_dragoon_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
     leg = 3 if col == 1 else (-3 if col == 3 else 0)
     cy = bob
 
-    # Drop Shadow
-    draw.ellipse([18, 52 + cy, 46, 59 + cy], fill=(0, 0, 0, 90))
+    # Ground Drop Shadow with Dual-Layer Occlusion
+    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
     if row == 3: # UP (Back view)
         # Legs & Greaves
         lx1, lx2 = 23 + leg, 29 + leg
         rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=PURPLE_DARK, outline=OUTLINE)
-        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=PURPLE_DARK, outline=OUTLINE)
+        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=PURPLE_6, outline=OUTLINE)
+        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=PURPLE_6, outline=OUTLINE)
+        draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
+        draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
-        # Spiked Dragon Scale Body
-        draw.rectangle([21, 28 + cy, 43, 44 + cy], fill=PURPLE_SHADOW, outline=OUTLINE)
-        draw.line([(32, 28 + cy), (32, 43 + cy)], fill=SILVER_SHADOW, width=2)
+        # Spiked Dragoon Back Armor
+        draw.rectangle([20, 25 + cy, 44, 44 + cy], fill=PURPLE_5, outline=OUTLINE)
+        draw.polygon([(26, 25 + cy), (38, 25 + cy), (32, 40 + cy)], fill=PURPLE_4)
 
-        # Dragon Helm (Back View)
-        draw.rectangle([21, 14 + cy, 43, 29 + cy], fill=PURPLE_SHADOW, outline=OUTLINE)
-        draw.polygon([(32, 4 + cy), (25, 14 + cy), (39, 14 + cy)], fill=GOLD_BASE, outline=OUTLINE)
+        # Dragon Helmet Back & Gold Horns
+        draw.rectangle([21, 10 + cy, 43, 26 + cy], fill=PURPLE_4, outline=OUTLINE)
+        draw.polygon([(10, 2 + cy), (22, 10 + cy), (18, 18 + cy)], fill=GOLD_3, outline=OUTLINE)
+        draw.polygon([(54, 2 + cy), (42, 10 + cy), (46, 18 + cy)], fill=GOLD_4, outline=OUTLINE)
     else:
-        # Legs & Greaves
+        # Greaves & Boots
         lx1, lx2 = 23 + leg, 29 + leg
         rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=PURPLE_SHADOW, outline=OUTLINE)
-        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=PURPLE_SHADOW, outline=OUTLINE)
-        draw.rectangle([lx1 + 1, 46 + cy, lx2 - 1, 54 + cy], fill=PURPLE_LIGHT)
-        draw.rectangle([rx1 + 1, 46 + cy, rx2 - 1, 54 + cy], fill=PURPLE_LIGHT)
+        draw.rectangle([lx1, 44 + cy, lx2, 55 + cy], fill=PURPLE_5, outline=OUTLINE)
+        draw.rectangle([rx1, 44 + cy, rx2, 55 + cy], fill=PURPLE_5, outline=OUTLINE)
+        draw.rectangle([lx1 + 1, 45 + cy, lx2 - 1, 52 + cy], fill=PURPLE_4)
+        draw.rectangle([rx1 + 1, 45 + cy, rx2 - 1, 52 + cy], fill=PURPLE_4)
+        draw.line([(lx1 + 1, 45 + cy), (lx1 + 1, 51 + cy)], fill=PURPLE_1, width=1) # Rim light
+        draw.line([(rx1 + 1, 45 + cy), (rx1 + 1, 51 + cy)], fill=PURPLE_1, width=1)
+        draw.line([(lx1, 44 + cy), (lx2, 44 + cy)], fill=AO_CREVICE, width=1)
+        draw.line([(rx1, 44 + cy), (rx2, 44 + cy)], fill=AO_CREVICE, width=1)
 
         # Spiked Dragon Scale Cuirass
-        draw.rectangle([21, 28 + cy, 43, 44 + cy], fill=PURPLE_BASE, outline=OUTLINE)
-        draw.rectangle([25, 30 + cy, 39, 42 + cy], fill=PURPLE_LIGHT)
-        draw.line([(32, 29 + cy), (32, 43 + cy)], fill=SILVER_LIGHT, width=2)
-        draw.rectangle([23, 40 + cy, 41, 43 + cy], fill=GOLD_BASE)
-
-        # Shoulder Pauldrons (Spiked Dragon Scales)
-        draw.polygon([(15, 26 + cy), (22, 28 + cy), (20, 36 + cy), (13, 32 + cy)], fill=PURPLE_HI, outline=OUTLINE)
-        draw.polygon([(49, 26 + cy), (42, 28 + cy), (44, 36 + cy), (51, 32 + cy)], fill=PURPLE_HI, outline=OUTLINE)
-
-        # Dragon Helm & Gold Horns
-        draw.rectangle([21, 14 + cy, 43, 29 + cy], fill=PURPLE_BASE, outline=OUTLINE)
-        draw.rectangle([23, 16 + cy, 41, 27 + cy], fill=PURPLE_LIGHT)
-        # Gold Dragon Horn Crest
-        draw.polygon([(32, 4 + cy), (25, 14 + cy), (39, 14 + cy)], fill=GOLD_LIGHT, outline=OUTLINE)
-        draw.polygon([(32, 4 + cy), (32, 14 + cy), (39, 14 + cy)], fill=GOLD_HI)
-        draw.polygon([(17, 10 + cy), (22, 16 + cy), (20, 20 + cy)], fill=GOLD_BASE, outline=OUTLINE)
-        draw.polygon([(47, 10 + cy), (42, 16 + cy), (44, 20 + cy)], fill=GOLD_BASE, outline=OUTLINE)
-
         # Cyan Visor Glow
         if row == 0: # Down
             draw.rectangle([24, 21 + cy, 40, 24 + cy], fill=OUTLINE)
-            draw.line([(26, 22 + cy), (38, 22 + cy)], fill=CYAN_BASE, width=2)
-            draw.line([(28, 22 + cy), (36, 22 + cy)], fill=CYAN_HI, width=1)
+            draw.line([(26, 22 + cy), (38, 22 + cy)], fill=CYAN_3, width=2)
+            draw.line([(28, 22 + cy), (36, 22 + cy)], fill=CYAN_1, width=1)
         elif row == 1: # Left
             draw.rectangle([22, 21 + cy, 34, 24 + cy], fill=OUTLINE)
-            draw.line([(24, 22 + cy), (32, 22 + cy)], fill=CYAN_BASE, width=2)
-            draw.line([(25, 22 + cy), (30, 22 + cy)], fill=CYAN_HI, width=1)
+            draw.line([(24, 22 + cy), (32, 22 + cy)], fill=CYAN_3, width=2)
+            draw.line([(25, 22 + cy), (30, 22 + cy)], fill=CYAN_1, width=1)
         elif row == 2: # Right
             draw.rectangle([30, 21 + cy, 42, 24 + cy], fill=OUTLINE)
-            draw.line([(32, 22 + cy), (40, 22 + cy)], fill=CYAN_BASE, width=2)
-            draw.line([(34, 22 + cy), (39, 22 + cy)], fill=CYAN_HI, width=1)
+            draw.line([(32, 22 + cy), (40, 22 + cy)], fill=CYAN_3, width=2)
+            draw.line([(34, 22 + cy), (39, 22 + cy)], fill=CYAN_1, width=1)
 
     # Dragon Lance Weapon
     wx = 50 if (row == 0 or row == 2) else 14
     draw.line([(wx, 4 + cy), (wx, 56 + cy)], fill=LANCE_WOOD, width=3)
-    draw.polygon([(wx, -2 + cy), (wx - 5, 12 + cy), (wx + 5, 12 + cy)], fill=SILVER_LIGHT, outline=OUTLINE)
+    draw.polygon([(wx, -2 + cy), (wx - 5, 12 + cy), (wx + 5, 12 + cy)], fill=SILVER_2, outline=OUTLINE)
     draw.polygon([(wx - 2, 0 + cy), (wx, -4 + cy), (wx + 2, 0 + cy)], fill=(255, 255, 255, 255))
     draw.polygon([(wx, 12 + cy), (wx - 8, 18 + cy), (wx + 2, 16 + cy)], fill=RIBBON_RED)
 

@@ -12,58 +12,53 @@ def ensure_dirs():
     return dirs
 
 def draw_whitemage_frame(draw, row, col):
-    OUTLINE = (14, 18, 24, 255)
+    OUTLINE = (12, 16, 24, 255)
+    AO_CREVICE = (6, 8, 14, 255)
 
-    WHITE_5 = (145, 150, 170, 255)
-    WHITE_4 = (185, 190, 210, 255)
-    WHITE_3 = (220, 225, 238, 255)
-    WHITE_2 = (242, 244, 250, 255)
-    WHITE_1 = (255, 255, 255, 255)
+    # White Cleric Robe 7-tone ramp
+    WHITE_7 = (115, 120, 140, 255)   # Core AO Crevice
+    WHITE_6 = (145, 150, 170, 255)   # Deep Shadow
+    WHITE_5 = (185, 190, 210, 255)   # Shadow
+    WHITE_4 = (220, 225, 238, 255)   # Midtone Base
+    WHITE_3 = (242, 244, 250, 255)   # Light Tone
+    WHITE_2 = (250, 252, 255, 255)   # Highlight
+    WHITE_1 = (255, 255, 255, 255)   # Pure Glint / Rim Light
 
-    RED_5 = (85, 5, 15, 255)
-    RED_4 = (130, 15, 25, 255)
-    RED_3 = (180, 25, 35, 255)
-    RED_2 = (230, 45, 55, 255)
-    RED_1 = (255, 100, 110, 255)
+    RED_3 = (195, 25, 40, 255)
+    RED_4 = (145, 15, 28, 255)
+    RED_2 = (235, 55, 70, 255)
 
-    SKIN_5 = (140, 90, 65, 255)
-    SKIN_4 = (185, 130, 95, 255)
-    SKIN_3 = (220, 165, 130, 255)
     SKIN_2 = (245, 200, 165, 255)
-    SKIN_1 = (255, 220, 195, 255)
+    SKIN_3 = (215, 165, 130, 255)
 
-    HAIR_5 = (135, 95, 10, 255)
-    HAIR_4 = (175, 130, 20, 255)
-    HAIR_3 = (215, 170, 35, 255)
-    HAIR_2 = (245, 205, 65, 255)
-    HAIR_1 = (255, 235, 135, 255)
+    HAIR_BASE = (235, 185, 45, 255)
+    HAIR_LIGHT = (255, 215, 80, 255)
+    HAIR_DARK = (175, 130, 20, 255)
 
-    GOLD_5 = (105, 70, 5, 255)
-    GOLD_4 = (155, 110, 15, 255)
-    GOLD_3 = (195, 150, 30, 255)
-    GOLD_2 = (235, 190, 50, 255)
-    GOLD_1 = (255, 225, 120, 255)
+    GOLD_3 = (215, 168, 30, 255)
+    GOLD_2 = (250, 215, 75, 255)
 
-    PEARL_5 = (120, 140, 180, 255)
-    PEARL_4 = (170, 190, 220, 255)
-    PEARL_3 = (210, 225, 245, 255)
-    PEARL_2 = (240, 245, 255, 255)
     PEARL_1 = (255, 255, 255, 255)
+    PEARL_2 = (240, 245, 255, 255)
+    PEARL_3 = (210, 225, 245, 255)
+    PEARL_4 = (170, 190, 220, 255)
 
     EYE_BLUE = (35, 105, 195, 255)
 
     bob = 1 if (col == 1 or col == 3) else 0
     cy = bob
 
-    # Drop Shadow
-    draw.ellipse([18, 52 + cy, 46, 59 + cy], fill=(0, 0, 0, 90))
+    # Ground Drop Shadow with Dual-Layer Occlusion
+    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
-    # White Cleric Robe
-    draw.polygon([(18, 28 + cy), (46, 28 + cy), (50, 55 + cy), (14, 55 + cy)], fill=WHITE_3, outline=OUTLINE)
-    draw.polygon([(18, 28 + cy), (32, 55 + cy), (14, 55 + cy)], fill=WHITE_4)
-    draw.polygon([(14, 48 + cy), (22, 55 + cy), (14, 55 + cy)], fill=WHITE_5)
-    draw.polygon([(36, 30 + cy), (46, 28 + cy), (44, 48 + cy)], fill=WHITE_2)
+    # White Cleric Robe & 7-Tone Fold Shading
+    draw.polygon([(18, 28 + cy), (46, 28 + cy), (50, 55 + cy), (14, 55 + cy)], fill=WHITE_4, outline=OUTLINE)
+    draw.polygon([(18, 28 + cy), (32, 55 + cy), (14, 55 + cy)], fill=WHITE_5)
+    draw.polygon([(14, 48 + cy), (22, 55 + cy), (14, 55 + cy)], fill=WHITE_6)
+    draw.polygon([(36, 30 + cy), (46, 28 + cy), (44, 48 + cy)], fill=WHITE_3)
     draw.line([(25, 28 + cy), (27, 52 + cy)], fill=WHITE_1, width=1)
+    draw.line([(15, 29 + cy), (15, 54 + cy)], fill=WHITE_1, width=1) # Rim light
 
     # Red Triangle Pattern Hem
     for tx in range(16, 48, 8):
@@ -72,19 +67,20 @@ def draw_whitemage_frame(draw, row, col):
         draw.polygon([(tx + 4, 45 + cy), (tx + 6, 50 + cy), (tx + 4, 54 + cy)], fill=RED_2)
 
     # Cowl Hood & Head
-    draw.polygon([(18, 12 + cy), (46, 12 + cy), (44, 27 + cy), (20, 27 + cy)], fill=WHITE_3, outline=OUTLINE)
-    draw.polygon([(18, 12 + cy), (32, 27 + cy), (20, 27 + cy)], fill=WHITE_4)
+    draw.polygon([(18, 12 + cy), (46, 12 + cy), (44, 27 + cy), (20, 27 + cy)], fill=WHITE_4, outline=OUTLINE)
+    draw.polygon([(18, 12 + cy), (32, 27 + cy), (20, 27 + cy)], fill=WHITE_5)
+    draw.line([(18, 27 + cy), (46, 27 + cy)], fill=AO_CREVICE, width=1) # Neck AO
 
     # Face & Hair Bangs
     draw.rectangle([24, 16 + cy, 40, 26 + cy], fill=SKIN_2)
     draw.rectangle([24, 24 + cy, 40, 26 + cy], fill=SKIN_3)
 
     if row != 3:
-        draw.polygon([(22, 12 + cy), (42, 12 + cy), (40, 18 + cy), (24, 18 + cy)], fill=HAIR_3)
-        draw.polygon([(24, 12 + cy), (32, 12 + cy), (30, 17 + cy)], fill=HAIR_4)
-        draw.polygon([(34, 12 + cy), (42, 12 + cy), (40, 16 + cy)], fill=HAIR_2)
+        draw.polygon([(22, 12 + cy), (42, 12 + cy), (40, 18 + cy), (24, 18 + cy)], fill=HAIR_BASE)
+        draw.polygon([(24, 12 + cy), (32, 12 + cy), (30, 17 + cy)], fill=HAIR_DARK)
+        draw.polygon([(34, 12 + cy), (42, 12 + cy), (40, 16 + cy)], fill=HAIR_LIGHT)
 
-    # Eyes
+    # Eyes & Specular Glint
     if row == 0:
         draw.rectangle([26, 20 + cy, 28, 23 + cy], fill=EYE_BLUE)
         draw.rectangle([36, 20 + cy, 38, 23 + cy], fill=EYE_BLUE)
@@ -97,13 +93,13 @@ def draw_whitemage_frame(draw, row, col):
         draw.rectangle([38, 20 + cy, 40, 23 + cy], fill=EYE_BLUE)
         draw.point((39, 20 + cy), fill=WHITE_1)
 
-    # Golden Priest Wand with Holy Pearl Tip
+    # Golden Priest Wand with Holy Pearl Tip & Radiant Aura
     wx = 52 if (row == 0 or row == 2) else 12
     draw.line([(wx, 12 + cy), (wx, 54 + cy)], fill=GOLD_3, width=3)
-    draw.line([(wx - 1, 14 + cy), (wx - 1, 52 + cy)], fill=GOLD_4, width=1)
-    draw.line([(wx + 1, 14 + cy), (wx + 1, 52 + cy)], fill=GOLD_2, width=1)
+    draw.line([(wx - 1, 14 + cy), (wx - 1, 52 + cy)], fill=GOLD_2, width=1)
 
-    # Holy Pearl Tip
+    # Holy Pearl Tip Aura Rings
+    draw.ellipse([wx - 7, 3 + cy, wx + 7, 17 + cy], fill=(255, 255, 255, 50)) # Soft holy aura
     draw.ellipse([wx - 5, 5 + cy, wx + 5, 15 + cy], fill=PEARL_3, outline=OUTLINE)
     draw.ellipse([wx - 3, 7 + cy, wx + 3, 13 + cy], fill=PEARL_2)
     draw.ellipse([wx - 1, 8 + cy, wx + 1, 10 + cy], fill=PEARL_1)
@@ -128,6 +124,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
     for d in dirs:
         out_path = os.path.join(d, "hero_whitemage.png")

@@ -17,94 +17,104 @@ def save_sprite(img, filename, dirs):
         img.save(path, "PNG")
         print(f"Saved: {path} ({img.size[0]}x{img.size[1]})")
 
-OUTLINE = (14, 18, 24, 255)
+OUTLINE = (12, 16, 24, 255)
+AO_CREVICE = (6, 8, 14, 255)
 
-# 5-Tone Color Ramps
-FOREST_HI     = (90, 185, 95, 255)
-FOREST_LIGHT  = (60, 150, 68, 255)
-FOREST_BASE   = (38, 112, 46, 255)
-FOREST_SHADOW = (22, 76, 30, 255)
-FOREST_DARK   = (12, 48, 18, 255)
+# 7-Tone Color Ramps
+FOREST_1 = (160, 245, 185, 255) # Rim Light Peak
+FOREST_2 = (90, 185, 95, 255)   # Highlight
+FOREST_3 = (60, 150, 68, 255)   # Light
+FOREST_4 = (38, 112, 46, 255)   # Midtone Base
+FOREST_5 = (22, 76, 30, 255)    # Form Shadow
+FOREST_6 = (12, 48, 18, 255)    # Deep Crease
+FOREST_7 = (4, 24, 8, 255)      # Core AO
 
-LEATHER_HI    = (185, 128, 75, 255)
-LEATHER_LIGHT = (150, 98, 52, 255)
-LEATHER_BASE  = (118, 70, 32, 255)
-LEATHER_SHADOW= (80, 44, 18, 255)
-LEATHER_DARK  = (48, 24, 8, 255)
+LEATHER_3 = (145, 95, 50, 255)
+LEATHER_4 = (110, 68, 32, 255)
+LEATHER_5 = (75, 42, 18, 255)
+LEATHER_6 = (46, 22, 8, 255)
 
-BOW_HI        = (205, 145, 82, 255)
-BOW_LIGHT     = (170, 112, 55, 255)
-BOW_BASE      = (132, 80, 34, 255)
-BOW_SHADOW    = (90, 50, 18, 255)
-BOW_DARK      = (55, 28, 8, 255)
-
-STRING_COLOR  = (230, 235, 240, 220)
-FLETCH_RED    = (210, 45, 45, 255)
-FLETCH_WHITE  = (240, 240, 245, 255)
-GOLD_BUCKLE   = (220, 175, 50, 255)
-SKIN_BASE     = (245, 205, 170, 255)
-EYE_GREEN     = (30, 140, 70, 255)
+BOW_BASE  = (145, 90, 42, 255)
+BOW_LIGHT = (185, 125, 65, 255)
+STRING_COLOR = (245, 250, 255, 240)
+FLETCH_RED = (225, 45, 55, 255)
+FLETCH_WHITE = (250, 250, 255, 255)
+GOLD_BUCKLE = (240, 195, 45, 255)
+SKIN_BASE = (245, 195, 155, 255)
+EYE_GREEN = (30, 150, 75, 255)
 
 def draw_ranger_frame(draw, row, col):
     bob = 1 if (col == 1 or col == 3) else 0
     leg = 3 if col == 1 else (-3 if col == 3 else 0)
     cy = bob
 
-    # Drop Shadow
-    draw.ellipse([18, 52 + cy, 46, 59 + cy], fill=(0, 0, 0, 90))
+    # Ground Drop Shadow with Dual-Layer Occlusion
+    draw.ellipse([14, 51 + cy, 50, 60 + cy], fill=(0, 0, 0, 70))
+    draw.ellipse([18, 53 + cy, 46, 58 + cy], fill=(0, 0, 0, 140))
 
     if row == 3: # UP (Back view)
         # Flowing Hood Cloak Back
-        draw.polygon([(18, 12 + cy), (46, 12 + cy), (50, 52 + cy), (14, 52 + cy)], fill=FOREST_BASE, outline=OUTLINE)
-        draw.polygon([(22, 16 + cy), (42, 16 + cy), (46, 50 + cy), (18, 50 + cy)], fill=FOREST_SHADOW)
+        draw.polygon([(18, 12 + cy), (46, 12 + cy), (50, 52 + cy), (14, 52 + cy)], fill=FOREST_4, outline=OUTLINE)
+        draw.polygon([(22, 16 + cy), (42, 16 + cy), (46, 50 + cy), (18, 50 + cy)], fill=FOREST_5)
+        draw.polygon([(18, 44 + cy), (28, 52 + cy), (14, 52 + cy)], fill=FOREST_6)
+        draw.line([(49, 13 + cy), (49, 51 + cy)], fill=FOREST_1, width=1) # Rim light
 
         # Quiver on Back
-        draw.rectangle([38, 22 + cy, 46, 42 + cy], fill=LEATHER_BASE, outline=OUTLINE)
+        draw.rectangle([38, 22 + cy, 46, 42 + cy], fill=LEATHER_4, outline=OUTLINE)
         draw.polygon([(39, 14 + cy), (42, 14 + cy), (40, 22 + cy)], fill=FLETCH_RED)
         draw.polygon([(42, 12 + cy), (45, 12 + cy), (43, 22 + cy)], fill=FLETCH_WHITE)
 
         # Boots
         lx1, lx2 = 23 + leg, 29 + leg
         rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 45 + cy, lx2, 56 + cy], fill=LEATHER_DARK, outline=OUTLINE)
-        draw.rectangle([rx1, 45 + cy, rx2, 56 + cy], fill=LEATHER_DARK, outline=OUTLINE)
+        draw.rectangle([lx1, 45 + cy, lx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
+        draw.rectangle([rx1, 45 + cy, rx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
+        draw.line([(lx1, 45 + cy), (lx2, 45 + cy)], fill=AO_CREVICE, width=1)
+        draw.line([(rx1, 45 + cy), (rx2, 45 + cy)], fill=AO_CREVICE, width=1)
     else:
         # Quiver behind shoulder
-        draw.rectangle([40, 22 + cy, 47, 40 + cy], fill=LEATHER_BASE, outline=OUTLINE)
+        draw.rectangle([40, 22 + cy, 47, 40 + cy], fill=LEATHER_4, outline=OUTLINE)
         draw.polygon([(41, 14 + cy), (44, 14 + cy), (42, 22 + cy)], fill=FLETCH_RED)
         draw.polygon([(44, 12 + cy), (47, 12 + cy), (45, 22 + cy)], fill=FLETCH_WHITE)
 
         # Boots & Legs
         lx1, lx2 = 23 + leg, 29 + leg
         rx1, rx2 = 35 - leg, 41 - leg
-        draw.rectangle([lx1, 45 + cy, lx2, 56 + cy], fill=LEATHER_DARK, outline=OUTLINE)
-        draw.rectangle([rx1, 45 + cy, rx2, 56 + cy], fill=LEATHER_DARK, outline=OUTLINE)
+        draw.rectangle([lx1, 45 + cy, lx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
+        draw.rectangle([rx1, 45 + cy, rx2, 56 + cy], fill=LEATHER_6, outline=OUTLINE)
+        draw.line([(lx1, 45 + cy), (lx2, 45 + cy)], fill=AO_CREVICE, width=1)
+        draw.line([(rx1, 45 + cy), (rx2, 45 + cy)], fill=AO_CREVICE, width=1)
 
         # Leather Archer Armor & Harness
-        draw.rectangle([23, 30 + cy, 41, 44 + cy], fill=LEATHER_BASE, outline=OUTLINE)
-        draw.rectangle([26, 32 + cy, 38, 42 + cy], fill=LEATHER_LIGHT)
-        draw.line([(24, 33 + cy), (40, 41 + cy)], fill=LEATHER_DARK, width=2)
-        draw.line([(40, 33 + cy), (24, 41 + cy)], fill=LEATHER_DARK, width=2)
+        draw.rectangle([23, 30 + cy, 41, 44 + cy], fill=LEATHER_4, outline=OUTLINE)
+        draw.rectangle([26, 32 + cy, 38, 42 + cy], fill=LEATHER_3)
+        draw.line([(24, 33 + cy), (40, 41 + cy)], fill=LEATHER_6, width=2)
+        draw.line([(40, 33 + cy), (24, 41 + cy)], fill=LEATHER_6, width=2)
         draw.rectangle([30, 35 + cy, 34, 39 + cy], fill=GOLD_BUCKLE, outline=OUTLINE)
 
         # Green Hooded Cloak & Face
-        draw.rectangle([22, 16 + cy, 42, 31 + cy], fill=FOREST_BASE, outline=OUTLINE)
-        draw.polygon([(23, 20 + cy), (41, 20 + cy), (39, 31 + cy), (25, 31 + cy)], fill=FOREST_SHADOW)
+        draw.rectangle([22, 16 + cy, 42, 31 + cy], fill=FOREST_4, outline=OUTLINE)
+        draw.polygon([(23, 20 + cy), (41, 20 + cy), (39, 31 + cy), (25, 31 + cy)], fill=FOREST_5)
+        draw.line([(23, 17 + cy), (23, 30 + cy)], fill=FOREST_1, width=1) # Rim light
         draw.rectangle([25, 22 + cy, 39, 30 + cy], fill=SKIN_BASE)
 
         if row == 0:
             draw.rectangle([27, 25 + cy, 29, 28 + cy], fill=EYE_GREEN)
             draw.rectangle([35, 25 + cy, 37, 28 + cy], fill=EYE_GREEN)
+            draw.point((28, 25 + cy), fill=FLETCH_WHITE)
+            draw.point((36, 25 + cy), fill=FLETCH_WHITE)
         elif row == 1:
             draw.rectangle([25, 25 + cy, 27, 28 + cy], fill=EYE_GREEN)
+            draw.point((26, 25 + cy), fill=FLETCH_WHITE)
         elif row == 2:
             draw.rectangle([37, 25 + cy, 39, 28 + cy], fill=EYE_GREEN)
+            draw.point((38, 25 + cy), fill=FLETCH_WHITE)
 
         # Longbow with Drawn String
         wx = 10 if (row == 0 or row == 1) else 50
         draw.arc([wx - 6, 16 + cy, wx + 10, 52 + cy], 260, 100, fill=BOW_BASE, width=3)
+        draw.arc([wx - 6, 16 + cy, wx + 10, 52 + cy], 260, 100, fill=BOW_LIGHT, width=1)
         draw.line([(wx + 2, 18 + cy), (wx + 2, 50 + cy)], fill=STRING_COLOR, width=1)
-        # Drawn string notch
         draw.line([(wx + 2, 18 + cy), (wx + 8, 34 + cy)], fill=STRING_COLOR, width=1)
         draw.line([(wx + 8, 34 + cy), (wx + 2, 50 + cy)], fill=STRING_COLOR, width=1)
 
@@ -121,3 +131,4 @@ def generate_ranger_spritesheet():
 
 if __name__ == "__main__":
     generate_ranger_spritesheet()
+
