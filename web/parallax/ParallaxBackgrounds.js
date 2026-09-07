@@ -73,7 +73,8 @@
   // - spire    : volcanic peak - ember sky + volcano silhouette
   // - chasm    : blizzard canyon - ice peaks + aurora
   // - rootways : world-tree roots - purple canopy + hanging roots
-  // - aethelgard/gatewatch (town hubs): neutral -> null = zero cost
+  // - aethelgard/gatewatch (town hubs): muted dusk/dawn skylines so the
+  //   starting town shows a visible backdrop, not flat fill.
   //
   // Layer fields:
   //   factor : scroll factor (use FAR/MID/NEAR_* constants)
@@ -87,8 +88,36 @@
   //            ridge; otherwise the procedural fallback is used.
   // ------------------------------------------------------------
   var PARALLAX_ZONES = {
-    aethelgard: null,
-    gatewatch: null,
+    aethelgard: {
+      sky: ['#2a3348', '#5a6a8a'],
+      horizonFrac: 0.40,
+      layers: [
+        { factor: FAR_FACTOR,
+          ridge: { color: '#3d4a68', amp: 20, base: 44, seed: 5 },
+          detail: { kind: 'dots', colors: ['#ffd54f', '#ffffff'], count: 6, seed: 6, band: [0.15, 0.6], size: [1, 2], drift: 0.05 } },
+        { factor: MID_FACTOR,
+          ridge: { color: '#2e3a55', amp: 26, base: 30, seed: 7 },
+          detail: { kind: 'cloud', colors: ['rgba(255,255,255,0.5)'], count: 4, seed: 8, band: [0.2, 0.6], size: [14, 28], drift: 0.1 } },
+        { factor: NEAR_FACTOR,
+          ridge: { color: '#232c44', amp: 18, base: 14, seed: 9 },
+          detail: { kind: 'dots', colors: ['#8a9ac0'], count: 6, seed: 10, band: [0.4, 0.9], size: [1, 2], drift: 0.1 } }
+      ]
+    },
+    gatewatch: {
+      sky: ['#4a3a52', '#c08a5a'],
+      horizonFrac: 0.42,
+      layers: [
+        { factor: FAR_FACTOR,
+          ridge: { color: '#5a4258', amp: 24, base: 46, seed: 15 },
+          detail: { kind: 'cloud', colors: ['rgba(255,220,170,0.7)'], count: 5, seed: 16, band: [0.1, 0.55], size: [16, 34], drift: 0.08 } },
+        { factor: MID_FACTOR,
+          ridge: { color: '#463348', amp: 28, base: 30, seed: 17 },
+          detail: { kind: 'dots', colors: ['#ffe0b0'], count: 6, seed: 18, band: [0.3, 0.8], size: [1, 2.2], drift: 0.1 } },
+        { factor: NEAR_FACTOR,
+          ridge: { color: '#332439', amp: 20, base: 14, seed: 19 },
+          detail: { kind: 'dots', colors: ['#d0b090'], count: 8, seed: 20, band: [0.4, 0.95], size: [1, 2.2], drift: 0.12 } }
+      ]
+    },
 
     meadows: {
       sky: ['#7ec8f0', '#e8f6d8'],
@@ -352,7 +381,7 @@
   // Main entry. `state` may be omitted when running inside
   // index.html (falls back to the page globals); pass it
   // explicitly from tests or other hosts.
-  // Returns the number of layer draws (0 = zero cost, no bg).
+  // Returns the number of layer draws (0 = zero cost, unknown zone).
   // ------------------------------------------------------------
   function drawParallax(ctx, canvas, state) {
     var g = (typeof globalThis !== 'undefined') ? globalThis : this;
@@ -366,7 +395,7 @@
     var frame = (state.frameCount != null) ? state.frameCount : (g.frameCount || 0);
 
     var cfg = getParallaxConfig(mapId);
-    if (!cfg || !cfg.layers || !cfg.layers.length) return 0; // town hubs / unknown: zero cost
+    if (!cfg || !cfg.layers || !cfg.layers.length) return 0; // unknown zone: zero cost
 
     var W = canvas.width, H = canvas.height;
     var horizonY = Math.floor(H * (cfg.horizonFrac || 0.44)); // vertical fixed to horizon

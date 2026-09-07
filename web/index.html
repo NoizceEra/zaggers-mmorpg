@@ -2533,7 +2533,13 @@
       spellweaver: { id: 'spellweaver', name: 'Spellweaver', sprite: 'hero_blackmage', baseStats: { str: 5, agi: 8, vit: 8, int: 18, dex: 14, luk: 10 }, hpGrowth: 10, spGrowth: 12, primaryWeapon: 'Archmage Staff', description: 'Master of arcane storm and flame.' },
       shadowblade: { id: 'shadowblade', name: 'Shadowblade', sprite: 'hero_thief', baseStats: { str: 12, agi: 18, vit: 8, int: 6, dex: 14, luk: 12 }, hpGrowth: 12, spGrowth: 5, primaryWeapon: 'Dual Daggers', description: 'Lethal rogue specializing in rapid critical hits.' },
       cleric: { id: 'cleric', name: 'Cleric Priest', sprite: 'hero_whitemage', baseStats: { str: 8, agi: 6, vit: 12, int: 15, dex: 10, luk: 12 }, hpGrowth: 13, spGrowth: 10, primaryWeapon: 'Holy Mace', description: 'Devout guardian granting holy protection and healing.' },
-      ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_redmage', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' }
+      ranger: { id: 'ranger', name: 'Ranger Marksman', sprite: 'hero_redmage', baseStats: { str: 10, agi: 14, vit: 10, int: 8, dex: 18, luk: 10 }, hpGrowth: 14, spGrowth: 6, primaryWeapon: 'Composite Bow', description: 'Precision sniper firing deadly arrows.' },
+      dragoon: { id: 'dragoon', name: 'Dragoon Lancer', sprite: 'hero_dragoon', baseStats: { str: 16, agi: 12, vit: 12, int: 5, dex: 15, luk: 8 }, hpGrowth: 16, spGrowth: 5, primaryWeapon: 'Dragon Lance', description: 'High-flying lancer raining jump strikes.' },
+      monk: { id: 'monk', name: 'Brawler Monk', sprite: 'hero_monk', baseStats: { str: 15, agi: 16, vit: 10, int: 8, dex: 12, luk: 10 }, hpGrowth: 15, spGrowth: 7, primaryWeapon: 'Iron Fists', description: 'Fist-fighting brawler with rapid strikes.' },
+      paladin: { id: 'paladin', name: 'Paladin Templar', sprite: 'hero_paladin', baseStats: { str: 12, agi: 8, vit: 18, int: 12, dex: 10, luk: 10 }, hpGrowth: 20, spGrowth: 6, primaryWeapon: 'Holy Aegis', description: 'Golden holy guardian shielding allies.' },
+      sage: { id: 'sage', name: 'Sage Scholar', sprite: 'hero_sage', baseStats: { str: 6, agi: 10, vit: 10, int: 17, dex: 16, luk: 10 }, hpGrowth: 11, spGrowth: 14, primaryWeapon: 'Spellbook', description: 'Master scholar of elemental magic.' },
+      bard: { id: 'bard', name: 'Bard Minstrel', sprite: 'hero_bard', baseStats: { str: 8, agi: 15, vit: 10, int: 10, dex: 16, luk: 12 }, hpGrowth: 13, spGrowth: 8, primaryWeapon: 'Acoustic Lute', description: 'Charismatic musician buffering allies.' },
+      alchemist: { id: 'alchemist', name: 'Alchemist Smith', sprite: 'hero_alchemist', baseStats: { str: 10, agi: 10, vit: 10, int: 14, dex: 12, luk: 18 }, hpGrowth: 13, spGrowth: 9, primaryWeapon: 'Potion Belt', description: 'Eccentric scientist hurling acid.' }
     };
   }
 
@@ -3850,7 +3856,7 @@
     ctx.fillStyle = '#10141f';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Parallax backdrop (screen-space, per-zone; 0-cost on town hubs).
+    // Parallax backdrop (screen-space, per-zone).
     if (window.ZaggersParallax) {
       ZaggersParallax.drawParallax(ctx, canvas, {
         cameraX, cameraY, cameraAngle, cameraZoom, currentMapId, GFX, frameCount
@@ -3863,11 +3869,18 @@
     const minWy = Math.max(currentMapBounds.minWy, Math.floor(cameraY - 20));
     const maxWy = Math.min(currentMapBounds.maxWy, Math.ceil(cameraY + 20));
 
+    // Horizon clip: tiles above the parallax skyline are skipped so the
+    // backdrop stays visible (otherwise the opaque tile grid paints over it).
+    // Entities/NPCs above the line still draw — correct diorama look.
+    const _parCfg = (window.ZaggersParallax && ZaggersParallax.getParallaxConfig) ? ZaggersParallax.getParallaxConfig(currentMapId) : null;
+    const _horizonPx = _parCfg ? Math.floor(canvas.height * (_parCfg.horizonFrac || 0.44)) : -1;
+
     for (let wy = minWy; wy <= maxWy; wy++) {
       for (let wx = minWx; wx <= maxWx; wx++) {
         const iso = worldToIso(wx, wy);
         // Frustum culling check
         if (iso.x >= -60 && iso.x <= canvas.width + 60 && iso.y >= -60 && iso.y <= canvas.height + 60) {
+          if (_horizonPx >= 0 && iso.y < _horizonPx) continue;
           drawIsoDiamondTile(iso.x, iso.y, (Math.abs(wx + wy)) % 2 === 0, wx, wy);
         }
       }
